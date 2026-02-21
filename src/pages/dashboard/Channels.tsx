@@ -1,7 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { motion } from 'framer-motion';
-import { Instagram, Radio, Trash2, Activity, ExternalLink, Phone, Send, MessageCircle } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  Instagram, Radio, Trash2, Activity, ExternalLink, Phone,
+  Send, MessageCircle, Bot, ArrowRight, X,
+} from 'lucide-react';
 import toast from 'react-hot-toast';
 import { channelsApi } from '../../api/channels.api';
 import Button from '../../components/ui/Button';
@@ -12,25 +16,20 @@ import { useI18n } from '../../store/i18n.store';
 export default function Channels() {
   const { t } = useI18n();
   const qc = useQueryClient();
-
-  // --- Token-based form toggles ---
-  const [showWhatsApp, setShowWhatsApp] = useState(false);
-  const [showTelegram, setShowTelegram] = useState(false);
-  const [showMessenger, setShowMessenger] = useState(false);
-
-  // --- WhatsApp form state ---
-  const [waPhoneNumberId, setWaPhoneNumberId] = useState('');
-  const [waAccessToken, setWaAccessToken] = useState('');
-  const [waBusinessName, setWaBusinessName] = useState('');
+  const [searchParams, setSearchParams] = useSearchParams();
 
   // --- Telegram form state ---
+  const [showTelegram, setShowTelegram] = useState(false);
   const [tgBotToken, setTgBotToken] = useState('');
   const [tgBotName, setTgBotName] = useState('');
 
-  // --- Messenger form state ---
-  const [msPageId, setMsPageId] = useState('');
-  const [msPageAccessToken, setMsPageAccessToken] = useState('');
-  const [msPageName, setMsPageName] = useState('');
+  // --- Messenger page picker state ---
+  const [messengerPages, setMessengerPages] = useState<any[] | null>(null);
+  const [messengerPagesKey, setMessengerPagesKey] = useState<string | null>(null);
+
+  // --- WhatsApp Embedded Signup state ---
+  const wabaRef = useRef<{ wabaId: string; phoneNumberId: string } | null>(null);
+  const waStateRef = useRef<string | null>(null);
 
   // --- Queries ---
   const { data: channels, isLoading } = useQuery({
@@ -38,7 +37,58 @@ export default function Channels() {
     queryFn: channelsApi.list,
   });
 
-  // --- OAuth mutations (existing) ---
+  // --- Handle Messenger OAuth callback (redirect with pages key) ---
+  useEffect(() => {
+    const pagesKey = searchParams.get('messenger_pages');
+    if (pagesKey) {
+      setMessengerPagesKey(pagesKey);
+      channelsApi.getMessengerPages(pagesKey).then((pages) => {
+        setMessengerPages(pages);
+      }).catch(() => {
+        toast.error('Session expired. Please try again.');
+      });
+      // Clean the URL
+      searchParams.delete('messenger_pages');
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, []);
+
+  // --- Handle channel connected callback (Instagram, TikTok) ---
+  useEffect(() => {
+    const connected = searchParams.get('connected');
+    if (connected) {
+      qc.invalidateQueries({ queryKey: ['channels'] });
+      toast.success(`${connected} connected!`);
+      searchParams.delete('connected');
+      searchParams.delete('channelId');
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, []);
+
+  // --- WhatsApp Embedded Signup message listener ---
+  const handleWAMessage = useCallback((event: MessageEvent) => {
+    if (event.origin !== 'https://www.facebook.com' && event.origin !== 'https://web.facebook.com') return;
+    try {
+      const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+      if (data.type === 'WA_EMBEDDED_SIGNUP') {
+        if (data.event === 'FINISH' || data.event === 'FINISH_ONLY_WABA') {
+          wabaRef.current = {
+            wabaId: data.data.waba_id,
+            phoneNumberId: data.data.phone_number_id,
+          };
+        }
+      }
+    } catch {
+      // Ignore non-JSON messages
+    }
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener('message', handleWAMessage);
+    return () => window.removeEventListener('message', handleWAMessage);
+  }, [handleWAMessage]);
+
+  // --- OAuth mutations ---
   const igMut = useMutation({
     mutationFn: channelsApi.connectInstagram,
     onSuccess: (data) => {
@@ -57,43 +107,96 @@ export default function Channels() {
     onError: (e: any) => toast.error(e?.response?.data?.error ?? 'Failed'),
   });
 
-  // --- Token-based mutations (new) ---
+  // --- WhatsApp Embedded Signup ---
   const waMut = useMutation({
     mutationFn: channelsApi.connectWhatsApp,
+    onSuccess: (config: { appId: string; configId: string; state: string }) => {
+      waStateRef.current = config.state;
+      wabaRef.current = null;
+
+      // Initialize FB SDK if not done yet
+      if (!window.FB) {
+        window.fbAsyncInit = () => {
+          window.FB!.init({ appId: config.appId, cookie: true, xfbml: true, version: 'v21.0' });
+          launchWALogin(config);
+        };
+      } else {
+        launchWALogin(config);
+      }
+    },
+    onError: (e: any) => toast.error(e?.response?.data?.error ?? 'Failed'),
+  });
+
+  const waCallbackMut = useMutation({
+    mutationFn: channelsApi.whatsappCallback,
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['channels'] });
-      toast.success('WhatsApp connected successfully!');
-      setShowWhatsApp(false);
-      setWaPhoneNumberId('');
-      setWaAccessToken('');
-      setWaBusinessName('');
+      toast.success('WhatsApp connected!');
     },
     onError: (e: any) => toast.error(e?.response?.data?.error ?? 'Failed to connect WhatsApp'),
   });
 
+  const launchWALogin = (config: { appId: string; configId: string; state: string }) => {
+    window.FB!.login(
+      (response) => {
+        if (response.status === 'connected' && response.authResponse?.code) {
+          const code = response.authResponse.code;
+          // Wait briefly for the WA_EMBEDDED_SIGNUP message to arrive
+          setTimeout(() => {
+            if (wabaRef.current) {
+              waCallbackMut.mutate({
+                code,
+                wabaId: wabaRef.current.wabaId,
+                phoneNumberId: wabaRef.current.phoneNumberId,
+                state: config.state,
+              });
+            } else {
+              toast.error('Could not get WhatsApp account info. Please try again.');
+            }
+          }, 500);
+        }
+      },
+      {
+        config_id: config.configId,
+        response_type: 'code',
+        override_default_response_type: true,
+      },
+    );
+  };
+
+  // --- Messenger OAuth ---
+  const msMut = useMutation({
+    mutationFn: channelsApi.connectMessenger,
+    onSuccess: (data: { url: string }) => {
+      window.open(data.url, '_blank', 'width=600,height=700');
+      toast.success('Messenger OAuth window opened.');
+    },
+    onError: (e: any) => toast.error(e?.response?.data?.error ?? 'Failed'),
+  });
+
+  // --- Messenger page selection ---
+  const msSelectMut = useMutation({
+    mutationFn: channelsApi.messengerSelectPage,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['channels'] });
+      toast.success('Messenger connected!');
+      setMessengerPages(null);
+      setMessengerPagesKey(null);
+    },
+    onError: (e: any) => toast.error(e?.response?.data?.error ?? 'Failed to connect page'),
+  });
+
+  // --- Telegram (token-based + auto webhook) ---
   const tgMut = useMutation({
     mutationFn: channelsApi.connectTelegram,
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['channels'] });
-      toast.success('Telegram connected successfully!');
+      toast.success('Telegram connected!');
       setShowTelegram(false);
       setTgBotToken('');
       setTgBotName('');
     },
     onError: (e: any) => toast.error(e?.response?.data?.error ?? 'Failed to connect Telegram'),
-  });
-
-  const msMut = useMutation({
-    mutationFn: channelsApi.connectMessenger,
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['channels'] });
-      toast.success('Messenger connected successfully!');
-      setShowMessenger(false);
-      setMsPageId('');
-      setMsPageAccessToken('');
-      setMsPageName('');
-    },
-    onError: (e: any) => toast.error(e?.response?.data?.error ?? 'Failed to connect Messenger'),
   });
 
   // --- Utility mutations ---
@@ -107,7 +210,7 @@ export default function Channels() {
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['channels'] }); toast.success('Channel disconnected'); },
   });
 
-  // --- Channel icon helper for connected list ---
+  // --- Channel icon helper ---
   const channelIcon = (type: string) => {
     switch (type) {
       case 'INSTAGRAM':
@@ -151,7 +254,6 @@ export default function Channels() {
     }
   };
 
-  // --- Shared input class ---
   const inputClass =
     'w-full rounded-lg border border-b-border bg-transparent px-3 py-2 text-sm text-foreground placeholder:text-dim focus:outline-none focus:ring-1 focus:ring-primary/50';
 
@@ -164,7 +266,7 @@ export default function Channels() {
 
       {/* Connect cards */}
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-        {/* Instagram */}
+        {/* Instagram — OAuth */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -197,7 +299,7 @@ export default function Channels() {
           </Button>
         </motion.div>
 
-        {/* TikTok */}
+        {/* TikTok — OAuth */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -233,7 +335,7 @@ export default function Channels() {
           </Button>
         </motion.div>
 
-        {/* WhatsApp */}
+        {/* WhatsApp — Embedded Signup (one-click) */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -246,83 +348,32 @@ export default function Channels() {
             </div>
             <div>
               <h3 className="font-semibold text-foreground">WhatsApp</h3>
-              <p className="text-xs text-muted">Connect via WhatsApp Cloud API</p>
+              <p className="text-xs text-muted">{t('whatsappDesc') ?? 'Connect via Meta Embedded Signup'}</p>
             </div>
           </div>
           <ul className="space-y-1.5 mb-5">
-            {['WhatsApp Cloud API', 'Send & receive messages', 'Business verified'].map((f) => (
+            {[
+              t('waFeature1') ?? 'One-click Meta signup',
+              t('waFeature2') ?? 'WhatsApp Cloud API',
+              t('waFeature3') ?? 'Auto webhook registration',
+            ].map((f) => (
               <li key={f} className="flex items-center gap-2 text-sm text-muted">
                 <div className="w-1 h-1 rounded-full bg-emerald-400" />
                 {f}
               </li>
             ))}
           </ul>
-
-          {!showWhatsApp ? (
-            <Button
-              onClick={() => setShowWhatsApp(true)}
-              className="w-full justify-center bg-gradient-to-r from-emerald-500 to-green-600 hover:opacity-90 shadow-emerald-500/20"
-              icon={<Phone className="w-4 h-4" />}
-            >
-              {t('connectWhatsapp')}
-            </Button>
-          ) : (
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                if (!waPhoneNumberId.trim() || !waAccessToken.trim()) return;
-                waMut.mutate({
-                  phoneNumberId: waPhoneNumberId.trim(),
-                  accessToken: waAccessToken.trim(),
-                  ...(waBusinessName.trim() ? { businessName: waBusinessName.trim() } : {}),
-                });
-              }}
-              className="space-y-3"
-            >
-              <input
-                type="text"
-                placeholder="Phone Number ID *"
-                value={waPhoneNumberId}
-                onChange={(e) => setWaPhoneNumberId(e.target.value)}
-                required
-                className={inputClass}
-              />
-              <input
-                type="text"
-                placeholder="Access Token *"
-                value={waAccessToken}
-                onChange={(e) => setWaAccessToken(e.target.value)}
-                required
-                className={inputClass}
-              />
-              <input
-                type="text"
-                placeholder="Business Name (optional)"
-                value={waBusinessName}
-                onChange={(e) => setWaBusinessName(e.target.value)}
-                className={inputClass}
-              />
-              <div className="flex gap-2">
-                <Button
-                  type="submit"
-                  loading={waMut.isPending}
-                  className="flex-1 justify-center bg-gradient-to-r from-emerald-500 to-green-600 hover:opacity-90"
-                >
-                  {t('connectWhatsapp')}
-                </Button>
-                <button
-                  type="button"
-                  onClick={() => setShowWhatsApp(false)}
-                  className="px-3 py-2 text-sm text-muted hover:text-foreground transition-colors"
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
-          )}
+          <Button
+            onClick={() => waMut.mutate()}
+            loading={waMut.isPending || waCallbackMut.isPending}
+            className="w-full justify-center bg-gradient-to-r from-emerald-500 to-green-600 hover:opacity-90 shadow-emerald-500/20"
+            icon={<ExternalLink className="w-4 h-4" />}
+          >
+            {t('connectWhatsapp')}
+          </Button>
         </motion.div>
 
-        {/* Telegram */}
+        {/* Telegram — Token with BotFather guide */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -335,74 +386,108 @@ export default function Channels() {
             </div>
             <div>
               <h3 className="font-semibold text-foreground">Telegram</h3>
-              <p className="text-xs text-muted">Connect your Telegram bot</p>
+              <p className="text-xs text-muted">{t('telegramDesc') ?? 'Connect your Telegram bot'}</p>
             </div>
           </div>
-          <ul className="space-y-1.5 mb-5">
-            {['Telegram Bot API', 'Instant message delivery', 'No phone number needed'].map((f) => (
-              <li key={f} className="flex items-center gap-2 text-sm text-muted">
-                <div className="w-1 h-1 rounded-full bg-blue-400" />
-                {f}
-              </li>
-            ))}
-          </ul>
 
           {!showTelegram ? (
-            <Button
-              onClick={() => setShowTelegram(true)}
-              className="w-full justify-center bg-gradient-to-r from-blue-400 to-indigo-600 hover:opacity-90 shadow-blue-500/20"
-              icon={<Send className="w-4 h-4" />}
-            >
-              {t('connectTelegram')}
-            </Button>
+            <>
+              <ul className="space-y-1.5 mb-5">
+                {[
+                  t('tgFeature1') ?? 'Telegram Bot API',
+                  t('tgFeature2') ?? 'Instant message delivery',
+                  t('tgFeature3') ?? 'Auto webhook setup',
+                ].map((f) => (
+                  <li key={f} className="flex items-center gap-2 text-sm text-muted">
+                    <div className="w-1 h-1 rounded-full bg-blue-400" />
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              <Button
+                onClick={() => setShowTelegram(true)}
+                className="w-full justify-center bg-gradient-to-r from-blue-400 to-indigo-600 hover:opacity-90 shadow-blue-500/20"
+                icon={<Bot className="w-4 h-4" />}
+              >
+                {t('connectTelegram')}
+              </Button>
+            </>
           ) : (
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                if (!tgBotToken.trim()) return;
-                tgMut.mutate({
-                  botToken: tgBotToken.trim(),
-                  ...(tgBotName.trim() ? { botName: tgBotName.trim() } : {}),
-                });
-              }}
-              className="space-y-3"
-            >
-              <input
-                type="text"
-                placeholder="Bot Token *"
-                value={tgBotToken}
-                onChange={(e) => setTgBotToken(e.target.value)}
-                required
-                className={inputClass}
-              />
-              <input
-                type="text"
-                placeholder="Bot Name (optional)"
-                value={tgBotName}
-                onChange={(e) => setTgBotName(e.target.value)}
-                className={inputClass}
-              />
-              <div className="flex gap-2">
-                <Button
-                  type="submit"
-                  loading={tgMut.isPending}
-                  className="flex-1 justify-center bg-gradient-to-r from-blue-400 to-indigo-600 hover:opacity-90"
-                >
-                  {t('connectTelegram')}
-                </Button>
-                <button
-                  type="button"
-                  onClick={() => setShowTelegram(false)}
-                  className="px-3 py-2 text-sm text-muted hover:text-foreground transition-colors"
-                >
-                  Cancel
-                </button>
+            <div className="space-y-4">
+              {/* Step-by-step guide */}
+              <div className="space-y-2.5">
+                <div className="flex items-start gap-3">
+                  <div className="w-5 h-5 rounded-full bg-blue-500/10 text-blue-500 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">1</div>
+                  <div className="text-sm text-muted">
+                    <a
+                      href="https://t.me/BotFather"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-500 hover:underline font-medium"
+                    >
+                      {t('telegramStep1') ?? 'Open @BotFather on Telegram'}
+                    </a>
+                    <ArrowRight className="w-3 h-3 inline ml-1" />
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-5 h-5 rounded-full bg-blue-500/10 text-blue-500 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">2</div>
+                  <p className="text-sm text-muted">{t('telegramStep2') ?? 'Send /newbot and follow the instructions'}</p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-5 h-5 rounded-full bg-blue-500/10 text-blue-500 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">3</div>
+                  <p className="text-sm text-muted">{t('telegramStep3') ?? 'Paste the bot token below'}</p>
+                </div>
               </div>
-            </form>
+
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (!tgBotToken.trim()) return;
+                  tgMut.mutate({
+                    botToken: tgBotToken.trim(),
+                    ...(tgBotName.trim() ? { botName: tgBotName.trim() } : {}),
+                  });
+                }}
+                className="space-y-3"
+              >
+                <input
+                  type="text"
+                  placeholder={t('botTokenPlaceholder') ?? 'Bot Token *'}
+                  value={tgBotToken}
+                  onChange={(e) => setTgBotToken(e.target.value)}
+                  required
+                  className={inputClass}
+                />
+                <input
+                  type="text"
+                  placeholder={t('botNamePlaceholder') ?? 'Bot Name (optional)'}
+                  value={tgBotName}
+                  onChange={(e) => setTgBotName(e.target.value)}
+                  className={inputClass}
+                />
+                <div className="flex gap-2">
+                  <Button
+                    type="submit"
+                    loading={tgMut.isPending}
+                    className="flex-1 justify-center bg-gradient-to-r from-blue-400 to-indigo-600 hover:opacity-90"
+                  >
+                    {t('connectTelegram')}
+                  </Button>
+                  <button
+                    type="button"
+                    onClick={() => setShowTelegram(false)}
+                    className="px-3 py-2 text-sm text-muted hover:text-foreground transition-colors"
+                  >
+                    {t('cancel')}
+                  </button>
+                </div>
+              </form>
+            </div>
           )}
         </motion.div>
 
-        {/* Messenger */}
+        {/* Messenger — OAuth (one-click) */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -415,82 +500,93 @@ export default function Channels() {
             </div>
             <div>
               <h3 className="font-semibold text-foreground">Messenger</h3>
-              <p className="text-xs text-muted">Connect your Facebook Page</p>
+              <p className="text-xs text-muted">{t('messengerDesc') ?? 'Connect your Facebook Page'}</p>
             </div>
           </div>
           <ul className="space-y-1.5 mb-5">
-            {['Facebook Messenger', 'Page messaging', 'Meta Business Suite'].map((f) => (
+            {[
+              t('msFeature1') ?? 'One-click Facebook login',
+              t('msFeature2') ?? 'Page messaging',
+              t('msFeature3') ?? 'Auto webhook subscription',
+            ].map((f) => (
               <li key={f} className="flex items-center gap-2 text-sm text-muted">
                 <div className="w-1 h-1 rounded-full bg-purple-400" />
                 {f}
               </li>
             ))}
           </ul>
-
-          {!showMessenger ? (
-            <Button
-              onClick={() => setShowMessenger(true)}
-              className="w-full justify-center bg-gradient-to-r from-blue-500 to-purple-600 hover:opacity-90 shadow-purple-500/20"
-              icon={<MessageCircle className="w-4 h-4" />}
-            >
-              {t('connectMessenger')}
-            </Button>
-          ) : (
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                if (!msPageId.trim() || !msPageAccessToken.trim()) return;
-                msMut.mutate({
-                  pageId: msPageId.trim(),
-                  pageAccessToken: msPageAccessToken.trim(),
-                  ...(msPageName.trim() ? { pageName: msPageName.trim() } : {}),
-                });
-              }}
-              className="space-y-3"
-            >
-              <input
-                type="text"
-                placeholder="Page ID *"
-                value={msPageId}
-                onChange={(e) => setMsPageId(e.target.value)}
-                required
-                className={inputClass}
-              />
-              <input
-                type="text"
-                placeholder="Page Access Token *"
-                value={msPageAccessToken}
-                onChange={(e) => setMsPageAccessToken(e.target.value)}
-                required
-                className={inputClass}
-              />
-              <input
-                type="text"
-                placeholder="Page Name (optional)"
-                value={msPageName}
-                onChange={(e) => setMsPageName(e.target.value)}
-                className={inputClass}
-              />
-              <div className="flex gap-2">
-                <Button
-                  type="submit"
-                  loading={msMut.isPending}
-                  className="flex-1 justify-center bg-gradient-to-r from-blue-500 to-purple-600 hover:opacity-90"
-                >
-                  {t('connectMessenger')}
-                </Button>
-                <button
-                  type="button"
-                  onClick={() => setShowMessenger(false)}
-                  className="px-3 py-2 text-sm text-muted hover:text-foreground transition-colors"
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
-          )}
+          <Button
+            onClick={() => msMut.mutate()}
+            loading={msMut.isPending}
+            className="w-full justify-center bg-gradient-to-r from-blue-500 to-purple-600 hover:opacity-90 shadow-purple-500/20"
+            icon={<ExternalLink className="w-4 h-4" />}
+          >
+            {t('connectMessenger')}
+          </Button>
         </motion.div>
       </div>
+
+      {/* Messenger Page Picker Modal */}
+      <AnimatePresence>
+        {messengerPages && messengerPages.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="glass-card rounded-2xl border border-b-border shadow-2xl max-w-md w-full max-h-[80vh] overflow-hidden"
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between px-6 py-4 border-b border-b-border">
+                <div>
+                  <h3 className="text-lg font-semibold text-foreground">{t('selectPage') ?? 'Select a Page'}</h3>
+                  <p className="text-xs text-muted mt-0.5">{t('selectPageDesc') ?? 'Choose which Facebook Page to connect'}</p>
+                </div>
+                <button
+                  onClick={() => { setMessengerPages(null); setMessengerPagesKey(null); }}
+                  className="p-1.5 text-dim hover:text-foreground transition-colors rounded-lg hover:bg-surface"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Page list */}
+              <div className="p-4 space-y-2 overflow-y-auto max-h-[60vh]">
+                {messengerPages.map((page: any) => (
+                  <button
+                    key={page.id}
+                    onClick={() => {
+                      if (messengerPagesKey) {
+                        msSelectMut.mutate({ pagesKey: messengerPagesKey, pageId: page.id });
+                      }
+                    }}
+                    disabled={msSelectMut.isPending}
+                    className="w-full flex items-center gap-3 p-3 rounded-xl border border-b-border hover:border-purple-500/30 hover:bg-purple-500/5 transition-all text-left"
+                  >
+                    {page.picture ? (
+                      <img src={page.picture} alt="" className="w-10 h-10 rounded-xl object-cover" />
+                    ) : (
+                      <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center">
+                        <MessageCircle className="w-5 h-5 text-purple-500" />
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium text-foreground text-sm truncate">{page.name}</div>
+                      <div className="text-xs text-dim">ID: {page.id}</div>
+                    </div>
+                    <ArrowRight className="w-4 h-4 text-purple-500" />
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Connected channels list */}
       <div>
@@ -518,7 +614,7 @@ export default function Channels() {
               >
                 {channelIcon(ch.type)}
                 <div className="flex-1 min-w-0">
-                  <div className="font-medium text-foreground text-sm">{ch.username ?? ch.externalId}</div>
+                  <div className="font-medium text-foreground text-sm">{ch.externalName ?? ch.externalId}</div>
                   <div className="text-xs text-muted mt-0.5">{ch.type}</div>
                 </div>
                 {statusBadge(ch.status)}
