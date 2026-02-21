@@ -24,8 +24,8 @@ export default function Metrics() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-bold text-white">System Metrics</h1>
-        <p className="text-white/40 text-sm mt-1">Real-time platform overview · auto-refreshes every 30s</p>
+        <h1 className="text-2xl font-bold text-foreground">System Metrics</h1>
+        <p className="text-muted text-sm mt-1">Real-time platform overview · auto-refreshes every 30s</p>
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -39,9 +39,9 @@ export default function Metrics() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
-        className="glass-card rounded-2xl p-6 border border-white/5"
+        className="glass-card rounded-2xl p-6 border border-b-border"
       >
-        <h2 className="text-sm font-semibold text-white/50 uppercase tracking-wider mb-5">
+        <h2 className="text-sm font-semibold text-muted uppercase tracking-wider mb-5">
           System Status
         </h2>
         <div className="grid md:grid-cols-3 gap-4">
@@ -52,12 +52,12 @@ export default function Metrics() {
           ].map((s) => (
             <div
               key={s.name}
-              className="flex items-center gap-3 p-4 rounded-xl bg-white/3 border border-white/5"
+              className="flex items-center gap-3 p-4 rounded-xl bg-surface border border-b-border"
             >
-              <div className="text-emerald-400">{s.icon}</div>
+              <div className="text-emerald-500">{s.icon}</div>
               <div className="flex-1">
-                <div className="text-sm text-white/70">{s.name}</div>
-                <div className="text-xs text-white/30 capitalize">{s.status}</div>
+                <div className="text-sm text-fg-secondary">{s.name}</div>
+                <div className="text-xs text-muted capitalize">{s.status}</div>
               </div>
               <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             </div>

@@ -1,6 +1,10 @@
+import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { useAuthStore } from './store/auth.store';
+import { useThemeStore } from './store/theme.store';
+import { useI18n } from './store/i18n.store';
+import { LOCALE_META } from './i18n/translations';
 
 import Landing from './pages/Landing';
 import Login from './pages/Login';
@@ -33,15 +37,37 @@ function AdminRoute({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
+  const theme = useThemeStore((s) => s.theme);
+  const locale = useI18n((s) => s.locale);
+
+  // Apply theme class on mount and change
+  useEffect(() => {
+    const root = document.documentElement;
+    if (theme === 'dark') {
+      root.classList.add('dark');
+      root.classList.remove('light');
+    } else {
+      root.classList.add('light');
+      root.classList.remove('dark');
+    }
+  }, [theme]);
+
+  // Apply locale dir on mount and change
+  useEffect(() => {
+    const { dir } = LOCALE_META[locale];
+    document.documentElement.dir = dir;
+    document.documentElement.lang = locale;
+  }, [locale]);
+
   return (
     <BrowserRouter>
       <Toaster
         position="top-right"
         toastOptions={{
           style: {
-            background: '#111827',
-            color: '#fff',
-            border: '1px solid rgba(255,255,255,0.08)',
+            background: 'var(--color-card)',
+            color: 'var(--color-foreground)',
+            border: '1px solid var(--color-border)',
           },
           success: { iconTheme: { primary: '#3b82f6', secondary: '#fff' } },
           error: { iconTheme: { primary: '#ef4444', secondary: '#fff' } },

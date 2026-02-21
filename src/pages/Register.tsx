@@ -27,7 +27,7 @@ export default function Register() {
     try {
       const data = await authApi.register(form);
       setAuth(data.accessToken, data.refreshToken);
-      toast.success('Account created! Welcome to Booklio 🎉');
+      toast.success('Account created! Welcome to Booklio');
       navigate('/dashboard');
     } catch (err: any) {
       const msg = err?.response?.data?.error;
@@ -38,7 +38,7 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0f1e] flex items-center justify-center px-4 py-12">
+    <div className="min-h-screen bg-base flex items-center justify-center px-4 py-12 transition-colors duration-200">
       {/* Background blobs */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute -top-40 -right-40 w-96 h-96 bg-violet-500 rounded-full blur-[130px] opacity-10" />
@@ -62,63 +62,34 @@ export default function Register() {
         </div>
 
         {/* Card */}
-        <div className="glass-card rounded-3xl p-8 border border-white/5">
-          <h1 className="text-2xl font-bold text-white mb-1">Create your account</h1>
-          <p className="text-white/40 text-sm mb-8">Free forever. No credit card needed.</p>
+        <div className="glass-card rounded-3xl p-8 border border-b-border">
+          <h1 className="text-2xl font-bold text-foreground mb-1">Create your account</h1>
+          <p className="text-muted text-sm mb-8">Free forever. No credit card needed.</p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Name row */}
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-sm text-white/50 mb-2">First name</label>
-                <input
-                  required
-                  value={form.firstName}
-                  onChange={(e) => set('firstName', e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 focus:outline-none focus:border-blue-500/50 transition-all text-sm"
-                  placeholder="Ali"
-                />
+                <label className="block text-sm text-muted mb-2">First name</label>
+                <input required value={form.firstName} onChange={(e) => set('firstName', e.target.value)} className="input-base !py-3" placeholder="Ali" />
               </div>
               <div>
-                <label className="block text-sm text-white/50 mb-2">Last name</label>
-                <input
-                  required
-                  value={form.lastName}
-                  onChange={(e) => set('lastName', e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 focus:outline-none focus:border-blue-500/50 transition-all text-sm"
-                  placeholder="Hassan"
-                />
+                <label className="block text-sm text-muted mb-2">Last name</label>
+                <input required value={form.lastName} onChange={(e) => set('lastName', e.target.value)} className="input-base !py-3" placeholder="Hassan" />
               </div>
             </div>
 
-            {/* Business name */}
             <div>
-              <label className="block text-sm text-white/50 mb-2">Business name</label>
-              <input
-                required
-                value={form.businessName}
-                onChange={(e) => set('businessName', e.target.value)}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 focus:outline-none focus:border-blue-500/50 transition-all"
-                placeholder="Ali's Barbershop"
-              />
+              <label className="block text-sm text-muted mb-2">Business name</label>
+              <input required value={form.businessName} onChange={(e) => set('businessName', e.target.value)} className="input-base !py-3" placeholder="Ali's Barbershop" />
             </div>
 
-            {/* Email */}
             <div>
-              <label className="block text-sm text-white/50 mb-2">Email</label>
-              <input
-                type="email"
-                required
-                value={form.email}
-                onChange={(e) => set('email', e.target.value)}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 focus:outline-none focus:border-blue-500/50 transition-all"
-                placeholder="ali@barbershop.com"
-              />
+              <label className="block text-sm text-muted mb-2">Email</label>
+              <input type="email" required value={form.email} onChange={(e) => set('email', e.target.value)} className="input-base !py-3" placeholder="ali@barbershop.com" />
             </div>
 
-            {/* Password */}
             <div>
-              <label className="block text-sm text-white/50 mb-2">Password</label>
+              <label className="block text-sm text-muted mb-2">Password</label>
               <div className="relative">
                 <input
                   type={show ? 'text' : 'password'}
@@ -126,20 +97,19 @@ export default function Register() {
                   minLength={8}
                   value={form.password}
                   onChange={(e) => set('password', e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 pr-12 text-white placeholder-white/20 focus:outline-none focus:border-blue-500/50 transition-all"
+                  className="input-base !py-3 !pr-12"
                   placeholder="Min. 8 characters"
                 />
                 <button
                   type="button"
                   onClick={() => setShow(!show)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-dim hover:text-muted transition-colors"
                 >
                   {show ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
             </div>
 
-            {/* Submit */}
             <motion.button
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.99 }}
@@ -158,15 +128,15 @@ export default function Register() {
             </motion.button>
           </form>
 
-          <p className="text-center text-xs text-white/20 mt-5">
+          <p className="text-center text-xs text-dim mt-5">
             By registering you agree to our{' '}
-            <a href="#" className="text-white/40 hover:text-white/60">Terms</a>
+            <a href="#" className="text-muted hover:text-fg-secondary">Terms</a>
             {' '}and{' '}
-            <a href="#" className="text-white/40 hover:text-white/60">Privacy Policy</a>
+            <a href="#" className="text-muted hover:text-fg-secondary">Privacy Policy</a>
           </p>
-          <p className="text-center text-sm text-white/30 mt-4">
+          <p className="text-center text-sm text-dim mt-4">
             Already have an account?{' '}
-            <Link to="/login" className="text-blue-400 hover:text-blue-300 transition-colors">
+            <Link to="/login" className="text-blue-500 hover:text-blue-400 transition-colors">
               Sign in
             </Link>
           </p>

@@ -20,7 +20,6 @@ export default function Login() {
       const data = await authApi.login(form);
       setAuth(data.accessToken, data.refreshToken);
       toast.success('Welcome back!');
-      // Redirect based on role
       const user = useAuthStore.getState().user;
       navigate(user?.role === 'SUPER_ADMIN' ? '/admin' : '/dashboard');
     } catch (err: any) {
@@ -31,7 +30,7 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0f1e] flex items-center justify-center px-4">
+    <div className="min-h-screen bg-base flex items-center justify-center px-4 transition-colors duration-200">
       {/* Background blobs */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute -top-40 -left-40 w-80 h-80 bg-blue-500 rounded-full blur-[120px] opacity-10" />
@@ -55,40 +54,38 @@ export default function Login() {
         </div>
 
         {/* Card */}
-        <div className="glass-card rounded-3xl p-8 border border-white/5">
-          <h1 className="text-2xl font-bold text-white mb-1">Welcome back</h1>
-          <p className="text-white/40 text-sm mb-8">Sign in to your account</p>
+        <div className="glass-card rounded-3xl p-8 border border-b-border">
+          <h1 className="text-2xl font-bold text-foreground mb-1">Welcome back</h1>
+          <p className="text-muted text-sm mb-8">Sign in to your account</p>
 
           <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Email */}
             <div>
-              <label className="block text-sm text-white/50 mb-2">Email</label>
+              <label className="block text-sm text-muted mb-2">Email</label>
               <input
                 type="email"
                 required
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 focus:outline-none focus:border-blue-500/50 focus:bg-white/8 transition-all"
+                className="input-base !py-3"
                 placeholder="you@business.com"
               />
             </div>
 
-            {/* Password */}
             <div>
-              <label className="block text-sm text-white/50 mb-2">Password</label>
+              <label className="block text-sm text-muted mb-2">Password</label>
               <div className="relative">
                 <input
                   type={show ? 'text' : 'password'}
                   required
                   value={form.password}
                   onChange={(e) => setForm({ ...form, password: e.target.value })}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 pr-12 text-white placeholder-white/20 focus:outline-none focus:border-blue-500/50 transition-all"
+                  className="input-base !py-3 !pr-12"
                   placeholder="••••••••"
                 />
                 <button
                   type="button"
                   onClick={() => setShow(!show)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-dim hover:text-muted transition-colors"
                 >
                   {show ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -96,13 +93,12 @@ export default function Login() {
             </div>
 
             {/* Demo credentials */}
-            <div className="p-3 rounded-xl bg-blue-500/5 border border-blue-500/10 text-xs text-white/40">
-              <div className="font-semibold text-white/60 mb-1">Demo credentials:</div>
-              <div>Tenant: <span className="text-blue-400">demo@booklio.dev</span> / <span className="text-blue-400">Demo@12345</span></div>
-              <div>Admin: <span className="text-violet-400">super@booklio.dev</span> / <span className="text-violet-400">SuperAdmin@123</span></div>
+            <div className="p-3 rounded-xl bg-blue-500/5 border border-blue-500/10 text-xs text-muted">
+              <div className="font-semibold text-fg-secondary mb-1">Demo credentials:</div>
+              <div>Tenant: <span className="text-blue-500">demo@booklio.dev</span> / <span className="text-blue-500">Demo@12345</span></div>
+              <div>Admin: <span className="text-violet-500">super@booklio.dev</span> / <span className="text-violet-500">SuperAdmin@123</span></div>
             </div>
 
-            {/* Submit */}
             <motion.button
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.99 }}
@@ -121,9 +117,9 @@ export default function Login() {
             </motion.button>
           </form>
 
-          <p className="text-center text-sm text-white/30 mt-6">
+          <p className="text-center text-sm text-dim mt-6">
             Don't have an account?{' '}
-            <Link to="/register" className="text-blue-400 hover:text-blue-300 transition-colors">
+            <Link to="/register" className="text-blue-500 hover:text-blue-400 transition-colors">
               Create one free
             </Link>
           </p>

@@ -9,12 +9,13 @@ import {
 import { aiSettingsApi } from '../../api/ai-settings.api';
 import Spinner from '../../components/ui/Spinner';
 import toast from 'react-hot-toast';
+import { useI18n } from '../../store/i18n.store';
 
 const TONES = [
-  { value: 'friendly', label: 'Friendly', desc: 'Warm, conversational, uses emojis', icon: '😊' },
-  { value: 'professional', label: 'Professional', desc: 'Formal, concise, business-like', icon: '💼' },
-  { value: 'casual', label: 'Casual', desc: 'Relaxed, informal, fun', icon: '✌️' },
-];
+  { value: 'friendly', icon: '😊' },
+  { value: 'professional', icon: '💼' },
+  { value: 'casual', icon: '✌️' },
+] as const;
 
 const LANGUAGES = [
   { value: 'auto', label: 'Auto-detect' },
@@ -26,18 +27,25 @@ const LANGUAGES = [
   { value: 'tr', label: 'Türkçe' },
 ];
 
-const GOALS = [
-  { id: 'maximize_bookings', label: 'Maximize bookings', icon: <Zap className="w-4 h-4" /> },
-  { id: 'upsell_services', label: 'Upsell services', icon: <ShoppingCart className="w-4 h-4" /> },
-  { id: 'collect_contacts', label: 'Collect contacts', icon: <UserPlus className="w-4 h-4" /> },
-  { id: 'answer_faqs', label: 'Answer FAQs', icon: <HelpCircle className="w-4 h-4" /> },
-];
-
 export default function AiSettings() {
+  const { t } = useI18n();
   const queryClient = useQueryClient();
   const [newFaqQ, setNewFaqQ] = useState('');
   const [newFaqA, setNewFaqA] = useState('');
   const [showAdvanced, setShowAdvanced] = useState(false);
+
+  const GOALS = [
+    { id: 'maximize_bookings', label: t('goalBookings'), icon: <Zap className="w-4 h-4" /> },
+    { id: 'upsell_services', label: t('goalUpsell'), icon: <ShoppingCart className="w-4 h-4" /> },
+    { id: 'collect_contacts', label: t('goalContacts'), icon: <UserPlus className="w-4 h-4" /> },
+    { id: 'answer_faqs', label: t('goalFaqs'), icon: <HelpCircle className="w-4 h-4" /> },
+  ];
+
+  const TONE_MAP: Record<string, { label: string; desc: string }> = {
+    friendly: { label: t('toneFriendly'), desc: t('toneFriendlyDesc') },
+    professional: { label: t('toneProfessional'), desc: t('toneProfessionalDesc') },
+    casual: { label: t('toneCasual'), desc: t('toneCasualDesc') },
+  };
 
   const { data: settings, isLoading } = useQuery({
     queryKey: ['ai-settings'],
@@ -46,34 +54,22 @@ export default function AiSettings() {
 
   const updateMutation = useMutation({
     mutationFn: aiSettingsApi.update,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['ai-settings'] });
-      toast.success('Settings saved');
-    },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['ai-settings'] }); toast.success(t('settingsSaved')); },
     onError: () => toast.error('Failed to save'),
   });
 
   const addFaqMutation = useMutation({
     mutationFn: ({ q, a }: { q: string; a: string }) => aiSettingsApi.addFaq(q, a),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['ai-settings'] });
-      setNewFaqQ('');
-      setNewFaqA('');
-      toast.success('FAQ added');
-    },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['ai-settings'] }); setNewFaqQ(''); setNewFaqA(''); toast.success(t('faqAdded')); },
   });
 
   const removeFaqMutation = useMutation({
     mutationFn: (index: number) => aiSettingsApi.removeFaq(index),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['ai-settings'] });
-      toast.success('FAQ removed');
-    },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['ai-settings'] }); toast.success(t('faqRemoved')); },
   });
 
   const [form, setForm] = useState<any>(null);
 
-  // Initialize form when settings load
   if (settings && !form) {
     setForm({
       businessDesc: settings.businessDesc ?? '',
@@ -93,15 +89,12 @@ export default function AiSettings() {
 
   const faqEntries = (settings?.faqEntries ?? []) as { question: string; answer: string }[];
 
-  const handleSave = () => {
-    updateMutation.mutate(form);
-  };
+  const handleSave = () => updateMutation.mutate(form);
 
   const toggleGoal = (goalId: string) => {
     const goals = [...(form.engagementGoals ?? [])];
     const idx = goals.indexOf(goalId);
-    if (idx >= 0) goals.splice(idx, 1);
-    else goals.push(goalId);
+    if (idx >= 0) goals.splice(idx, 1); else goals.push(goalId);
     setForm({ ...form, engagementGoals: goals });
   };
 
@@ -110,11 +103,11 @@ export default function AiSettings() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-            <Brain className="w-6 h-6 text-violet-400" />
-            AI Settings
+          <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
+            <Brain className="w-6 h-6 text-violet-500" />
+            {t('aiSettingsTitle')}
           </h1>
-          <p className="text-sm text-white/40 mt-1">Configure how AI responds to your customers via DM</p>
+          <p className="text-sm text-muted mt-1">{t('aiSettingsDesc')}</p>
         </div>
         <button
           onClick={handleSave}
@@ -122,79 +115,51 @@ export default function AiSettings() {
           className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-500 to-violet-600 text-white font-medium text-sm hover:opacity-90 transition-opacity disabled:opacity-50"
         >
           <Save className="w-4 h-4" />
-          {updateMutation.isPending ? 'Saving...' : 'Save Settings'}
+          {updateMutation.isPending ? t('saving') : t('saveSettings')}
         </button>
       </div>
 
       {/* Auto-Reply Toggle */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="glass-card rounded-2xl p-5 border border-white/5"
-      >
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="glass-card rounded-2xl p-5 border border-b-border">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-              form.autoReply ? 'bg-emerald-500/10' : 'bg-red-500/10'
-            }`}>
-              <Zap className={`w-5 h-5 ${form.autoReply ? 'text-emerald-400' : 'text-red-400'}`} />
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${form.autoReply ? 'bg-emerald-500/10' : 'bg-red-500/10'}`}>
+              <Zap className={`w-5 h-5 ${form.autoReply ? 'text-emerald-500' : 'text-red-500'}`} />
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-white">AI Auto-Reply</h3>
-              <p className="text-xs text-white/40">
-                {form.autoReply ? 'AI is actively responding to DMs 24/7' : 'AI auto-reply is disabled'}
-              </p>
+              <h3 className="text-sm font-semibold text-foreground">{t('autoReply')}</h3>
+              <p className="text-xs text-muted">{form.autoReply ? t('autoReplyOn') : t('autoReplyOff')}</p>
             </div>
           </div>
-          <button
-            onClick={() => setForm({ ...form, autoReply: !form.autoReply })}
-            className="transition-colors"
-          >
-            {form.autoReply ? (
-              <ToggleRight className="w-10 h-10 text-emerald-400" />
-            ) : (
-              <ToggleLeft className="w-10 h-10 text-white/20" />
-            )}
+          <button onClick={() => setForm({ ...form, autoReply: !form.autoReply })} className="transition-colors">
+            {form.autoReply ? <ToggleRight className="w-10 h-10 text-emerald-500" /> : <ToggleLeft className="w-10 h-10 text-dim" />}
           </button>
         </div>
       </motion.div>
 
       {/* Business Context */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.05 }}
-        className="glass-card rounded-2xl p-5 border border-white/5"
-      >
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="glass-card rounded-2xl p-5 border border-b-border">
         <div className="flex items-center gap-2 mb-4">
-          <Sparkles className="w-4 h-4 text-blue-400" />
-          <h3 className="text-sm font-semibold text-white">Business Context</h3>
+          <Sparkles className="w-4 h-4 text-blue-500" />
+          <h3 className="text-sm font-semibold text-foreground">{t('businessContext')}</h3>
         </div>
-        <p className="text-xs text-white/30 mb-3">Describe your business so AI knows how to represent you</p>
+        <p className="text-xs text-muted mb-3">{t('businessContextDesc')}</p>
         <textarea
           value={form.businessDesc}
           onChange={(e) => setForm({ ...form, businessDesc: e.target.value })}
-          placeholder="We are a premium barbershop in downtown Riyadh. We specialize in haircuts, beard trimming, and grooming packages..."
+          placeholder={t('businessContextPlaceholder')}
           rows={3}
-          className="w-full px-4 py-3 rounded-xl bg-white/5 text-white text-sm border border-white/5 focus:border-blue-500/30 focus:outline-none resize-none transition-colors"
+          className="input-base resize-none"
         />
       </motion.div>
 
       {/* Tone + Language */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="glass-card rounded-2xl p-5 border border-white/5"
-      >
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="glass-card rounded-2xl p-5 border border-b-border">
         <div className="flex items-center gap-2 mb-4">
-          <MessageSquare className="w-4 h-4 text-violet-400" />
-          <h3 className="text-sm font-semibold text-white">Tone & Language</h3>
+          <MessageSquare className="w-4 h-4 text-violet-500" />
+          <h3 className="text-sm font-semibold text-foreground">{t('toneAndLang')}</h3>
         </div>
-
-        <p className="text-xs text-white/30 mb-3">Choose how AI speaks to your customers</p>
-
-        {/* Tone */}
+        <p className="text-xs text-muted mb-3">{t('toneDesc')}</p>
         <div className="grid grid-cols-3 gap-3 mb-5">
           {TONES.map((tone) => (
             <button
@@ -203,104 +168,65 @@ export default function AiSettings() {
               className={`p-3 rounded-xl border text-left transition-all ${
                 form.aiTone === tone.value
                   ? 'bg-violet-500/10 border-violet-500/30'
-                  : 'bg-white/3 border-white/5 hover:bg-white/5'
+                  : 'bg-surface border-b-border hover:bg-surface-hover'
               }`}
             >
               <div className="text-lg mb-1">{tone.icon}</div>
-              <div className="text-xs font-medium text-white">{tone.label}</div>
-              <div className="text-[10px] text-white/30 mt-0.5">{tone.desc}</div>
+              <div className="text-xs font-medium text-foreground">{TONE_MAP[tone.value].label}</div>
+              <div className="text-[10px] text-muted mt-0.5">{TONE_MAP[tone.value].desc}</div>
             </button>
           ))}
         </div>
-
-        {/* Language */}
         <div className="flex items-center gap-3">
-          <Globe className="w-4 h-4 text-white/30" />
+          <Globe className="w-4 h-4 text-dim" />
           <select
             value={form.language}
             onChange={(e) => setForm({ ...form, language: e.target.value })}
-            className="flex-1 px-4 py-2.5 rounded-xl bg-white/5 text-white text-sm border border-white/5 focus:border-blue-500/30 focus:outline-none appearance-none cursor-pointer"
+            className="input-base !flex-1 cursor-pointer"
           >
-            {LANGUAGES.map((lang) => (
-              <option key={lang.value} value={lang.value} className="bg-[#111827]">
-                {lang.label}
-              </option>
-            ))}
+            {LANGUAGES.map((lang) => <option key={lang.value} value={lang.value}>{lang.label}</option>)}
           </select>
         </div>
       </motion.div>
 
-      {/* Messages */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.15 }}
-        className="glass-card rounded-2xl p-5 border border-white/5"
-      >
+      {/* Custom Messages */}
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="glass-card rounded-2xl p-5 border border-b-border">
         <div className="flex items-center gap-2 mb-4">
-          <MessageSquare className="w-4 h-4 text-emerald-400" />
-          <h3 className="text-sm font-semibold text-white">Custom Messages</h3>
+          <MessageSquare className="w-4 h-4 text-emerald-500" />
+          <h3 className="text-sm font-semibold text-foreground">{t('customMessages')}</h3>
         </div>
-
         <div className="space-y-4">
           <div>
-            <label className="text-xs text-white/40 mb-1.5 block">Greeting Message</label>
-            <input
-              type="text"
-              value={form.greetingMsg}
-              onChange={(e) => setForm({ ...form, greetingMsg: e.target.value })}
-              placeholder="Welcome! How can I help you today? 👋"
-              className="w-full px-4 py-2.5 rounded-xl bg-white/5 text-white text-sm border border-white/5 focus:border-blue-500/30 focus:outline-none transition-colors"
-            />
+            <label className="text-xs text-muted mb-1.5 block">{t('greetingMessage')}</label>
+            <input type="text" value={form.greetingMsg} onChange={(e) => setForm({ ...form, greetingMsg: e.target.value })} className="input-base" placeholder="Welcome! How can I help you today? 👋" />
           </div>
           <div>
-            <label className="text-xs text-white/40 mb-1.5 block">Fallback Message</label>
-            <input
-              type="text"
-              value={form.fallbackMsg}
-              onChange={(e) => setForm({ ...form, fallbackMsg: e.target.value })}
-              placeholder="I'm not sure about that. Let me connect you with our team."
-              className="w-full px-4 py-2.5 rounded-xl bg-white/5 text-white text-sm border border-white/5 focus:border-blue-500/30 focus:outline-none transition-colors"
-            />
+            <label className="text-xs text-muted mb-1.5 block">{t('fallbackMessage')}</label>
+            <input type="text" value={form.fallbackMsg} onChange={(e) => setForm({ ...form, fallbackMsg: e.target.value })} className="input-base" placeholder="I'm not sure about that. Let me connect you with our team." />
           </div>
         </div>
       </motion.div>
 
       {/* FAQ Manager */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="glass-card rounded-2xl p-5 border border-white/5"
-      >
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="glass-card rounded-2xl p-5 border border-b-border">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <HelpCircle className="w-4 h-4 text-orange-400" />
-            <h3 className="text-sm font-semibold text-white">FAQ Knowledge Base</h3>
-            <span className="text-[10px] px-2 py-0.5 rounded-full bg-orange-500/10 text-orange-400">
-              {faqEntries.length} entries
-            </span>
+            <HelpCircle className="w-4 h-4 text-orange-500" />
+            <h3 className="text-sm font-semibold text-foreground">{t('faqKnowledgeBase')}</h3>
+            <span className="text-[10px] px-2 py-0.5 rounded-full bg-orange-500/10 text-orange-500">{faqEntries.length} {t('faqEntries')}</span>
           </div>
         </div>
-
-        <p className="text-xs text-white/30 mb-4">
-          Add common questions and answers. AI will use these to respond instantly without an LLM call.
-        </p>
-
-        {/* Existing FAQs */}
+        <p className="text-xs text-muted mb-4">{t('faqDesc')}</p>
         {faqEntries.length > 0 && (
           <div className="space-y-2 mb-4">
             {faqEntries.map((faq, i) => (
-              <div key={i} className="p-3 rounded-xl bg-white/3 border border-white/5 group">
+              <div key={i} className="p-3 rounded-xl bg-surface border border-b-border group">
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-medium text-white mb-1">Q: {faq.question}</p>
-                    <p className="text-xs text-white/40">A: {faq.answer}</p>
+                    <p className="text-xs font-medium text-foreground mb-1">Q: {faq.question}</p>
+                    <p className="text-xs text-muted">A: {faq.answer}</p>
                   </div>
-                  <button
-                    onClick={() => removeFaqMutation.mutate(i)}
-                    className="p-1.5 text-white/10 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100"
-                  >
+                  <button onClick={() => removeFaqMutation.mutate(i)} className="p-1.5 text-dim hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100">
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
                 </div>
@@ -308,64 +234,31 @@ export default function AiSettings() {
             ))}
           </div>
         )}
-
-        {/* Add FAQ */}
         <div className="space-y-2">
-          <input
-            type="text"
-            value={newFaqQ}
-            onChange={(e) => setNewFaqQ(e.target.value)}
-            placeholder="Question: e.g. What are your working hours?"
-            className="w-full px-4 py-2.5 rounded-xl bg-white/5 text-white text-sm border border-white/5 focus:border-orange-500/30 focus:outline-none transition-colors"
-          />
-          <input
-            type="text"
-            value={newFaqA}
-            onChange={(e) => setNewFaqA(e.target.value)}
-            placeholder="Answer: e.g. We are open Monday to Saturday, 9 AM to 7 PM."
-            className="w-full px-4 py-2.5 rounded-xl bg-white/5 text-white text-sm border border-white/5 focus:border-orange-500/30 focus:outline-none transition-colors"
-          />
+          <input type="text" value={newFaqQ} onChange={(e) => setNewFaqQ(e.target.value)} placeholder={`${t('question')}...`} className="input-base" />
+          <input type="text" value={newFaqA} onChange={(e) => setNewFaqA(e.target.value)} placeholder={`${t('answer')}...`} className="input-base" />
           <button
-            onClick={() => {
-              if (newFaqQ.trim() && newFaqA.trim()) {
-                addFaqMutation.mutate({ q: newFaqQ.trim(), a: newFaqA.trim() });
-              }
-            }}
+            onClick={() => { if (newFaqQ.trim() && newFaqA.trim()) addFaqMutation.mutate({ q: newFaqQ.trim(), a: newFaqA.trim() }); }}
             disabled={!newFaqQ.trim() || !newFaqA.trim() || addFaqMutation.isPending}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-orange-500/10 text-orange-400 text-xs font-medium border border-orange-500/20 hover:bg-orange-500/15 transition-colors disabled:opacity-30"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-orange-500/10 text-orange-500 text-xs font-medium border border-orange-500/20 hover:bg-orange-500/15 transition-colors disabled:opacity-30"
           >
-            <Plus className="w-3.5 h-3.5" />
-            Add FAQ
+            <Plus className="w-3.5 h-3.5" /> {t('addFaq')}
           </button>
         </div>
       </motion.div>
 
       {/* Engagement Goals */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.25 }}
-        className="glass-card rounded-2xl p-5 border border-white/5"
-      >
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="glass-card rounded-2xl p-5 border border-b-border">
         <div className="flex items-center gap-2 mb-4">
-          <Target className="w-4 h-4 text-blue-400" />
-          <h3 className="text-sm font-semibold text-white">Engagement Goals</h3>
+          <Target className="w-4 h-4 text-blue-500" />
+          <h3 className="text-sm font-semibold text-foreground">{t('engagementGoals')}</h3>
         </div>
-        <p className="text-xs text-white/30 mb-4">Tell AI what to optimize for in conversations</p>
-
+        <p className="text-xs text-muted mb-4">{t('engagementGoalsDesc')}</p>
         <div className="grid grid-cols-2 gap-3">
           {GOALS.map((goal) => {
             const active = form.engagementGoals?.includes(goal.id);
             return (
-              <button
-                key={goal.id}
-                onClick={() => toggleGoal(goal.id)}
-                className={`flex items-center gap-3 p-3 rounded-xl border transition-all ${
-                  active
-                    ? 'bg-blue-500/10 border-blue-500/30 text-blue-400'
-                    : 'bg-white/3 border-white/5 text-white/40 hover:bg-white/5'
-                }`}
-              >
+              <button key={goal.id} onClick={() => toggleGoal(goal.id)} className={`flex items-center gap-3 p-3 rounded-xl border transition-all ${active ? 'bg-blue-500/10 border-blue-500/30 text-blue-500' : 'bg-surface border-b-border text-muted hover:bg-surface-hover'}`}>
                 {goal.icon}
                 <span className="text-xs font-medium">{goal.label}</span>
               </button>
@@ -374,49 +267,29 @@ export default function AiSettings() {
         </div>
       </motion.div>
 
-      {/* Advanced: Custom Prompt */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-        className="glass-card rounded-2xl p-5 border border-white/5"
-      >
-        <button
-          onClick={() => setShowAdvanced(!showAdvanced)}
-          className="flex items-center justify-between w-full"
-        >
+      {/* Advanced Prompt */}
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="glass-card rounded-2xl p-5 border border-b-border">
+        <button onClick={() => setShowAdvanced(!showAdvanced)} className="flex items-center justify-between w-full">
           <div className="flex items-center gap-2">
-            <Zap className="w-4 h-4 text-yellow-400" />
-            <h3 className="text-sm font-semibold text-white">Advanced: Custom System Prompt</h3>
+            <Zap className="w-4 h-4 text-yellow-500" />
+            <h3 className="text-sm font-semibold text-foreground">{t('advancedPrompt')}</h3>
           </div>
-          {showAdvanced ? (
-            <ChevronUp className="w-4 h-4 text-white/30" />
-          ) : (
-            <ChevronDown className="w-4 h-4 text-white/30" />
-          )}
+          {showAdvanced ? <ChevronUp className="w-4 h-4 text-dim" /> : <ChevronDown className="w-4 h-4 text-dim" />}
         </button>
-
         {showAdvanced && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            className="mt-4"
-          >
-            <p className="text-xs text-white/30 mb-3">
-              Override the default AI system prompt. Leave empty to use the default. This replaces the built-in instructions.
-            </p>
+          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="mt-4">
+            <p className="text-xs text-muted mb-3">{t('advancedPromptDesc')}</p>
             <textarea
               value={form.customPrompt}
               onChange={(e) => setForm({ ...form, customPrompt: e.target.value })}
-              placeholder="You are a helpful assistant for our barbershop. Always be polite and try to guide customers to book an appointment..."
+              placeholder="You are a helpful assistant for our barbershop..."
               rows={5}
-              className="w-full px-4 py-3 rounded-xl bg-white/5 text-white text-sm border border-white/5 focus:border-yellow-500/30 focus:outline-none resize-none font-mono transition-colors"
+              className="input-base resize-none font-mono"
             />
           </motion.div>
         )}
       </motion.div>
 
-      {/* Bottom spacer */}
       <div className="h-4" />
     </div>
   );

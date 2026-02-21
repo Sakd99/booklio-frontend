@@ -1,29 +1,45 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard, Scissors, Calendar, Radio,
-  Users, LogOut, Sparkles, Menu, X, ChevronRight,
-  MessageSquare, Brain
+  Users, LogOut, Sparkles, Menu, X,
+  MessageSquare, Brain, Sun, Moon, Globe, ChevronDown
 } from 'lucide-react';
 import { useAuthStore } from '../../store/auth.store';
+import { useThemeStore } from '../../store/theme.store';
+import { useI18n } from '../../store/i18n.store';
+import { LOCALE_META, type Locale } from '../../i18n/translations';
 import { authApi } from '../../api/auth.api';
 import toast from 'react-hot-toast';
 
-const NAV = [
-  { to: '/dashboard', icon: <LayoutDashboard className="w-4 h-4" />, label: 'Overview', end: true },
-  { to: '/dashboard/conversations', icon: <MessageSquare className="w-4 h-4" />, label: 'Conversations' },
-  { to: '/dashboard/ai', icon: <Brain className="w-4 h-4" />, label: 'AI Settings' },
-  { to: '/dashboard/services', icon: <Scissors className="w-4 h-4" />, label: 'Services' },
-  { to: '/dashboard/bookings', icon: <Calendar className="w-4 h-4" />, label: 'Bookings' },
-  { to: '/dashboard/channels', icon: <Radio className="w-4 h-4" />, label: 'Channels' },
-  { to: '/dashboard/team', icon: <Users className="w-4 h-4" />, label: 'Team' },
-];
-
 export default function DashboardLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [langOpen, setLangOpen] = useState(false);
+  const langRef = useRef<HTMLDivElement>(null);
   const { user, logout, refreshToken } = useAuthStore();
+  const { theme, toggleTheme } = useThemeStore();
+  const { t, locale, setLocale } = useI18n();
   const navigate = useNavigate();
+
+  const NAV = [
+    { to: '/dashboard', icon: <LayoutDashboard className="w-4 h-4" />, label: t('navOverview'), end: true },
+    { to: '/dashboard/conversations', icon: <MessageSquare className="w-4 h-4" />, label: t('navConversations') },
+    { to: '/dashboard/ai', icon: <Brain className="w-4 h-4" />, label: t('navAiSettings') },
+    { to: '/dashboard/services', icon: <Scissors className="w-4 h-4" />, label: t('navServices') },
+    { to: '/dashboard/bookings', icon: <Calendar className="w-4 h-4" />, label: t('navBookings') },
+    { to: '/dashboard/channels', icon: <Radio className="w-4 h-4" />, label: t('navChannels') },
+    { to: '/dashboard/team', icon: <Users className="w-4 h-4" />, label: t('navTeam') },
+  ];
+
+  // Close lang dropdown on outside click
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (langRef.current && !langRef.current.contains(e.target as Node)) setLangOpen(false);
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -31,13 +47,13 @@ export default function DashboardLayout() {
     } catch {}
     logout();
     navigate('/login');
-    toast.success('Signed out');
+    toast.success(t('signedOut'));
   };
 
   const Sidebar = () => (
-    <aside className="w-64 h-full flex flex-col bg-[#0d1424] border-r border-white/5">
+    <aside className="w-64 h-full flex flex-col bg-sidebar border-r border-b-border transition-colors duration-200">
       {/* Logo */}
-      <div className="px-6 py-5 border-b border-white/5">
+      <div className="px-6 py-5 border-b border-b-border">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center">
             <Sparkles className="w-4 h-4 text-white" />
@@ -57,8 +73,8 @@ export default function DashboardLayout() {
             className={({ isActive }) =>
               `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
                 isActive
-                  ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
-                  : 'text-white/40 hover:text-white hover:bg-white/5'
+                  ? 'bg-blue-500/10 text-blue-500 border border-blue-500/20'
+                  : 'text-muted hover:text-foreground hover:bg-surface'
               }`
             }
           >
@@ -68,20 +84,69 @@ export default function DashboardLayout() {
         ))}
       </nav>
 
+      {/* Theme + Language controls */}
+      <div className="px-3 py-3 border-t border-b-border space-y-2">
+        {/* Theme toggle */}
+        <button
+          onClick={toggleTheme}
+          className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm text-muted hover:text-foreground hover:bg-surface transition-all"
+        >
+          {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+          {theme === 'dark' ? t('lightMode') : t('darkMode')}
+        </button>
+
+        {/* Language selector */}
+        <div className="relative" ref={langRef}>
+          <button
+            onClick={() => setLangOpen(!langOpen)}
+            className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm text-muted hover:text-foreground hover:bg-surface transition-all"
+          >
+            <Globe className="w-4 h-4" />
+            <span className="flex-1 text-left">{LOCALE_META[locale].flag} {LOCALE_META[locale].label}</span>
+            <ChevronDown className={`w-3.5 h-3.5 transition-transform ${langOpen ? 'rotate-180' : ''}`} />
+          </button>
+          <AnimatePresence>
+            {langOpen && (
+              <motion.div
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 4 }}
+                className="absolute bottom-full left-0 right-0 mb-1 rounded-xl glass-card border border-b-border shadow-xl overflow-hidden z-50"
+              >
+                {(Object.keys(LOCALE_META) as Locale[]).map((loc) => (
+                  <button
+                    key={loc}
+                    onClick={() => { setLocale(loc); setLangOpen(false); }}
+                    className={`w-full flex items-center gap-2.5 px-3 py-2.5 text-sm transition-colors ${
+                      locale === loc
+                        ? 'bg-blue-500/10 text-blue-500 font-medium'
+                        : 'text-muted hover:text-foreground hover:bg-surface'
+                    }`}
+                  >
+                    <span>{LOCALE_META[loc].flag}</span>
+                    <span>{LOCALE_META[loc].label}</span>
+                  </button>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </div>
+
       {/* User + logout */}
-      <div className="px-3 py-4 border-t border-white/5">
-        <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-white/3">
+      <div className="px-3 py-4 border-t border-b-border">
+        <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-surface">
           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center text-xs font-bold text-white flex-shrink-0">
             {user?.email?.[0]?.toUpperCase() ?? 'U'}
           </div>
           <div className="flex-1 min-w-0">
-            <div className="text-xs text-white/70 font-medium truncate">{user?.email}</div>
-            <div className="text-[10px] text-white/30 capitalize">{user?.role?.replace('_', ' ')}</div>
+            <div className="text-xs text-fg-secondary font-medium truncate">{user?.email}</div>
+            <div className="text-[10px] text-dim capitalize">{user?.role?.replace('_', ' ')}</div>
           </div>
           <button
             onClick={handleLogout}
-            className="p-1.5 text-white/30 hover:text-red-400 transition-colors rounded-lg hover:bg-red-500/10"
-            title="Sign out"
+            className="p-1.5 text-dim hover:text-red-500 transition-colors rounded-lg hover:bg-red-500/10"
+            title={t('signOut')}
           >
             <LogOut className="w-3.5 h-3.5" />
           </button>
@@ -91,7 +156,7 @@ export default function DashboardLayout() {
   );
 
   return (
-    <div className="flex h-screen bg-[#0a0f1e] overflow-hidden">
+    <div className="flex h-screen bg-base overflow-hidden transition-colors duration-200">
       {/* Desktop sidebar */}
       <div className="hidden md:block">
         <Sidebar />
@@ -109,11 +174,11 @@ export default function DashboardLayout() {
               className="md:hidden fixed inset-0 z-40 bg-black/60 backdrop-blur-sm"
             />
             <motion.div
-              initial={{ x: -280 }}
+              initial={{ x: locale === 'ar' ? 280 : -280 }}
               animate={{ x: 0 }}
-              exit={{ x: -280 }}
+              exit={{ x: locale === 'ar' ? 280 : -280 }}
               transition={{ type: 'spring', damping: 30 }}
-              className="md:hidden fixed left-0 top-0 bottom-0 z-50 w-64"
+              className={`md:hidden fixed ${locale === 'ar' ? 'right-0' : 'left-0'} top-0 bottom-0 z-50 w-64`}
             >
               <Sidebar />
             </motion.div>
@@ -124,17 +189,17 @@ export default function DashboardLayout() {
       {/* Main content */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top bar */}
-        <header className="h-14 flex items-center gap-3 px-6 border-b border-white/5 bg-[#0a0f1e]/80 backdrop-blur-sm flex-shrink-0">
+        <header className="h-14 flex items-center gap-3 px-6 border-b border-b-border bg-base/80 backdrop-blur-sm flex-shrink-0 transition-colors duration-200">
           <button
             onClick={() => setSidebarOpen(true)}
-            className="md:hidden p-2 text-white/40 hover:text-white transition-colors"
+            className="md:hidden p-2 text-muted hover:text-foreground transition-colors"
           >
             <Menu className="w-5 h-5" />
           </button>
           <div className="flex-1" />
-          <div className="flex items-center gap-2 text-xs text-white/20">
+          <div className="flex items-center gap-2 text-xs text-dim">
             <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            All systems operational
+            {t('allSystemsOp')}
           </div>
         </header>
 

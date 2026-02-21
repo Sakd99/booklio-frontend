@@ -1,19 +1,22 @@
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { Calendar, MessageSquare, Radio, TrendingUp, Clock, CheckCircle2 } from 'lucide-react';
+import { Calendar, MessageSquare, Radio, TrendingUp } from 'lucide-react';
 import { tenantApi } from '../../api/tenant.api';
 import { bookingsApi } from '../../api/bookings.api';
 import StatCard from '../../components/ui/StatCard';
 import Spinner from '../../components/ui/Spinner';
 import { statusBadge } from '../../components/ui/Badge';
+import { useI18n } from '../../store/i18n.store';
 
 export default function Overview() {
+  const { t } = useI18n();
+
   const { data: profile, isLoading: profileLoading } = useQuery({
     queryKey: ['tenant-profile'],
     queryFn: tenantApi.getProfile,
   });
 
-  const { data: usage, isLoading: usageLoading } = useQuery({
+  const { data: usage } = useQuery({
     queryKey: ['tenant-usage'],
     queryFn: tenantApi.getUsage,
   });
@@ -32,39 +35,39 @@ export default function Overview() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-white">
-          Welcome back 👋
+        <h1 className="text-2xl font-bold text-foreground">
+          {t('welcomeBack')} 👋
         </h1>
-        <p className="text-white/40 text-sm mt-1">
-          {profile?.name} · <span className="text-blue-400">{plan?.name ?? 'Free'} plan</span>
+        <p className="text-muted text-sm mt-1">
+          {profile?.name} · <span className="text-blue-500">{plan?.name ?? 'Free'} {t('plan')}</span>
         </p>
       </div>
 
       {/* Stat cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
-          label="Messages this month"
+          label={t('messagesThisMonth')}
           value={u ? `${u.messages.used} / ${u.messages.max === -1 ? '∞' : u.messages.max}` : '—'}
           icon={<MessageSquare className="w-5 h-5" />}
           color="blue"
           delay={0}
         />
         <StatCard
-          label="Bookings this month"
+          label={t('bookingsThisMonth')}
           value={u ? `${u.bookings.used} / ${u.bookings.max === -1 ? '∞' : u.bookings.max}` : '—'}
           icon={<Calendar className="w-5 h-5" />}
           color="violet"
           delay={0.05}
         />
         <StatCard
-          label="AI calls this month"
+          label={t('aiCallsThisMonth')}
           value={u ? `${u.aiCalls.used} / ${u.aiCalls.max === -1 ? '∞' : u.aiCalls.max}` : '—'}
           icon={<TrendingUp className="w-5 h-5" />}
           color="emerald"
           delay={0.1}
         />
         <StatCard
-          label="Channels"
+          label={t('channels')}
           value={u ? `${u.channels.used} / ${u.channels.max === -1 ? '∞' : u.channels.max}` : '—'}
           icon={<Radio className="w-5 h-5" />}
           color="rose"
@@ -78,16 +81,16 @@ export default function Overview() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="glass-card rounded-2xl p-6 border border-white/5"
+          className="glass-card rounded-2xl p-6 border border-b-border"
         >
-          <h2 className="text-sm font-semibold text-white/60 uppercase tracking-wider mb-5">
-            Monthly Usage
+          <h2 className="text-sm font-semibold text-muted uppercase tracking-wider mb-5">
+            {t('monthlyUsage')}
           </h2>
           <div className="space-y-4">
             {[
-              { label: 'Messages', used: u.messages.used, max: u.messages.max, color: 'blue' },
-              { label: 'AI Calls', used: u.aiCalls.used, max: u.aiCalls.max, color: 'violet' },
-              { label: 'Bookings', used: u.bookings.used, max: u.bookings.max, color: 'emerald' },
+              { label: t('messages'), used: u.messages.used, max: u.messages.max, color: 'blue' },
+              { label: t('aiCalls'), used: u.aiCalls.used, max: u.aiCalls.max, color: 'violet' },
+              { label: t('bookings'), used: u.bookings.used, max: u.bookings.max, color: 'emerald' },
             ].map((item) => {
               const pct = item.max === -1 ? 20 : Math.min(100, (item.used / item.max) * 100);
               const colors: Record<string, string> = {
@@ -98,12 +101,12 @@ export default function Overview() {
               return (
                 <div key={item.label}>
                   <div className="flex justify-between text-sm mb-1.5">
-                    <span className="text-white/60">{item.label}</span>
-                    <span className="text-white/40">
+                    <span className="text-fg-secondary">{item.label}</span>
+                    <span className="text-muted">
                       {item.used} / {item.max === -1 ? '∞' : item.max}
                     </span>
                   </div>
-                  <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+                  <div className="h-2 bg-surface rounded-full overflow-hidden">
                     <motion.div
                       initial={{ width: 0 }}
                       animate={{ width: `${pct}%` }}
@@ -123,31 +126,31 @@ export default function Overview() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
-        className="glass-card rounded-2xl border border-white/5"
+        className="glass-card rounded-2xl border border-b-border"
       >
-        <div className="flex items-center justify-between px-6 py-4 border-b border-white/5">
-          <h2 className="text-sm font-semibold text-white/60 uppercase tracking-wider">
-            Recent Bookings
+        <div className="flex items-center justify-between px-6 py-4 border-b border-b-border">
+          <h2 className="text-sm font-semibold text-muted uppercase tracking-wider">
+            {t('recentBookings')}
           </h2>
-          <span className="text-xs text-white/30">{bookings?.total ?? 0} total</span>
+          <span className="text-xs text-dim">{bookings?.total ?? 0} {t('total').toLowerCase()}</span>
         </div>
 
         {bookingsLoading ? (
           <Spinner size="sm" />
         ) : bookings?.appointments?.length === 0 ? (
-          <div className="px-6 py-12 text-center text-white/20 text-sm">
-            No bookings yet. Create your first service to get started.
+          <div className="px-6 py-12 text-center text-dim text-sm">
+            {t('noBookingsYet')}
           </div>
         ) : (
-          <div className="divide-y divide-white/5">
+          <div className="divide-y divide-b-border">
             {bookings?.appointments?.map((bk: any) => (
               <div key={bk.id} className="px-6 py-4 flex items-center gap-4">
-                <div className="w-9 h-9 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400 flex-shrink-0">
+                <div className="w-9 h-9 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500 flex-shrink-0">
                   <Calendar className="w-4 h-4" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="text-sm text-white font-medium truncate">{bk.customerName}</div>
-                  <div className="text-xs text-white/30 mt-0.5">
+                  <div className="text-sm text-foreground font-medium truncate">{bk.customerName}</div>
+                  <div className="text-xs text-muted mt-0.5">
                     {bk.service?.name} · {new Date(bk.startsAt).toLocaleDateString()} {new Date(bk.startsAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </div>
                 </div>

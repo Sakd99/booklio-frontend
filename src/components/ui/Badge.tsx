@@ -4,12 +4,12 @@ interface Props {
 }
 
 const styles = {
-  blue: 'bg-blue-500/10 text-blue-400 border border-blue-500/20',
-  green: 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20',
-  yellow: 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20',
-  red: 'bg-red-500/10 text-red-400 border border-red-500/20',
-  gray: 'bg-white/5 text-white/50 border border-white/10',
-  violet: 'bg-violet-500/10 text-violet-400 border border-violet-500/20',
+  blue: 'bg-blue-500/10 text-blue-500 border border-blue-500/20',
+  green: 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20',
+  yellow: 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border border-yellow-500/20',
+  red: 'bg-red-500/10 text-red-500 border border-red-500/20',
+  gray: 'bg-surface text-muted border border-b-border',
+  violet: 'bg-violet-500/10 text-violet-500 border border-violet-500/20',
 };
 
 export default function Badge({ label, variant = 'gray' }: Props) {

@@ -23,7 +23,7 @@ export default function Modal({ open, onClose, title, children, size = 'md' }: P
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
           />
           {/* Panel */}
           <motion.div
@@ -33,11 +33,11 @@ export default function Modal({ open, onClose, title, children, size = 'md' }: P
             transition={{ duration: 0.2, ease: 'easeOut' }}
             className={`relative w-full ${sizes[size]} glass-card rounded-2xl shadow-2xl`}
           >
-            <div className="flex items-center justify-between p-6 border-b border-white/5">
-              <h2 className="text-lg font-semibold text-white">{title}</h2>
+            <div className="flex items-center justify-between p-6 border-b border-b-border">
+              <h2 className="text-lg font-semibold text-foreground">{title}</h2>
               <button
                 onClick={onClose}
-                className="p-1.5 rounded-lg text-white/40 hover:text-white hover:bg-white/10 transition-colors"
+                className="p-1.5 rounded-lg text-muted hover:text-foreground hover:bg-surface transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>

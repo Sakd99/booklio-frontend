@@ -14,9 +14,9 @@ const variants = {
   primary:
     'bg-gradient-to-r from-blue-500 to-violet-600 hover:from-blue-400 hover:to-violet-500 text-white shadow-lg shadow-blue-500/20',
   secondary:
-    'bg-white/5 hover:bg-white/10 border border-white/10 text-white',
-  ghost: 'text-white/70 hover:text-white hover:bg-white/5',
-  danger: 'bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400',
+    'bg-surface hover:bg-surface-hover border border-b-border text-foreground',
+  ghost: 'text-muted hover:text-foreground hover:bg-surface',
+  danger: 'bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-500',
 };
 
 const sizes = {
