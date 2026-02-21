@@ -178,7 +178,8 @@ export default function BlogPost() {
     enabled: !!slug,
   });
 
-  const authorName = post?.author?.name ?? post?.authorName ?? 'Booklio Team';
+  const authorName = post?.author?.name ?? (post?.author?.firstName ? `${post.author.firstName} ${post.author.lastName}`.trim() : null) ?? post?.authorName ?? 'Booklio Team';
+  const parsedTags = post?.tags ? (typeof post.tags === 'string' ? JSON.parse(post.tags) : post.tags) : [];
   const publishedDate = post?.publishedAt
     ? new Date(post.publishedAt).toLocaleDateString(undefined, {
         year: 'numeric',
@@ -262,14 +263,14 @@ export default function BlogPost() {
             )}
 
             {/* Tags */}
-            {post.tags && post.tags.length > 0 && (
+            {parsedTags && parsedTags.length > 0 && (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.15 }}
                 className="flex flex-wrap gap-2 mb-5"
               >
-                {post.tags.map((tag: string) => (
+                {parsedTags.map((tag: string) => (
                   <span
                     key={tag}
                     className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-500/10 text-blue-500 border border-blue-500/20"

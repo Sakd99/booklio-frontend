@@ -274,7 +274,12 @@ export default function Blog() {
     queryFn: () => blogApi.listPublished(page),
   });
 
-  const posts: BlogPostData[] = data?.data ?? data?.posts ?? [];
+  const rawPosts = data?.items ?? data?.data ?? data?.posts ?? [];
+  const posts: BlogPostData[] = rawPosts.map((p: any) => ({
+    ...p,
+    author: p.author?.name ? p.author : p.author?.firstName ? { name: `${p.author.firstName} ${p.author.lastName}`.trim() } : undefined,
+    tags: typeof p.tags === 'string' ? JSON.parse(p.tags) : p.tags,
+  }));
   const total: number = data?.total ?? 0;
   const limit = 9;
   const totalPages = Math.max(1, Math.ceil(total / limit));
