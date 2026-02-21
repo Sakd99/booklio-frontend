@@ -4,7 +4,7 @@ import { motion, useInView, AnimatePresence } from 'framer-motion';
 import {
   Zap, Bot, Calendar, Shield, BarChart3, Globe,
   MessageSquare, CheckCircle2, ArrowRight,
-  ChevronDown, ChevronLeft, ChevronRight, Star, Menu, X, Sparkles, Clock,
+  ChevronDown, Star, Menu, X, Sparkles, Clock,
   Users, TrendingUp, Sun, Moon
 } from 'lucide-react';
 import { useI18n } from '../store/i18n.store';
@@ -68,7 +68,7 @@ const PLANS = [
     accent: 'text-dim',
     border: 'border-b-border',
     bg: '',
-    features: ['1 channel', '500 messages/mo', '100 AI calls/mo', '10 bookings/mo', '1 team member'],
+    features: ['500 contacts', '1 channel', '100 AI calls/mo', '10 bookings/mo', '1 team member'],
     popular: false,
   },
   {
@@ -78,7 +78,7 @@ const PLANS = [
     accent: 'text-blue-400',
     border: 'border-blue-500/20',
     bg: 'bg-blue-500/5',
-    features: ['1 channel', '2,000 messages/mo', '500 AI calls/mo', '50 bookings/mo', '2 team members', 'Bookings'],
+    features: ['1,500 contacts', '2 channels', 'Unlimited bookings', '500 AI calls/mo', '2 team members', 'Automations'],
     popular: false,
   },
   {
@@ -88,28 +88,8 @@ const PLANS = [
     accent: 'text-violet-400',
     border: 'border-violet-500/30',
     bg: 'bg-violet-500/5',
-    features: ['2 channels', '10,000 messages/mo', '2,500 AI calls/mo', '500 bookings/mo', '5 team members', 'Analytics'],
+    features: ['5,000 contacts', 'Unlimited channels', 'Unlimited bookings', '2,500 AI calls/mo', '5 team members', 'Analytics', 'Priority support'],
     popular: true,
-  },
-  {
-    name: 'Pro',
-    price: 49,
-    desc: 'For businesses scaling fast',
-    accent: 'text-emerald-400',
-    border: 'border-emerald-500/20',
-    bg: 'bg-emerald-500/5',
-    features: ['3 channels', '30,000 messages/mo', '10,000 AI calls/mo', '2,000 bookings/mo', '10 team members', 'Priority support', 'Custom workflows'],
-    popular: false,
-  },
-  {
-    name: 'Agency',
-    price: 99,
-    desc: 'For agencies managing clients',
-    accent: 'text-orange-400',
-    border: 'border-orange-500/20',
-    bg: 'bg-orange-500/5',
-    features: ['5 channels', '100,000 messages/mo', '30,000 AI calls/mo', '10,000 bookings/mo', '25 team members', 'White-label', 'Dedicated support'],
-    popular: false,
   },
 ];
 
@@ -326,124 +306,6 @@ function Navbar() {
         )}
       </AnimatePresence>
     </motion.nav>
-  );
-}
-
-// ─── Pricing Carousel (3 visible) ───────────────────────────────────
-function PricingCarousel({ plans, t }: { plans: typeof PLANS; t: (k: any) => string }) {
-  const perPage = 3;
-  const totalPages = Math.ceil(plans.length / perPage);
-  const [page, setPage] = useState(0); // page 0 = first 3 (Free, Starter, Business)
-
-  const prevPage = () => setPage((p) => (p === 0 ? totalPages - 1 : p - 1));
-  const nextPage = () => setPage((p) => (p === totalPages - 1 ? 0 : p + 1));
-
-  const visible = plans.slice(page * perPage, page * perPage + perPage);
-
-  return (
-    <div className="max-w-5xl mx-auto">
-      <div className="flex items-center gap-4">
-        {/* Left arrow */}
-        <button
-          onClick={prevPage}
-          className="flex-shrink-0 w-12 h-12 rounded-full border border-b-border bg-surface hover:bg-surface-hover flex items-center justify-center text-muted hover:text-foreground transition-all hover:scale-105"
-        >
-          <ChevronLeft className="w-5 h-5" />
-        </button>
-
-        {/* Cards */}
-        <div className="flex-1 min-w-0">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={page}
-              initial={{ opacity: 0, x: 60 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -60 }}
-              transition={{ duration: 0.35, ease: 'easeInOut' }}
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
-            >
-              {visible.map((plan) => (
-                <div
-                  key={plan.name}
-                  className={`relative rounded-2xl border transition-all duration-300 h-full flex flex-col ${
-                    plan.popular
-                      ? 'bg-gradient-to-b from-violet-500/15 to-violet-500/5 border-violet-500/40 shadow-xl shadow-violet-500/10 p-6 scale-[1.03]'
-                      : `glass-card ${plan.border} ${plan.bg} p-6`
-                  }`}
-                >
-                  {plan.popular && (
-                    <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-violet-500 to-blue-500 text-white text-xs font-bold px-5 py-1.5 rounded-full whitespace-nowrap shadow-lg shadow-violet-500/25">
-                      {t('landingBestValue')}
-                    </div>
-                  )}
-
-                  <div className="mb-4">
-                    <div className={`text-sm font-bold uppercase tracking-widest mb-2 ${plan.accent}`}>
-                      {plan.name}
-                    </div>
-                    <p className="text-sm text-muted leading-relaxed">{plan.desc}</p>
-                  </div>
-
-                  <div className="mb-6">
-                    {plan.price === 0 ? (
-                      <span className="text-4xl font-black text-foreground">{t('landingFree')}</span>
-                    ) : (
-                      <>
-                        <span className="text-4xl font-black text-foreground">${plan.price}</span>
-                        <span className="text-muted text-sm">/mo</span>
-                      </>
-                    )}
-                  </div>
-
-                  <ul className="space-y-2.5 mb-6 flex-1">
-                    {plan.features.map((f) => (
-                      <li key={f} className="flex items-start gap-2 text-sm text-muted">
-                        <CheckCircle2 className={`w-4 h-4 flex-shrink-0 mt-0.5 ${plan.popular ? 'text-violet-400' : plan.accent}`} />
-                        {f}
-                      </li>
-                    ))}
-                  </ul>
-
-                  <Link
-                    to="/register"
-                    className={`block w-full text-center py-3 rounded-xl font-semibold text-sm transition-all mt-auto ${
-                      plan.popular
-                        ? 'bg-gradient-to-r from-violet-500 to-blue-500 text-white hover:opacity-90 shadow-lg shadow-violet-500/20'
-                        : 'bg-surface text-foreground hover:bg-surface-hover border border-b-border'
-                    }`}
-                  >
-                    {plan.price === 0 ? t('landingStartFreeBtn') : t('landingGetStartedBtn')}
-                  </Link>
-                </div>
-              ))}
-            </motion.div>
-          </AnimatePresence>
-        </div>
-
-        {/* Right arrow */}
-        <button
-          onClick={nextPage}
-          className="flex-shrink-0 w-12 h-12 rounded-full border border-b-border bg-surface hover:bg-surface-hover flex items-center justify-center text-muted hover:text-foreground transition-all hover:scale-105"
-        >
-          <ChevronRight className="w-5 h-5" />
-        </button>
-      </div>
-
-      {/* Dots indicator */}
-      <div className="flex items-center justify-center gap-2 mt-8">
-        {Array.from({ length: totalPages }, (_, i) => (
-          <button
-            key={i}
-            onClick={() => setPage(i)}
-            className={`transition-all duration-300 rounded-full ${
-              i === page
-                ? 'w-8 h-2.5 bg-gradient-to-r from-blue-500 to-violet-500'
-                : 'w-2.5 h-2.5 bg-surface-hover hover:bg-muted/30'
-            }`}
-          />
-        ))}
-      </div>
-    </div>
   );
 }
 
@@ -792,9 +654,64 @@ export default function Landing() {
             <p className="text-muted text-lg">{t('landingPricingSubtitle')}</p>
           </FadeIn>
 
-          <FadeIn>
-            <PricingCarousel plans={PLANS} t={t} />
-          </FadeIn>
+          <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto items-start">
+            {PLANS.map((plan, i) => (
+              <FadeIn key={plan.name} delay={i * 0.1}>
+                <motion.div
+                  whileHover={{ y: -8 }}
+                  className={`relative rounded-2xl border transition-all duration-300 flex flex-col ${
+                    plan.popular
+                      ? 'bg-gradient-to-b from-violet-500/15 to-violet-500/5 border-violet-500/40 shadow-2xl shadow-violet-500/10 p-8 lg:p-10 lg:scale-105'
+                      : `glass-card ${plan.border} ${plan.bg} p-8 lg:p-10`
+                  }`}
+                >
+                  {plan.popular && (
+                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-violet-500 to-blue-500 text-white text-xs font-bold px-6 py-2 rounded-full whitespace-nowrap shadow-lg shadow-violet-500/25">
+                      {t('landingBestValue')}
+                    </div>
+                  )}
+
+                  <div className="mb-6">
+                    <div className={`text-base font-bold uppercase tracking-widest mb-2 ${plan.accent}`}>
+                      {plan.name}
+                    </div>
+                    <p className="text-base text-muted leading-relaxed">{plan.desc}</p>
+                  </div>
+
+                  <div className="mb-8">
+                    {plan.price === 0 ? (
+                      <span className="text-5xl lg:text-6xl font-black text-foreground">{t('landingFree')}</span>
+                    ) : (
+                      <>
+                        <span className="text-5xl lg:text-6xl font-black text-foreground">${plan.price}</span>
+                        <span className="text-muted text-lg">/mo</span>
+                      </>
+                    )}
+                  </div>
+
+                  <ul className="space-y-4 mb-10 flex-1">
+                    {plan.features.map((f) => (
+                      <li key={f} className="flex items-start gap-3 text-base text-muted">
+                        <CheckCircle2 className={`w-5 h-5 flex-shrink-0 mt-0.5 ${plan.popular ? 'text-violet-400' : plan.accent}`} />
+                        {f}
+                      </li>
+                    ))}
+                  </ul>
+
+                  <Link
+                    to="/register"
+                    className={`block w-full text-center py-4 rounded-xl font-semibold text-base transition-all mt-auto ${
+                      plan.popular
+                        ? 'bg-gradient-to-r from-violet-500 to-blue-500 text-white hover:opacity-90 shadow-lg shadow-violet-500/20'
+                        : 'bg-surface text-foreground hover:bg-surface-hover border border-b-border'
+                    }`}
+                  >
+                    {plan.price === 0 ? t('landingStartFreeBtn') : t('landingGetStartedBtn')}
+                  </Link>
+                </motion.div>
+              </FadeIn>
+            ))}
+          </div>
         </div>
       </section>
 
