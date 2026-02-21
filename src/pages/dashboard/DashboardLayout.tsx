@@ -11,26 +11,47 @@ import { useThemeStore } from '../../store/theme.store';
 import { useI18n } from '../../store/i18n.store';
 import { LOCALE_META, type Locale } from '../../i18n/translations';
 import { authApi } from '../../api/auth.api';
+import { teamApi } from '../../api/team.api';
 import toast from 'react-hot-toast';
 
 export default function DashboardLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
+  const [permissions, setPermissions] = useState<Record<string, boolean> | null>(null);
   const langRef = useRef<HTMLDivElement>(null);
   const { user, logout, refreshToken } = useAuthStore();
   const { theme, toggleTheme } = useThemeStore();
   const { t, locale, setLocale } = useI18n();
   const navigate = useNavigate();
 
-  const NAV = [
-    { to: '/dashboard', icon: <LayoutDashboard className="w-4 h-4" />, label: t('navOverview'), end: true },
-    { to: '/dashboard/conversations', icon: <MessageSquare className="w-4 h-4" />, label: t('navConversations') },
-    { to: '/dashboard/ai', icon: <Brain className="w-4 h-4" />, label: t('navAiSettings') },
-    { to: '/dashboard/services', icon: <Scissors className="w-4 h-4" />, label: t('navServices') },
-    { to: '/dashboard/bookings', icon: <Calendar className="w-4 h-4" />, label: t('navBookings') },
-    { to: '/dashboard/channels', icon: <Radio className="w-4 h-4" />, label: t('navChannels') },
-    { to: '/dashboard/team', icon: <Users className="w-4 h-4" />, label: t('navTeam') },
+  // Fetch permissions for TENANT_MEMBER users
+  useEffect(() => {
+    if (!user) return;
+    if (user.role === 'TENANT_OWNER' || user.role === 'SUPER_ADMIN') {
+      setPermissions(null); // owners/admins see everything
+      return;
+    }
+    teamApi.getPermissions(user.id).then((perms: any[]) => {
+      const map: Record<string, boolean> = {};
+      perms.forEach((p: any) => { map[p.resource] = p.canView; });
+      setPermissions(map);
+    }).catch(() => setPermissions(null));
+  }, [user]);
+
+  const ALL_NAV = [
+    { to: '/dashboard', icon: <LayoutDashboard className="w-4 h-4" />, label: t('navOverview'), end: true, resource: null },
+    { to: '/dashboard/conversations', icon: <MessageSquare className="w-4 h-4" />, label: t('navConversations'), resource: 'conversations' },
+    { to: '/dashboard/ai', icon: <Brain className="w-4 h-4" />, label: t('navAiSettings'), resource: 'ai_settings' },
+    { to: '/dashboard/services', icon: <Scissors className="w-4 h-4" />, label: t('navServices'), resource: 'services' },
+    { to: '/dashboard/bookings', icon: <Calendar className="w-4 h-4" />, label: t('navBookings'), resource: 'bookings' },
+    { to: '/dashboard/channels', icon: <Radio className="w-4 h-4" />, label: t('navChannels'), resource: 'channels' },
+    { to: '/dashboard/team', icon: <Users className="w-4 h-4" />, label: t('navTeam'), resource: 'team' },
   ];
+
+  // Filter nav based on permissions (null = show all, {} = show only allowed)
+  const NAV = permissions
+    ? ALL_NAV.filter((item) => !item.resource || permissions[item.resource])
+    : ALL_NAV;
 
   // Close lang dropdown on outside click
   useEffect(() => {

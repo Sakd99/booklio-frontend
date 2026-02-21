@@ -9,6 +9,8 @@ import { LOCALE_META } from './i18n/translations';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import Blog from './pages/Blog';
+import BlogPost from './pages/BlogPost';
 
 import DashboardLayout from './pages/dashboard/DashboardLayout';
 import Overview from './pages/dashboard/Overview';
@@ -23,6 +25,8 @@ import AdminLayout from './pages/dashboard/admin/AdminLayout';
 import Metrics from './pages/dashboard/admin/Metrics';
 import Tenants from './pages/dashboard/admin/Tenants';
 import Plans from './pages/dashboard/admin/Plans';
+import AdminBlog from './pages/dashboard/admin/Blog';
+import TenantDetail from './pages/dashboard/admin/TenantDetail';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const token = useAuthStore((s) => s.accessToken);
@@ -40,7 +44,6 @@ export default function App() {
   const theme = useThemeStore((s) => s.theme);
   const locale = useI18n((s) => s.locale);
 
-  // Apply theme class on mount and change
   useEffect(() => {
     const root = document.documentElement;
     if (theme === 'dark') {
@@ -52,7 +55,6 @@ export default function App() {
     }
   }, [theme]);
 
-  // Apply locale dir on mount and change
   useEffect(() => {
     const { dir } = LOCALE_META[locale];
     document.documentElement.dir = dir;
@@ -78,6 +80,8 @@ export default function App() {
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/blog" element={<Blog />} />
+        <Route path="/blog/:slug" element={<BlogPost />} />
 
         {/* Tenant Dashboard */}
         <Route
@@ -108,7 +112,9 @@ export default function App() {
         >
           <Route index element={<Metrics />} />
           <Route path="tenants" element={<Tenants />} />
+          <Route path="tenants/:id" element={<TenantDetail />} />
           <Route path="plans" element={<Plans />} />
+          <Route path="blog" element={<AdminBlog />} />
         </Route>
 
         {/* Fallback */}

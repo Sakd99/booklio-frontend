@@ -3,7 +3,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   MessageSquare, Send, Instagram, Music2, User, Bot,
-  Search, ChevronLeft, ToggleLeft, ToggleRight, Clock, Calendar
+  Search, ChevronLeft, ToggleLeft, ToggleRight, Clock, Calendar,
+  Phone, MessageCircle, Filter
 } from 'lucide-react';
 import { conversationsApi } from '../../api/conversations.api';
 import Spinner from '../../components/ui/Spinner';
@@ -20,6 +21,28 @@ const STATE_BADGES: Record<string, { label: string; color: string }> = {
   fallback: { label: 'Fallback', color: 'bg-red-500/20 text-red-500' },
 };
 
+function channelIcon(type: string) {
+  switch (type) {
+    case 'INSTAGRAM': return <Instagram className="w-3.5 h-3.5 text-pink-500" />;
+    case 'TIKTOK': return <Music2 className="w-3.5 h-3.5 text-cyan-500" />;
+    case 'WHATSAPP': return <Phone className="w-3.5 h-3.5 text-emerald-500" />;
+    case 'TELEGRAM': return <Send className="w-3.5 h-3.5 text-blue-500" />;
+    case 'MESSENGER': return <MessageCircle className="w-3.5 h-3.5 text-purple-500" />;
+    default: return <MessageSquare className="w-3.5 h-3.5 text-muted" />;
+  }
+}
+
+function channelLabel(type: string) {
+  switch (type) {
+    case 'INSTAGRAM': return 'Instagram';
+    case 'TIKTOK': return 'TikTok';
+    case 'WHATSAPP': return 'WhatsApp';
+    case 'TELEGRAM': return 'Telegram';
+    case 'MESSENGER': return 'Messenger';
+    default: return type;
+  }
+}
+
 function timeAgo(date: string) {
   const diff = Date.now() - new Date(date).getTime();
   const mins = Math.floor(diff / 60000);
@@ -34,6 +57,7 @@ export default function Conversations() {
   const { t } = useI18n();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [search, setSearch] = useState('');
+  const [channelFilter, setChannelFilter] = useState<string>('ALL');
   const [replyText, setReplyText] = useState('');
   const msgEndRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
@@ -75,7 +99,9 @@ export default function Conversations() {
   }, [convDetail?.messages]);
 
   const conversations = (convList?.data ?? []).filter(
-    (c: any) => !search || c.customerName?.toLowerCase().includes(search.toLowerCase()),
+    (c: any) =>
+      (!search || c.customerName?.toLowerCase().includes(search.toLowerCase())) &&
+      (channelFilter === 'ALL' || c.channelType === channelFilter)
   );
 
   const handleSend = () => {
@@ -99,6 +125,22 @@ export default function Conversations() {
               className="input-base !pl-10"
             />
           </div>
+        </div>
+
+        <div className="px-3 pb-2 flex gap-1.5 overflow-x-auto">
+          {['ALL', 'INSTAGRAM', 'TIKTOK', 'WHATSAPP', 'TELEGRAM', 'MESSENGER'].map((ch) => (
+            <button
+              key={ch}
+              onClick={() => setChannelFilter(ch)}
+              className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-medium whitespace-nowrap transition-all ${
+                channelFilter === ch
+                  ? 'bg-blue-500/10 text-blue-500 border border-blue-500/20'
+                  : 'text-dim hover:text-muted hover:bg-surface border border-transparent'
+              }`}
+            >
+              {ch === 'ALL' ? t('all') : channelLabel(ch)}
+            </button>
+          ))}
         </div>
 
         <div className="flex-1 overflow-y-auto">
@@ -125,11 +167,7 @@ export default function Conversations() {
                     <User className="w-4 h-4 text-muted" />
                   </div>
                   <div className="absolute -bottom-0.5 -right-0.5">
-                    {conv.channelType === 'INSTAGRAM' ? (
-                      <Instagram className="w-3.5 h-3.5 text-pink-500" />
-                    ) : (
-                      <Music2 className="w-3.5 h-3.5 text-cyan-500" />
-                    )}
+                    {channelIcon(conv.channelType)}
                   </div>
                 </div>
                 <div className="flex-1 min-w-0">
@@ -188,11 +226,8 @@ export default function Conversations() {
                   {convDetail.customerName ?? convDetail.customerExternalId}
                 </div>
                 <div className="flex items-center gap-2 text-[10px] text-dim">
-                  {convDetail.channel.type === 'INSTAGRAM' ? (
-                    <><Instagram className="w-3 h-3 text-pink-500" /> Instagram</>
-                  ) : (
-                    <><Music2 className="w-3 h-3 text-cyan-500" /> TikTok</>
-                  )}
+                  {channelIcon(convDetail.channel.type)}
+                  {channelLabel(convDetail.channel.type)}
                   <span>·</span>
                   <span>{STATE_BADGES[convDetail.state]?.label ?? convDetail.state}</span>
                 </div>

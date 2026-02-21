@@ -5,6 +5,7 @@ import { Eye, EyeOff, Sparkles, UserPlus } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { authApi } from '../api/auth.api';
 import { useAuthStore } from '../store/auth.store';
+import { useI18n } from '../store/i18n.store';
 
 export default function Register() {
   const navigate = useNavigate();
@@ -18,6 +19,7 @@ export default function Register() {
   });
   const [show, setShow] = useState(false);
   const [loading, setLoading] = useState(false);
+  const { t } = useI18n();
 
   const set = (key: string, val: string) => setForm((f) => ({ ...f, [key]: val }));
 
@@ -27,7 +29,7 @@ export default function Register() {
     try {
       const data = await authApi.register(form);
       setAuth(data.accessToken, data.refreshToken);
-      toast.success('Account created! Welcome to Booklio');
+      toast.success(t('registerSuccess'));
       navigate('/dashboard');
     } catch (err: any) {
       const msg = err?.response?.data?.error;
@@ -63,33 +65,33 @@ export default function Register() {
 
         {/* Card */}
         <div className="glass-card rounded-3xl p-8 border border-b-border">
-          <h1 className="text-2xl font-bold text-foreground mb-1">Create your account</h1>
-          <p className="text-muted text-sm mb-8">Free forever. No credit card needed.</p>
+          <h1 className="text-2xl font-bold text-foreground mb-1">{t('registerTitle')}</h1>
+          <p className="text-muted text-sm mb-8">{t('registerSubtitle')}</p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-sm text-muted mb-2">First name</label>
+                <label className="block text-sm text-muted mb-2">{t('firstName')}</label>
                 <input required value={form.firstName} onChange={(e) => set('firstName', e.target.value)} className="input-base !py-3" placeholder="Ali" />
               </div>
               <div>
-                <label className="block text-sm text-muted mb-2">Last name</label>
+                <label className="block text-sm text-muted mb-2">{t('lastName')}</label>
                 <input required value={form.lastName} onChange={(e) => set('lastName', e.target.value)} className="input-base !py-3" placeholder="Hassan" />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm text-muted mb-2">Business name</label>
+              <label className="block text-sm text-muted mb-2">{t('registerBusinessName')}</label>
               <input required value={form.businessName} onChange={(e) => set('businessName', e.target.value)} className="input-base !py-3" placeholder="Ali's Barbershop" />
             </div>
 
             <div>
-              <label className="block text-sm text-muted mb-2">Email</label>
+              <label className="block text-sm text-muted mb-2">{t('email')}</label>
               <input type="email" required value={form.email} onChange={(e) => set('email', e.target.value)} className="input-base !py-3" placeholder="ali@barbershop.com" />
             </div>
 
             <div>
-              <label className="block text-sm text-muted mb-2">Password</label>
+              <label className="block text-sm text-muted mb-2">{t('password')}</label>
               <div className="relative">
                 <input
                   type={show ? 'text' : 'password'}
@@ -122,22 +124,22 @@ export default function Register() {
               ) : (
                 <>
                   <UserPlus className="w-4 h-4" />
-                  Create free account
+                  {t('registerCreateBtn')}
                 </>
               )}
             </motion.button>
           </form>
 
           <p className="text-center text-xs text-dim mt-5">
-            By registering you agree to our{' '}
-            <a href="#" className="text-muted hover:text-fg-secondary">Terms</a>
-            {' '}and{' '}
-            <a href="#" className="text-muted hover:text-fg-secondary">Privacy Policy</a>
+            {t('registerAgree')}{' '}
+            <a href="#" className="text-muted hover:text-fg-secondary">{t('registerTerms')}</a>
+            {' '}{t('registerAnd')}{' '}
+            <a href="#" className="text-muted hover:text-fg-secondary">{t('registerPrivacy')}</a>
           </p>
           <p className="text-center text-sm text-dim mt-4">
-            Already have an account?{' '}
+            {t('registerHasAccount')}{' '}
             <Link to="/login" className="text-blue-500 hover:text-blue-400 transition-colors">
-              Sign in
+              {t('loginSignIn')}
             </Link>
           </p>
         </div>

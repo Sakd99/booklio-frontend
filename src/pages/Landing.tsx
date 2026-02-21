@@ -1,12 +1,15 @@
 import { useRef, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { motion, useInView, useAnimation, AnimatePresence } from 'framer-motion';
+import { motion, useInView, AnimatePresence } from 'framer-motion';
 import {
   Zap, Bot, Calendar, Shield, BarChart3, Globe,
-  Instagram, MessageSquare, CheckCircle2, ArrowRight,
+  MessageSquare, CheckCircle2, ArrowRight,
   ChevronDown, Star, Menu, X, Sparkles, Clock,
-  Users, TrendingUp
+  Users, TrendingUp, Sun, Moon
 } from 'lucide-react';
+import { useI18n } from '../store/i18n.store';
+import { useThemeStore } from '../store/theme.store';
+import { LOCALE_META, type Locale } from '../i18n/translations';
 
 // ─── Animated Counter ────────────────────────────────────────────────
 function AnimatedCounter({ to, suffix = '' }: { to: number; suffix?: string }) {
@@ -46,46 +49,7 @@ function FadeIn({ children, delay = 0, className = '' }: { children: React.React
   );
 }
 
-// ─── Features ───────────────────────────────────────────────────────
-const FEATURES = [
-  {
-    icon: <Bot className="w-6 h-6" />,
-    title: 'AI-Powered Responses',
-    desc: 'Qwen AI handles customer Q&A 24/7 — answers questions, detects booking intent, and guides users through your flow.',
-    color: 'blue',
-  },
-  {
-    icon: <Calendar className="w-6 h-6" />,
-    title: 'Smart Scheduling',
-    desc: 'Customers book slots directly inside DMs. Real-time availability, buffer times, and conflict prevention built-in.',
-    color: 'violet',
-  },
-  {
-    icon: <Instagram className="w-6 h-6" />,
-    title: 'Instagram & TikTok',
-    desc: 'One-click OAuth connection. No developer needed. Works with all business accounts.',
-    color: 'rose',
-  },
-  {
-    icon: <Zap className="w-6 h-6" />,
-    title: 'Instant Webhooks',
-    desc: 'Sub-200ms webhook processing. Messages reach your customers before they stop looking at their screen.',
-    color: 'amber',
-  },
-  {
-    icon: <Shield className="w-6 h-6" />,
-    title: 'Enterprise Security',
-    desc: 'AES-256-GCM token encryption, JWT rotation, HMAC webhook verification, and per-tenant data isolation.',
-    color: 'emerald',
-  },
-  {
-    icon: <BarChart3 className="w-6 h-6" />,
-    title: 'Usage Analytics',
-    desc: 'Track messages, bookings, and AI calls per month. Plan-aware limits with real-time Redis counters.',
-    color: 'cyan',
-  },
-];
-
+// ─── Feature Colors ─────────────────────────────────────────────────
 const FEATURE_COLORS: Record<string, string> = {
   blue: 'from-blue-500/10 to-blue-500/5 border-blue-500/20 text-blue-400',
   violet: 'from-violet-500/10 to-violet-500/5 border-violet-500/20 text-violet-400',
@@ -101,8 +65,8 @@ const PLANS = [
     name: 'Free',
     price: 0,
     desc: 'Try the platform at no cost',
-    accent: 'text-white/50',
-    border: 'border-white/5',
+    accent: 'text-dim',
+    border: 'border-b-border',
     bg: '',
     features: ['1 channel', '500 messages/mo', '100 AI calls/mo', '10 bookings/mo', '1 team member'],
     popular: false,
@@ -149,35 +113,14 @@ const PLANS = [
   },
 ];
 
-// ─── Steps ─────────────────────────────────────────────────────────
-const STEPS = [
-  {
-    num: '01',
-    icon: <Instagram className="w-7 h-7" />,
-    title: 'Connect your account',
-    desc: 'One-click OAuth for Instagram or TikTok. No API keys, no developer needed. Done in 30 seconds.',
-    color: 'blue',
-  },
-  {
-    num: '02',
-    icon: <Calendar className="w-7 h-7" />,
-    title: 'Set up your services',
-    desc: 'Add your services, prices, and availability slots. The AI learns what you offer.',
-    color: 'violet',
-  },
-  {
-    num: '03',
-    icon: <MessageSquare className="w-7 h-7" />,
-    title: 'AI handles the rest',
-    desc: 'Customers DM you. AI answers questions, detects booking intent, and confirms appointments — automatically.',
-    color: 'emerald',
-  },
-];
-
 // ─── Navbar ────────────────────────────────────────────────────────
 function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const [langOpen, setLangOpen] = useState(false);
+  const langRef = useRef<HTMLDivElement>(null);
+  const { t, locale, setLocale } = useI18n();
+  const { theme, toggleTheme } = useThemeStore();
 
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 20);
@@ -185,10 +128,20 @@ function Navbar() {
     return () => window.removeEventListener('scroll', fn);
   }, []);
 
+  // Close lang dropdown on outside click
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (langRef.current && !langRef.current.contains(e.target as Node)) setLangOpen(false);
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
+
   const navLinks = [
-    { label: 'Features', href: '#features' },
-    { label: 'How it works', href: '#how' },
-    { label: 'Pricing', href: '#pricing' },
+    { label: t('landingFeaturesTag'), href: '#features' },
+    { label: t('landingHowTag'), href: '#how' },
+    { label: t('landingPricingTag'), href: '#pricing' },
+    { label: t('landingBlog'), href: '/blog', isRoute: true },
   ];
 
   return (
@@ -197,7 +150,7 @@ function Navbar() {
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.5 }}
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled ? 'bg-base/80 backdrop-blur-xl border-b border-white/5 shadow-xl' : ''
+        scrolled ? 'bg-base/80 backdrop-blur-xl border-b border-b-border shadow-xl' : ''
       }`}
     >
       <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
@@ -211,33 +164,89 @@ function Navbar() {
 
         {/* Desktop nav */}
         <div className="hidden md:flex items-center gap-8">
-          {navLinks.map((l) => (
-            <a
-              key={l.label}
-              href={l.href}
-              className="text-sm text-white/60 hover:text-white transition-colors"
-            >
-              {l.label}
-            </a>
-          ))}
+          {navLinks.map((l) =>
+            l.isRoute ? (
+              <Link
+                key={l.label}
+                to={l.href}
+                className="text-sm text-muted hover:text-foreground transition-colors"
+              >
+                {l.label}
+              </Link>
+            ) : (
+              <a
+                key={l.label}
+                href={l.href}
+                className="text-sm text-muted hover:text-foreground transition-colors"
+              >
+                {l.label}
+              </a>
+            )
+          )}
         </div>
 
-        {/* Desktop CTAs */}
-        <div className="hidden md:flex items-center gap-3">
-          <Link to="/login" className="text-sm text-white/70 hover:text-white transition-colors px-4 py-2">
-            Sign in
+        {/* Desktop CTAs + Theme + Lang */}
+        <div className="hidden md:flex items-center gap-2">
+          {/* Theme toggle */}
+          <button
+            onClick={toggleTheme}
+            className="p-2 text-muted hover:text-foreground transition-colors rounded-lg hover:bg-surface"
+            title={theme === 'dark' ? t('lightMode') : t('darkMode')}
+          >
+            {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+          </button>
+
+          {/* Language dropdown */}
+          <div className="relative" ref={langRef}>
+            <button
+              onClick={() => setLangOpen(!langOpen)}
+              className="flex items-center gap-1.5 p-2 text-muted hover:text-foreground transition-colors rounded-lg hover:bg-surface"
+            >
+              <Globe className="w-4 h-4" />
+              <span className="text-xs">{LOCALE_META[locale].flag}</span>
+              <ChevronDown className={`w-3 h-3 transition-transform ${langOpen ? 'rotate-180' : ''}`} />
+            </button>
+            <AnimatePresence>
+              {langOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: 4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 4 }}
+                  className="absolute top-full right-0 mt-1 rounded-xl glass-card border border-b-border shadow-xl overflow-hidden z-50 min-w-[160px]"
+                >
+                  {(Object.keys(LOCALE_META) as Locale[]).map((loc) => (
+                    <button
+                      key={loc}
+                      onClick={() => { setLocale(loc); setLangOpen(false); }}
+                      className={`w-full flex items-center gap-2.5 px-3 py-2.5 text-sm transition-colors ${
+                        locale === loc
+                          ? 'bg-blue-500/10 text-blue-500 font-medium'
+                          : 'text-muted hover:text-foreground hover:bg-surface'
+                      }`}
+                    >
+                      <span>{LOCALE_META[loc].flag}</span>
+                      <span>{LOCALE_META[loc].label}</span>
+                    </button>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          <Link to="/login" className="text-sm text-muted hover:text-foreground transition-colors px-4 py-2">
+            {t('landingSignIn')}
           </Link>
           <Link
             to="/register"
             className="text-sm font-medium bg-gradient-to-r from-blue-500 to-violet-600 text-white px-5 py-2 rounded-xl hover:opacity-90 transition-opacity"
           >
-            Get started free
+            {t('landingGetStarted')}
           </Link>
         </div>
 
         {/* Mobile menu button */}
         <button
-          className="md:hidden p-2 text-white/70 hover:text-white"
+          className="md:hidden p-2 text-muted hover:text-foreground"
           onClick={() => setOpen(!open)}
         >
           {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -251,27 +260,66 @@ function Navbar() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-base/95 backdrop-blur-xl border-b border-white/5 px-6 pb-6"
+            className="md:hidden bg-base/95 backdrop-blur-xl border-b border-b-border px-6 pb-6"
           >
             <div className="flex flex-col gap-4 pt-4">
-              {navLinks.map((l) => (
-                <a
-                  key={l.label}
-                  href={l.href}
-                  onClick={() => setOpen(false)}
-                  className="text-white/70 hover:text-white transition-colors"
+              {navLinks.map((l) =>
+                l.isRoute ? (
+                  <Link
+                    key={l.label}
+                    to={l.href}
+                    onClick={() => setOpen(false)}
+                    className="text-muted hover:text-foreground transition-colors"
+                  >
+                    {l.label}
+                  </Link>
+                ) : (
+                  <a
+                    key={l.label}
+                    href={l.href}
+                    onClick={() => setOpen(false)}
+                    className="text-muted hover:text-foreground transition-colors"
+                  >
+                    {l.label}
+                  </a>
+                )
+              )}
+
+              {/* Mobile theme + lang controls */}
+              <div className="flex items-center gap-3 pt-2 border-t border-b-border">
+                <button
+                  onClick={toggleTheme}
+                  className="flex items-center gap-2 px-3 py-2 text-sm text-muted hover:text-foreground hover:bg-surface rounded-lg transition-all"
                 >
-                  {l.label}
-                </a>
-              ))}
-              <Link to="/login" className="text-white/70 hover:text-white transition-colors">
-                Sign in
+                  {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                  {theme === 'dark' ? t('lightMode') : t('darkMode')}
+                </button>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {(Object.keys(LOCALE_META) as Locale[]).map((loc) => (
+                  <button
+                    key={loc}
+                    onClick={() => { setLocale(loc); }}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-colors ${
+                      locale === loc
+                        ? 'bg-blue-500/10 text-blue-500 font-medium'
+                        : 'text-muted hover:text-foreground hover:bg-surface'
+                    }`}
+                  >
+                    <span>{LOCALE_META[loc].flag}</span>
+                    <span>{LOCALE_META[loc].label}</span>
+                  </button>
+                ))}
+              </div>
+
+              <Link to="/login" className="text-muted hover:text-foreground transition-colors">
+                {t('landingSignIn')}
               </Link>
               <Link
                 to="/register"
                 className="bg-gradient-to-r from-blue-500 to-violet-600 text-white px-5 py-2.5 rounded-xl text-center font-medium"
               >
-                Get started free
+                {t('landingGetStarted')}
               </Link>
             </div>
           </motion.div>
@@ -283,8 +331,73 @@ function Navbar() {
 
 // ─── MAIN COMPONENT ────────────────────────────────────────────────
 export default function Landing() {
+  const { t } = useI18n();
+
+  const FEATURES = [
+    {
+      icon: <Bot className="w-6 h-6" />,
+      title: t('featureAi'),
+      desc: t('featureAiDesc'),
+      color: 'blue',
+    },
+    {
+      icon: <Calendar className="w-6 h-6" />,
+      title: t('featureScheduling'),
+      desc: t('featureSchedulingDesc'),
+      color: 'violet',
+    },
+    {
+      icon: <Globe className="w-6 h-6" />,
+      title: t('featureChannels'),
+      desc: t('featureChannelsDesc'),
+      color: 'rose',
+    },
+    {
+      icon: <Zap className="w-6 h-6" />,
+      title: t('featureWebhooks'),
+      desc: t('featureWebhooksDesc'),
+      color: 'amber',
+    },
+    {
+      icon: <Shield className="w-6 h-6" />,
+      title: t('featureSecurity'),
+      desc: t('featureSecurityDesc'),
+      color: 'emerald',
+    },
+    {
+      icon: <BarChart3 className="w-6 h-6" />,
+      title: t('featureAnalytics'),
+      desc: t('featureAnalyticsDesc'),
+      color: 'cyan',
+    },
+  ];
+
+  const STEPS = [
+    {
+      num: '01',
+      icon: <Globe className="w-7 h-7" />,
+      title: t('stepConnect'),
+      desc: t('stepConnectDesc'),
+      color: 'blue',
+    },
+    {
+      num: '02',
+      icon: <Calendar className="w-7 h-7" />,
+      title: t('stepServices'),
+      desc: t('stepServicesDesc'),
+      color: 'violet',
+    },
+    {
+      num: '03',
+      icon: <MessageSquare className="w-7 h-7" />,
+      title: t('stepAi'),
+      desc: t('stepAiDesc'),
+      color: 'emerald',
+    },
+  ];
+
   return (
-    <div className="min-h-screen bg-[#0a0f1e] overflow-x-hidden">
+    <div className="min-h-screen bg-base text-foreground overflow-x-hidden transition-colors duration-200">
       <Navbar />
 
       {/* ── HERO ──────────────────────────────────── */}
@@ -316,7 +429,7 @@ export default function Landing() {
           className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-sm font-medium mb-8"
         >
           <Sparkles className="w-4 h-4" />
-          AI-Powered DM Booking Automation
+          {t('landingBadge')}
         </motion.div>
 
         {/* Headline */}
@@ -326,9 +439,9 @@ export default function Landing() {
           transition={{ duration: 0.6, delay: 0.1 }}
           className="text-5xl md:text-7xl font-black leading-[1.05] tracking-tight max-w-4xl mx-auto mb-6"
         >
-          Turn every DM into{' '}
-          <span className="gradient-text">a booking</span>
-          <br />automatically
+          {t('landingHeadline1')}{' '}
+          <span className="gradient-text">{t('landingHeadline2')}</span>
+          <br />{t('landingHeadline1') === 'Turn every DM into' ? 'automatically' : ''}
         </motion.h1>
 
         {/* Subtext */}
@@ -336,10 +449,9 @@ export default function Landing() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="text-lg md:text-xl text-white/50 max-w-2xl mx-auto mb-10"
+          className="text-lg md:text-xl text-muted max-w-2xl mx-auto mb-10"
         >
-          Booklio connects your Instagram and TikTok DMs to an AI that answers questions,
-          detects booking intent, and schedules appointments — all without lifting a finger.
+          {t('landingSubtext')}
         </motion.p>
 
         {/* CTAs */}
@@ -353,14 +465,14 @@ export default function Landing() {
             to="/register"
             className="group flex items-center gap-2 bg-gradient-to-r from-blue-500 to-violet-600 text-white font-semibold px-8 py-4 rounded-2xl hover:opacity-90 transition-all duration-200 shadow-lg shadow-blue-500/25 text-base"
           >
-            Start for free
+            {t('landingStartFree')}
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </Link>
           <a
             href="#how"
-            className="flex items-center gap-2 text-white/60 hover:text-white transition-colors font-medium text-base"
+            className="flex items-center gap-2 text-muted hover:text-foreground transition-colors font-medium text-base"
           >
-            See how it works
+            {t('landingSeeHow')}
             <ChevronDown className="w-4 h-4" />
           </a>
         </motion.div>
@@ -370,16 +482,16 @@ export default function Landing() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.5 }}
-          className="mt-12 flex items-center gap-6 text-white/30 text-sm"
+          className="mt-12 flex items-center gap-6 text-dim text-sm"
         >
           <span className="flex items-center gap-1.5">
-            <CheckCircle2 className="w-4 h-4 text-emerald-500" /> No credit card
+            <CheckCircle2 className="w-4 h-4 text-emerald-500" /> {t('landingNoCreditCard')}
           </span>
           <span className="flex items-center gap-1.5">
-            <CheckCircle2 className="w-4 h-4 text-emerald-500" /> 2-min setup
+            <CheckCircle2 className="w-4 h-4 text-emerald-500" /> {t('landing2MinSetup')}
           </span>
           <span className="flex items-center gap-1.5">
-            <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Cancel anytime
+            <CheckCircle2 className="w-4 h-4 text-emerald-500" /> {t('landingCancelAnytime')}
           </span>
         </motion.div>
 
@@ -390,14 +502,14 @@ export default function Landing() {
           transition={{ duration: 0.8, delay: 0.6 }}
           className="mt-16 w-full max-w-4xl mx-auto"
         >
-          <div className="glass-card rounded-3xl p-4 border border-white/5 shadow-2xl">
-            <div className="bg-[#0d1424] rounded-2xl overflow-hidden">
+          <div className="glass-card rounded-3xl p-4 border border-b-border shadow-2xl">
+            <div className="bg-surface rounded-2xl overflow-hidden">
               {/* Fake browser bar */}
-              <div className="flex items-center gap-2 px-4 py-3 border-b border-white/5">
+              <div className="flex items-center gap-2 px-4 py-3 border-b border-b-border">
                 <div className="w-3 h-3 rounded-full bg-red-500/60" />
                 <div className="w-3 h-3 rounded-full bg-yellow-500/60" />
                 <div className="w-3 h-3 rounded-full bg-emerald-500/60" />
-                <div className="flex-1 mx-4 bg-white/5 rounded-lg px-3 py-1 text-xs text-white/30">
+                <div className="flex-1 mx-4 bg-surface rounded-lg px-3 py-1 text-xs text-dim">
                   app.booklio.dev/dashboard
                 </div>
               </div>
@@ -411,17 +523,17 @@ export default function Landing() {
                     { label: 'Revenue', val: '$4.8k', color: 'rose' },
                   ].map((s) => (
                     <div key={s.label} className="glass-card rounded-xl p-4">
-                      <div className="text-xl font-bold text-white">{s.val}</div>
-                      <div className="text-xs text-white/40 mt-0.5">{s.label}</div>
+                      <div className="text-xl font-bold text-foreground">{s.val}</div>
+                      <div className="text-xs text-muted mt-0.5">{s.label}</div>
                     </div>
                   ))}
                 </div>
                 <div className="grid grid-cols-3 gap-3">
                   <div className="col-span-2 glass-card rounded-xl p-4 h-28">
-                    <div className="text-xs text-white/40 mb-2">Recent bookings</div>
+                    <div className="text-xs text-muted mb-2">Recent bookings</div>
                     <div className="space-y-2">
                       {['Ahmed M. — Haircut 10:00', 'Sara K. — Beard Trim 11:00', 'Omar H. — Full Service 14:00'].map((b) => (
-                        <div key={b} className="flex items-center gap-2 text-xs text-white/60">
+                        <div key={b} className="flex items-center gap-2 text-xs text-muted">
                           <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
                           {b}
                         </div>
@@ -429,7 +541,7 @@ export default function Landing() {
                     </div>
                   </div>
                   <div className="glass-card rounded-xl p-4 h-28">
-                    <div className="text-xs text-white/40 mb-2">AI activity</div>
+                    <div className="text-xs text-muted mb-2">AI activity</div>
                     <div className="space-y-1.5">
                       {['Intent: booking', 'Slot confirmed', 'Reply sent'].map((a) => (
                         <div key={a} className="text-xs text-emerald-400/70 flex items-center gap-1.5">
@@ -446,20 +558,20 @@ export default function Landing() {
       </section>
 
       {/* ── STATS ────────────────────────────────── */}
-      <section className="py-20 border-y border-white/5">
+      <section className="py-20 border-y border-b-border">
         <div className="max-w-5xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
           {[
-            { to: 10000, suffix: '+', label: 'Businesses', icon: <Users className="w-5 h-5" /> },
-            { to: 2000000, suffix: '+', label: 'Messages sent', icon: <MessageSquare className="w-5 h-5" /> },
-            { to: 99, suffix: '.9%', label: 'Uptime SLA', icon: <TrendingUp className="w-5 h-5" /> },
-            { to: 200, suffix: 'ms', label: 'Avg response', icon: <Clock className="w-5 h-5" /> },
+            { to: 10000, suffix: '+', label: t('landingStatBusinesses'), icon: <Users className="w-5 h-5" /> },
+            { to: 2000000, suffix: '+', label: t('landingStatMessages'), icon: <MessageSquare className="w-5 h-5" /> },
+            { to: 99, suffix: '.9%', label: t('landingStatUptime'), icon: <TrendingUp className="w-5 h-5" /> },
+            { to: 200, suffix: 'ms', label: t('landingStatResponse'), icon: <Clock className="w-5 h-5" /> },
           ].map((s, i) => (
             <FadeIn key={s.label} delay={i * 0.1} className="flex flex-col items-center gap-2">
-              <div className="text-white/30 mb-1">{s.icon}</div>
+              <div className="text-dim mb-1">{s.icon}</div>
               <div className="text-4xl font-black gradient-text">
                 <AnimatedCounter to={s.to} suffix={s.suffix} />
               </div>
-              <div className="text-sm text-white/40">{s.label}</div>
+              <div className="text-sm text-muted">{s.label}</div>
             </FadeIn>
           ))}
         </div>
@@ -470,14 +582,14 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto">
           <FadeIn className="text-center mb-16">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/20 text-violet-400 text-sm mb-5">
-              <Zap className="w-3.5 h-3.5" /> Features
+              <Zap className="w-3.5 h-3.5" /> {t('landingFeaturesTag')}
             </div>
             <h2 className="text-4xl md:text-5xl font-black mb-4">
-              Everything you need to{' '}
-              <span className="gradient-text">automate bookings</span>
+              {t('landingFeaturesTitle')}{' '}
+              <span className="gradient-text">{t('landingFeaturesHighlight')}</span>
             </h2>
-            <p className="text-white/40 text-lg max-w-2xl mx-auto">
-              Built for salons, studios, clinics, coaches — anyone who takes appointments via social DMs.
+            <p className="text-muted text-lg max-w-2xl mx-auto">
+              {t('landingFeaturesSubtitle')}
             </p>
           </FadeIn>
 
@@ -488,13 +600,13 @@ export default function Landing() {
                 <FadeIn key={f.title} delay={i * 0.08}>
                   <motion.div
                     whileHover={{ y: -6, borderColor: 'rgba(59,130,246,0.3)' }}
-                    className="glass-card rounded-2xl p-6 border border-white/5 transition-all duration-300 h-full"
+                    className="glass-card rounded-2xl p-6 border border-b-border transition-all duration-300 h-full"
                   >
                     <div className={`inline-flex p-3 rounded-xl bg-gradient-to-br ${c} border mb-4`}>
                       {f.icon}
                     </div>
-                    <h3 className="text-lg font-semibold text-white mb-2">{f.title}</h3>
-                    <p className="text-white/40 text-sm leading-relaxed">{f.desc}</p>
+                    <h3 className="text-lg font-semibold text-foreground mb-2">{f.title}</h3>
+                    <p className="text-muted text-sm leading-relaxed">{f.desc}</p>
                   </motion.div>
                 </FadeIn>
               );
@@ -508,11 +620,11 @@ export default function Landing() {
         <div className="max-w-5xl mx-auto">
           <FadeIn className="text-center mb-16">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-sm mb-5">
-              <Globe className="w-3.5 h-3.5" /> How it works
+              <Globe className="w-3.5 h-3.5" /> {t('landingHowTag')}
             </div>
             <h2 className="text-4xl md:text-5xl font-black mb-4">
-              Live in{' '}
-              <span className="gradient-text">3 simple steps</span>
+              {t('landingHowTitle')}{' '}
+              <span className="gradient-text">{t('landingHowHighlight')}</span>
             </h2>
           </FadeIn>
 
@@ -538,9 +650,9 @@ export default function Landing() {
                   >
                     {s.icon}
                   </motion.div>
-                  <div className="text-xs font-bold text-white/20 mb-2 tracking-widest">{s.num}</div>
-                  <h3 className="text-xl font-bold text-white mb-3">{s.title}</h3>
-                  <p className="text-white/40 text-sm leading-relaxed">{s.desc}</p>
+                  <div className="text-xs font-bold text-dim mb-2 tracking-widest">{s.num}</div>
+                  <h3 className="text-xl font-bold text-foreground mb-3">{s.title}</h3>
+                  <p className="text-muted text-sm leading-relaxed">{s.desc}</p>
                 </div>
               </FadeIn>
             ))}
@@ -553,13 +665,13 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto">
           <FadeIn className="text-center mb-16">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm mb-5">
-              <Star className="w-3.5 h-3.5" /> Pricing
+              <Star className="w-3.5 h-3.5" /> {t('landingPricingTag')}
             </div>
             <h2 className="text-4xl md:text-5xl font-black mb-4">
-              Simple, transparent{' '}
-              <span className="gradient-text">pricing</span>
+              {t('landingPricingTitle')}{' '}
+              <span className="gradient-text">{t('landingPricingHighlight')}</span>
             </h2>
-            <p className="text-white/40 text-lg">Start free, scale as you grow. No hidden fees.</p>
+            <p className="text-muted text-lg">{t('landingPricingSubtitle')}</p>
           </FadeIn>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5 items-start">
@@ -575,28 +687,28 @@ export default function Landing() {
                 >
                   {plan.popular && (
                     <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-violet-500 to-blue-500 text-white text-xs font-bold px-4 py-1 rounded-full whitespace-nowrap">
-                      Best Value
+                      {t('landingBestValue')}
                     </div>
                   )}
                   <div className="mb-4">
                     <div className={`text-xs font-bold uppercase tracking-widest mb-1.5 ${plan.accent}`}>
                       {plan.name}
                     </div>
-                    <p className="text-xs text-white/40 leading-relaxed">{plan.desc}</p>
+                    <p className="text-xs text-muted leading-relaxed">{plan.desc}</p>
                   </div>
                   <div className="mb-5">
                     {plan.price === 0 ? (
-                      <span className="text-3xl font-black text-white">Free</span>
+                      <span className="text-3xl font-black text-foreground">{t('landingFree')}</span>
                     ) : (
                       <>
-                        <span className="text-3xl font-black text-white">${plan.price}</span>
-                        <span className="text-white/40 text-xs">/mo</span>
+                        <span className="text-3xl font-black text-foreground">${plan.price}</span>
+                        <span className="text-muted text-xs">/mo</span>
                       </>
                     )}
                   </div>
                   <ul className="space-y-2 mb-6">
                     {plan.features.map((f) => (
-                      <li key={f} className="flex items-start gap-2 text-xs text-white/55">
+                      <li key={f} className="flex items-start gap-2 text-xs text-muted">
                         <CheckCircle2 className={`w-3.5 h-3.5 flex-shrink-0 mt-0.5 ${plan.popular ? 'text-violet-400' : plan.accent}`} />
                         {f}
                       </li>
@@ -607,10 +719,10 @@ export default function Landing() {
                     className={`block w-full text-center py-2.5 rounded-xl font-semibold text-xs transition-all ${
                       plan.popular
                         ? 'bg-gradient-to-r from-violet-500 to-blue-500 text-white hover:opacity-90 shadow-lg shadow-violet-500/20'
-                        : 'bg-white/5 text-white hover:bg-white/10 border border-white/10'
+                        : 'bg-surface text-foreground hover:bg-surface-hover border border-b-border'
                     }`}
                   >
-                    {plan.price === 0 ? 'Start free' : 'Get started'}
+                    {plan.price === 0 ? t('landingStartFreeBtn') : t('landingGetStartedBtn')}
                   </Link>
                 </motion.div>
               </FadeIn>
@@ -630,25 +742,25 @@ export default function Landing() {
                 transition={{ duration: 6, repeat: Infinity }}
                 className="absolute -top-20 -right-20 w-60 h-60 bg-blue-500 rounded-full blur-[80px] opacity-20"
               />
-              <h2 className="text-4xl font-black text-white mb-4">
-                Ready to <span className="gradient-text">automate</span>?
+              <h2 className="text-4xl font-black text-foreground mb-4 relative z-10">
+                {t('landingCtaTitle')} <span className="gradient-text">{t('landingCtaHighlight')}</span>?
               </h2>
-              <p className="text-white/40 text-lg mb-8">
-                Join thousands of businesses turning DMs into confirmed bookings.
+              <p className="text-muted text-lg mb-8 relative z-10">
+                {t('landingCtaSubtitle')}
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <div className="flex flex-col sm:flex-row gap-4 justify-center relative z-10">
                 <Link
                   to="/register"
                   className="group flex items-center justify-center gap-2 bg-gradient-to-r from-blue-500 to-violet-600 text-white font-semibold px-8 py-4 rounded-xl hover:opacity-90 transition-all shadow-lg shadow-blue-500/25"
                 >
-                  Start for free
+                  {t('landingStartFree')}
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </Link>
                 <Link
                   to="/login"
-                  className="flex items-center justify-center gap-2 bg-white/5 border border-white/10 text-white font-semibold px-8 py-4 rounded-xl hover:bg-white/10 transition-all"
+                  className="flex items-center justify-center gap-2 bg-surface border border-b-border text-foreground font-semibold px-8 py-4 rounded-xl hover:bg-surface-hover transition-all"
                 >
-                  Sign in
+                  {t('landingSignIn')}
                 </Link>
               </div>
             </div>
@@ -657,7 +769,7 @@ export default function Landing() {
       </section>
 
       {/* ── FOOTER ───────────────────────────────── */}
-      <footer className="border-t border-white/5 py-12 px-6">
+      <footer className="border-t border-b-border py-12 px-6">
         <div className="max-w-7xl mx-auto">
           <div className="grid md:grid-cols-4 gap-8 mb-10">
             <div>
@@ -667,35 +779,56 @@ export default function Landing() {
                 </div>
                 <span className="font-bold text-lg gradient-text">Booklio</span>
               </div>
-              <p className="text-white/30 text-sm leading-relaxed">
-                AI-powered DM booking automation for Instagram & TikTok businesses.
+              <p className="text-dim text-sm leading-relaxed">
+                {t('footerDesc')}
               </p>
             </div>
             {[
-              { title: 'Product', links: ['Features', 'Pricing', 'Security', 'API'] },
-              { title: 'Company', links: ['About', 'Blog', 'Careers', 'Contact'] },
-              { title: 'Support', links: ['Documentation', 'Status', 'Community', 'Terms'] },
+              { title: t('footerProduct'), links: [
+                { label: t('landingFeaturesTag'), href: '#features' },
+                { label: t('landingPricingTag'), href: '#pricing' },
+                { label: 'Security', href: '#' },
+                { label: 'API', href: '#' },
+              ]},
+              { title: t('footerCompany'), links: [
+                { label: 'About', href: '#' },
+                { label: t('landingBlog'), href: '/blog', isRoute: true },
+                { label: 'Careers', href: '#' },
+                { label: 'Contact', href: '#' },
+              ]},
+              { title: t('footerSupport'), links: [
+                { label: 'Documentation', href: '#' },
+                { label: 'Status', href: '#' },
+                { label: 'Community', href: '#' },
+                { label: 'Terms', href: '#' },
+              ]},
             ].map((col) => (
               <div key={col.title}>
-                <h4 className="text-sm font-semibold text-white/60 uppercase tracking-wider mb-4">{col.title}</h4>
+                <h4 className="text-sm font-semibold text-muted uppercase tracking-wider mb-4">{col.title}</h4>
                 <ul className="space-y-2">
                   {col.links.map((l) => (
-                    <li key={l}>
-                      <a href="#" className="text-sm text-white/30 hover:text-white/60 transition-colors">
-                        {l}
-                      </a>
+                    <li key={l.label}>
+                      {l.isRoute ? (
+                        <Link to={l.href} className="text-sm text-dim hover:text-muted transition-colors">
+                          {l.label}
+                        </Link>
+                      ) : (
+                        <a href={l.href} className="text-sm text-dim hover:text-muted transition-colors">
+                          {l.label}
+                        </a>
+                      )}
                     </li>
                   ))}
                 </ul>
               </div>
             ))}
           </div>
-          <div className="flex flex-col md:flex-row items-center justify-between pt-8 border-t border-white/5 gap-4">
-            <p className="text-sm text-white/20">© 2026 Booklio. All rights reserved.</p>
-            <div className="flex items-center gap-2 text-sm text-white/20">
+          <div className="flex flex-col md:flex-row items-center justify-between pt-8 border-t border-b-border gap-4">
+            <p className="text-sm text-dim">&copy; 2026 Booklio. All rights reserved.</p>
+            <div className="flex items-center gap-2 text-sm text-dim">
               <span>Built with</span>
-              <span className="text-red-400">♥</span>
-              <span>for DM-driven businesses</span>
+              <span className="text-red-400">&hearts;</span>
+              <span>{t('footerBuiltWith')}</span>
             </div>
           </div>
         </div>

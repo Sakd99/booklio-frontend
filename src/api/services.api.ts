@@ -1,5 +1,7 @@
 import api from './client';
 
+export type ServiceType = 'BOOKING' | 'PRODUCT';
+
 export interface Availability {
   dayOfWeek: number; // 0=Sun, 1=Mon...
   startTime: string; // "09:00"
@@ -7,13 +9,14 @@ export interface Availability {
 }
 
 export interface CreateServicePayload {
+  type?: ServiceType;
   name: string;
   description?: string;
-  durationMinutes: number;
+  durationMinutes?: number;
   bufferMinutes?: number;
   price: number;
   currency?: string;
-  availabilities: Availability[];
+  availabilities?: Availability[];
 }
 
 export const servicesApi = {

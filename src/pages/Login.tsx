@@ -5,6 +5,7 @@ import { Eye, EyeOff, Sparkles, LogIn } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { authApi } from '../api/auth.api';
 import { useAuthStore } from '../store/auth.store';
+import { useI18n } from '../store/i18n.store';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -12,6 +13,7 @@ export default function Login() {
   const [form, setForm] = useState({ email: '', password: '' });
   const [show, setShow] = useState(false);
   const [loading, setLoading] = useState(false);
+  const { t } = useI18n();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,7 +21,7 @@ export default function Login() {
     try {
       const data = await authApi.login(form);
       setAuth(data.accessToken, data.refreshToken);
-      toast.success('Welcome back!');
+      toast.success(t('welcomeBack') + '!');
       const user = useAuthStore.getState().user;
       navigate(user?.role === 'SUPER_ADMIN' ? '/admin' : '/dashboard');
     } catch (err: any) {
@@ -55,12 +57,12 @@ export default function Login() {
 
         {/* Card */}
         <div className="glass-card rounded-3xl p-8 border border-b-border">
-          <h1 className="text-2xl font-bold text-foreground mb-1">Welcome back</h1>
-          <p className="text-muted text-sm mb-8">Sign in to your account</p>
+          <h1 className="text-2xl font-bold text-foreground mb-1">{t('loginWelcome')}</h1>
+          <p className="text-muted text-sm mb-8">{t('loginSubtitle')}</p>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-sm text-muted mb-2">Email</label>
+              <label className="block text-sm text-muted mb-2">{t('email')}</label>
               <input
                 type="email"
                 required
@@ -72,7 +74,7 @@ export default function Login() {
             </div>
 
             <div>
-              <label className="block text-sm text-muted mb-2">Password</label>
+              <label className="block text-sm text-muted mb-2">{t('password')}</label>
               <div className="relative">
                 <input
                   type={show ? 'text' : 'password'}
@@ -94,7 +96,7 @@ export default function Login() {
 
             {/* Demo credentials */}
             <div className="p-3 rounded-xl bg-blue-500/5 border border-blue-500/10 text-xs text-muted">
-              <div className="font-semibold text-fg-secondary mb-1">Demo credentials:</div>
+              <div className="font-semibold text-fg-secondary mb-1">{t('loginDemoCredentials')}</div>
               <div>Tenant: <span className="text-blue-500">demo@booklio.dev</span> / <span className="text-blue-500">Demo@12345</span></div>
               <div>Admin: <span className="text-violet-500">super@booklio.dev</span> / <span className="text-violet-500">SuperAdmin@123</span></div>
             </div>
@@ -111,16 +113,16 @@ export default function Login() {
               ) : (
                 <>
                   <LogIn className="w-4 h-4" />
-                  Sign in
+                  {t('loginSignIn')}
                 </>
               )}
             </motion.button>
           </form>
 
           <p className="text-center text-sm text-dim mt-6">
-            Don't have an account?{' '}
+            {t('loginNoAccount')}{' '}
             <Link to="/register" className="text-blue-500 hover:text-blue-400 transition-colors">
-              Create one free
+              {t('loginCreateFree')}
             </Link>
           </p>
         </div>

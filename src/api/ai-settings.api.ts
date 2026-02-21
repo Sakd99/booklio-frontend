@@ -17,6 +17,9 @@ export const aiSettingsApi = {
   addFaq: (question: string, answer: string) =>
     client.post('/ai-settings/faq', { question, answer }).then((r) => r.data),
 
+  updateFaq: (index: number, question: string, answer: string) =>
+    client.put(`/ai-settings/faq/${index}`, { question, answer }).then((r) => r.data),
+
   removeFaq: (index: number) =>
     client.delete(`/ai-settings/faq/${index}`).then((r) => r.data),
 
