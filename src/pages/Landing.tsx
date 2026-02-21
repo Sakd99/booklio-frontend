@@ -674,49 +674,49 @@ export default function Landing() {
             <p className="text-muted text-lg">{t('landingPricingSubtitle')}</p>
           </FadeIn>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5 items-start">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
             {PLANS.map((plan, i) => (
-              <FadeIn key={plan.name} delay={i * 0.08}>
+              <FadeIn key={plan.name} delay={i * 0.08} className={`${i >= 3 ? 'lg:col-start-auto' : ''} ${PLANS.length === 5 && i === 3 ? 'sm:col-start-1 lg:col-start-1' : ''}`}>
                 <motion.div
                   whileHover={{ y: -6 }}
-                  className={`relative rounded-2xl p-5 border transition-all duration-300 ${
+                  className={`relative rounded-2xl border transition-all duration-300 h-full flex flex-col ${
                     plan.popular
-                      ? 'bg-gradient-to-b from-violet-500/15 to-violet-500/5 border-violet-500/40 shadow-xl shadow-violet-500/10'
-                      : `glass-card ${plan.border} ${plan.bg}`
+                      ? 'bg-gradient-to-b from-violet-500/15 to-violet-500/5 border-violet-500/40 shadow-xl shadow-violet-500/10 p-7 scale-[1.02]'
+                      : `glass-card ${plan.border} ${plan.bg} p-6`
                   }`}
                 >
                   {plan.popular && (
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-violet-500 to-blue-500 text-white text-xs font-bold px-4 py-1 rounded-full whitespace-nowrap">
+                    <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-violet-500 to-blue-500 text-white text-xs font-bold px-5 py-1.5 rounded-full whitespace-nowrap shadow-lg shadow-violet-500/25">
                       {t('landingBestValue')}
                     </div>
                   )}
-                  <div className="mb-4">
-                    <div className={`text-xs font-bold uppercase tracking-widest mb-1.5 ${plan.accent}`}>
+                  <div className="mb-5">
+                    <div className={`text-sm font-bold uppercase tracking-widest mb-2 ${plan.accent}`}>
                       {plan.name}
                     </div>
-                    <p className="text-xs text-muted leading-relaxed">{plan.desc}</p>
+                    <p className="text-sm text-muted leading-relaxed">{plan.desc}</p>
                   </div>
-                  <div className="mb-5">
+                  <div className="mb-6">
                     {plan.price === 0 ? (
-                      <span className="text-3xl font-black text-foreground">{t('landingFree')}</span>
+                      <span className="text-4xl font-black text-foreground">{t('landingFree')}</span>
                     ) : (
                       <>
-                        <span className="text-3xl font-black text-foreground">${plan.price}</span>
-                        <span className="text-muted text-xs">/mo</span>
+                        <span className="text-4xl font-black text-foreground">${plan.price}</span>
+                        <span className="text-muted text-sm">/mo</span>
                       </>
                     )}
                   </div>
-                  <ul className="space-y-2 mb-6">
+                  <ul className="space-y-3 mb-8 flex-1">
                     {plan.features.map((f) => (
-                      <li key={f} className="flex items-start gap-2 text-xs text-muted">
-                        <CheckCircle2 className={`w-3.5 h-3.5 flex-shrink-0 mt-0.5 ${plan.popular ? 'text-violet-400' : plan.accent}`} />
+                      <li key={f} className="flex items-start gap-2.5 text-sm text-muted">
+                        <CheckCircle2 className={`w-4 h-4 flex-shrink-0 mt-0.5 ${plan.popular ? 'text-violet-400' : plan.accent}`} />
                         {f}
                       </li>
                     ))}
                   </ul>
                   <Link
                     to="/register"
-                    className={`block w-full text-center py-2.5 rounded-xl font-semibold text-xs transition-all ${
+                    className={`block w-full text-center py-3 rounded-xl font-semibold text-sm transition-all mt-auto ${
                       plan.popular
                         ? 'bg-gradient-to-r from-violet-500 to-blue-500 text-white hover:opacity-90 shadow-lg shadow-violet-500/20'
                         : 'bg-surface text-foreground hover:bg-surface-hover border border-b-border'
@@ -785,22 +785,16 @@ export default function Landing() {
             </div>
             {[
               { title: t('footerProduct'), links: [
-                { label: t('landingFeaturesTag'), href: '#features' },
-                { label: t('landingPricingTag'), href: '#pricing' },
-                { label: 'Security', href: '#' },
-                { label: 'API', href: '#' },
+                { label: t('landingFeaturesTag'), href: '#features', isRoute: false },
+                { label: t('landingPricingTag'), href: '#pricing', isRoute: false },
+                { label: t('landingHowTag'), href: '#how', isRoute: false },
               ]},
               { title: t('footerCompany'), links: [
-                { label: 'About', href: '#' },
                 { label: t('landingBlog'), href: '/blog', isRoute: true },
-                { label: 'Careers', href: '#' },
-                { label: 'Contact', href: '#' },
               ]},
               { title: t('footerSupport'), links: [
-                { label: 'Documentation', href: '#' },
-                { label: 'Status', href: '#' },
-                { label: 'Community', href: '#' },
-                { label: 'Terms', href: '#' },
+                { label: t('landingSignIn'), href: '/login', isRoute: true },
+                { label: t('landingGetStarted'), href: '/register', isRoute: true },
               ]},
             ].map((col) => (
               <div key={col.title}>
