@@ -329,90 +329,100 @@ function Navbar() {
   );
 }
 
-// ─── Pricing Carousel ───────────────────────────────────────────────
+// ─── Pricing Carousel (3 visible) ───────────────────────────────────
 function PricingCarousel({ plans, t }: { plans: typeof PLANS; t: (k: any) => string }) {
-  const [active, setActive] = useState(2); // Start with Business (popular)
-  const prev = () => setActive((i) => (i === 0 ? plans.length - 1 : i - 1));
-  const next = () => setActive((i) => (i === plans.length - 1 ? 0 : i + 1));
+  const perPage = 3;
+  const totalPages = Math.ceil(plans.length / perPage);
+  const [page, setPage] = useState(0); // page 0 = first 3 (Free, Starter, Business)
 
-  const plan = plans[active];
+  const prevPage = () => setPage((p) => (p === 0 ? totalPages - 1 : p - 1));
+  const nextPage = () => setPage((p) => (p === totalPages - 1 ? 0 : p + 1));
+
+  const visible = plans.slice(page * perPage, page * perPage + perPage);
 
   return (
-    <div className="max-w-lg mx-auto">
+    <div className="max-w-5xl mx-auto">
       <div className="flex items-center gap-4">
         {/* Left arrow */}
         <button
-          onClick={prev}
+          onClick={prevPage}
           className="flex-shrink-0 w-12 h-12 rounded-full border border-b-border bg-surface hover:bg-surface-hover flex items-center justify-center text-muted hover:text-foreground transition-all hover:scale-105"
         >
           <ChevronLeft className="w-5 h-5" />
         </button>
 
-        {/* Card */}
+        {/* Cards */}
         <div className="flex-1 min-w-0">
           <AnimatePresence mode="wait">
             <motion.div
-              key={plan.name}
-              initial={{ opacity: 0, x: 40 }}
+              key={page}
+              initial={{ opacity: 0, x: 60 }}
               animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -40 }}
-              transition={{ duration: 0.3, ease: 'easeInOut' }}
-              className={`relative rounded-2xl border transition-all duration-300 ${
-                plan.popular
-                  ? 'bg-gradient-to-b from-violet-500/15 to-violet-500/5 border-violet-500/40 shadow-2xl shadow-violet-500/10 p-8'
-                  : `glass-card ${plan.border} ${plan.bg} p-8`
-              }`}
+              exit={{ opacity: 0, x: -60 }}
+              transition={{ duration: 0.35, ease: 'easeInOut' }}
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
             >
-              {plan.popular && (
-                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-violet-500 to-blue-500 text-white text-xs font-bold px-5 py-1.5 rounded-full whitespace-nowrap shadow-lg shadow-violet-500/25">
-                  {t('landingBestValue')}
+              {visible.map((plan) => (
+                <div
+                  key={plan.name}
+                  className={`relative rounded-2xl border transition-all duration-300 h-full flex flex-col ${
+                    plan.popular
+                      ? 'bg-gradient-to-b from-violet-500/15 to-violet-500/5 border-violet-500/40 shadow-xl shadow-violet-500/10 p-6 scale-[1.03]'
+                      : `glass-card ${plan.border} ${plan.bg} p-6`
+                  }`}
+                >
+                  {plan.popular && (
+                    <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-violet-500 to-blue-500 text-white text-xs font-bold px-5 py-1.5 rounded-full whitespace-nowrap shadow-lg shadow-violet-500/25">
+                      {t('landingBestValue')}
+                    </div>
+                  )}
+
+                  <div className="mb-4">
+                    <div className={`text-sm font-bold uppercase tracking-widest mb-2 ${plan.accent}`}>
+                      {plan.name}
+                    </div>
+                    <p className="text-sm text-muted leading-relaxed">{plan.desc}</p>
+                  </div>
+
+                  <div className="mb-6">
+                    {plan.price === 0 ? (
+                      <span className="text-4xl font-black text-foreground">{t('landingFree')}</span>
+                    ) : (
+                      <>
+                        <span className="text-4xl font-black text-foreground">${plan.price}</span>
+                        <span className="text-muted text-sm">/mo</span>
+                      </>
+                    )}
+                  </div>
+
+                  <ul className="space-y-2.5 mb-6 flex-1">
+                    {plan.features.map((f) => (
+                      <li key={f} className="flex items-start gap-2 text-sm text-muted">
+                        <CheckCircle2 className={`w-4 h-4 flex-shrink-0 mt-0.5 ${plan.popular ? 'text-violet-400' : plan.accent}`} />
+                        {f}
+                      </li>
+                    ))}
+                  </ul>
+
+                  <Link
+                    to="/register"
+                    className={`block w-full text-center py-3 rounded-xl font-semibold text-sm transition-all mt-auto ${
+                      plan.popular
+                        ? 'bg-gradient-to-r from-violet-500 to-blue-500 text-white hover:opacity-90 shadow-lg shadow-violet-500/20'
+                        : 'bg-surface text-foreground hover:bg-surface-hover border border-b-border'
+                    }`}
+                  >
+                    {plan.price === 0 ? t('landingStartFreeBtn') : t('landingGetStartedBtn')}
+                  </Link>
                 </div>
-              )}
-
-              <div className="text-center mb-6">
-                <div className={`text-sm font-bold uppercase tracking-widest mb-2 ${plan.accent}`}>
-                  {plan.name}
-                </div>
-                <p className="text-sm text-muted leading-relaxed">{plan.desc}</p>
-              </div>
-
-              <div className="text-center mb-8">
-                {plan.price === 0 ? (
-                  <span className="text-5xl font-black text-foreground">{t('landingFree')}</span>
-                ) : (
-                  <>
-                    <span className="text-5xl font-black text-foreground">${plan.price}</span>
-                    <span className="text-muted text-base">/mo</span>
-                  </>
-                )}
-              </div>
-
-              <ul className="space-y-3 mb-8">
-                {plan.features.map((f) => (
-                  <li key={f} className="flex items-start gap-2.5 text-sm text-muted">
-                    <CheckCircle2 className={`w-4 h-4 flex-shrink-0 mt-0.5 ${plan.popular ? 'text-violet-400' : plan.accent}`} />
-                    {f}
-                  </li>
-                ))}
-              </ul>
-
-              <Link
-                to="/register"
-                className={`block w-full text-center py-3.5 rounded-xl font-semibold text-sm transition-all ${
-                  plan.popular
-                    ? 'bg-gradient-to-r from-violet-500 to-blue-500 text-white hover:opacity-90 shadow-lg shadow-violet-500/20'
-                    : 'bg-surface text-foreground hover:bg-surface-hover border border-b-border'
-                }`}
-              >
-                {plan.price === 0 ? t('landingStartFreeBtn') : t('landingGetStartedBtn')}
-              </Link>
+              ))}
             </motion.div>
           </AnimatePresence>
         </div>
 
         {/* Right arrow */}
         <button
-          onClick={next}
+          onClick={nextPage}
           className="flex-shrink-0 w-12 h-12 rounded-full border border-b-border bg-surface hover:bg-surface-hover flex items-center justify-center text-muted hover:text-foreground transition-all hover:scale-105"
         >
           <ChevronRight className="w-5 h-5" />
@@ -420,13 +430,13 @@ function PricingCarousel({ plans, t }: { plans: typeof PLANS; t: (k: any) => str
       </div>
 
       {/* Dots indicator */}
-      <div className="flex items-center justify-center gap-2 mt-6">
-        {plans.map((p, i) => (
+      <div className="flex items-center justify-center gap-2 mt-8">
+        {Array.from({ length: totalPages }, (_, i) => (
           <button
-            key={p.name}
-            onClick={() => setActive(i)}
+            key={i}
+            onClick={() => setPage(i)}
             className={`transition-all duration-300 rounded-full ${
-              i === active
+              i === page
                 ? 'w-8 h-2.5 bg-gradient-to-r from-blue-500 to-violet-500'
                 : 'w-2.5 h-2.5 bg-surface-hover hover:bg-muted/30'
             }`}
