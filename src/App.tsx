@@ -12,6 +12,8 @@ import Services from './pages/dashboard/Services';
 import Bookings from './pages/dashboard/Bookings';
 import Channels from './pages/dashboard/Channels';
 import Team from './pages/dashboard/Team';
+import Conversations from './pages/dashboard/Conversations';
+import AiSettings from './pages/dashboard/AiSettings';
 
 import AdminLayout from './pages/dashboard/admin/AdminLayout';
 import Metrics from './pages/dashboard/admin/Metrics';
@@ -64,6 +66,8 @@ export default function App() {
           <Route path="services" element={<Services />} />
           <Route path="bookings" element={<Bookings />} />
           <Route path="channels" element={<Channels />} />
+          <Route path="conversations" element={<Conversations />} />
+          <Route path="ai" element={<AiSettings />} />
           <Route path="team" element={<Team />} />
         </Route>
 

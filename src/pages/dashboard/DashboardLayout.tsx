@@ -3,7 +3,8 @@ import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard, Scissors, Calendar, Radio,
-  Users, LogOut, Sparkles, Menu, X, ChevronRight
+  Users, LogOut, Sparkles, Menu, X, ChevronRight,
+  MessageSquare, Brain
 } from 'lucide-react';
 import { useAuthStore } from '../../store/auth.store';
 import { authApi } from '../../api/auth.api';
@@ -11,6 +12,8 @@ import toast from 'react-hot-toast';
 
 const NAV = [
   { to: '/dashboard', icon: <LayoutDashboard className="w-4 h-4" />, label: 'Overview', end: true },
+  { to: '/dashboard/conversations', icon: <MessageSquare className="w-4 h-4" />, label: 'Conversations' },
+  { to: '/dashboard/ai', icon: <Brain className="w-4 h-4" />, label: 'AI Settings' },
   { to: '/dashboard/services', icon: <Scissors className="w-4 h-4" />, label: 'Services' },
   { to: '/dashboard/bookings', icon: <Calendar className="w-4 h-4" />, label: 'Bookings' },
   { to: '/dashboard/channels', icon: <Radio className="w-4 h-4" />, label: 'Channels' },
