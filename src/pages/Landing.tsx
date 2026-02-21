@@ -68,7 +68,7 @@ const PLANS = [
     accent: 'text-dim',
     border: 'border-b-border',
     bg: '',
-    features: ['500 contacts', '1 channel', '100 AI calls/mo', '10 bookings/mo', '1 team member'],
+    features: ['500 contacts', '1,000 messages/mo', '1 channel', '100 AI calls/mo', '10 bookings/mo', '1 team member'],
     popular: false,
   },
   {
@@ -78,7 +78,7 @@ const PLANS = [
     accent: 'text-blue-400',
     border: 'border-blue-500/20',
     bg: 'bg-blue-500/5',
-    features: ['1,500 contacts', '2 channels', 'Unlimited bookings', '500 AI calls/mo', '2 team members', 'Automations'],
+    features: ['1,500 contacts', '5,000 messages/mo', '2 channels', 'Unlimited bookings', '500 AI calls/mo', '2 team members', 'Automations'],
     popular: false,
   },
   {
@@ -88,7 +88,7 @@ const PLANS = [
     accent: 'text-violet-400',
     border: 'border-violet-500/30',
     bg: 'bg-violet-500/5',
-    features: ['5,000 contacts', 'Unlimited channels', 'Unlimited bookings', '2,500 AI calls/mo', '5 team members', 'Analytics', 'Priority support'],
+    features: ['20,000 contacts', 'Unlimited messages', 'Unlimited channels', 'Unlimited bookings', '2,500 AI calls/mo', '5 team members', 'Analytics', 'Priority support'],
     popular: true,
   },
 ];

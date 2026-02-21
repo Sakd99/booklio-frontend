@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   Calendar, MessageSquare, Radio, TrendingUp, ArrowRight,
-  Scissors, Brain, Workflow, Zap, Bell, Clock,
+  Scissors, Brain, Workflow, Zap, Bell, Clock, Users,
 } from 'lucide-react';
 import { tenantApi } from '../../api/tenant.api';
 import { bookingsApi } from '../../api/bookings.api';
@@ -91,34 +91,41 @@ export default function Overview() {
       </div>
 
       {/* Stat cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+        <StatCard
+          label={t('contactsTotal')}
+          value={u ? `${u.contacts.used} / ${u.contacts.max === -1 ? '∞' : u.contacts.max}` : '—'}
+          icon={<Users className="w-5 h-5" />}
+          color="violet"
+          delay={0}
+        />
         <StatCard
           label={t('messagesThisMonth')}
           value={u ? `${u.messages.used} / ${u.messages.max === -1 ? '∞' : u.messages.max}` : '—'}
           icon={<MessageSquare className="w-5 h-5" />}
           color="blue"
-          delay={0}
+          delay={0.05}
         />
         <StatCard
           label={t('bookingsThisMonth')}
           value={u ? `${u.bookings.used} / ${u.bookings.max === -1 ? '∞' : u.bookings.max}` : '—'}
           icon={<Calendar className="w-5 h-5" />}
-          color="violet"
-          delay={0.05}
+          color="emerald"
+          delay={0.1}
         />
         <StatCard
           label={t('aiCallsThisMonth')}
           value={u ? `${u.aiCalls.used} / ${u.aiCalls.max === -1 ? '∞' : u.aiCalls.max}` : '—'}
           icon={<TrendingUp className="w-5 h-5" />}
-          color="emerald"
-          delay={0.1}
+          color="amber"
+          delay={0.15}
         />
         <StatCard
           label={t('channels')}
           value={u ? `${u.channels.used} / ${u.channels.max === -1 ? '∞' : u.channels.max}` : '—'}
           icon={<Radio className="w-5 h-5" />}
           color="rose"
-          delay={0.15}
+          delay={0.2}
         />
       </div>
 
@@ -159,15 +166,17 @@ export default function Overview() {
             </h2>
             <div className="space-y-5">
               {[
+                { label: t('contacts'), used: u.contacts.used, max: u.contacts.max, color: 'violet' },
                 { label: t('messages'), used: u.messages.used, max: u.messages.max, color: 'blue' },
-                { label: t('aiCalls'), used: u.aiCalls.used, max: u.aiCalls.max, color: 'violet' },
-                { label: t('bookings'), used: u.bookings.used, max: u.bookings.max, color: 'emerald' },
+                { label: t('aiCalls'), used: u.aiCalls.used, max: u.aiCalls.max, color: 'emerald' },
+                { label: t('bookings'), used: u.bookings.used, max: u.bookings.max, color: 'amber' },
               ].map((item) => {
                 const pct = item.max === -1 ? 20 : Math.min(100, (item.used / item.max) * 100);
                 const colors: Record<string, string> = {
                   blue: 'from-blue-500 to-blue-400',
                   violet: 'from-violet-500 to-violet-400',
                   emerald: 'from-emerald-500 to-emerald-400',
+                  amber: 'from-amber-500 to-amber-400',
                 };
                 return (
                   <div key={item.label}>

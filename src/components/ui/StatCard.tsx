@@ -5,7 +5,7 @@ interface Props {
   label: string;
   value: string | number;
   icon: ReactNode;
-  color?: 'blue' | 'violet' | 'emerald' | 'rose';
+  color?: 'blue' | 'violet' | 'emerald' | 'rose' | 'amber';
   trend?: string;
   delay?: number;
 }
@@ -30,6 +30,11 @@ const colors = {
     icon: 'bg-rose-500/10 text-rose-500',
     border: 'hover:border-rose-500/30',
     glow: 'hover:shadow-rose-500/10',
+  },
+  amber: {
+    icon: 'bg-amber-500/10 text-amber-500',
+    border: 'hover:border-amber-500/30',
+    glow: 'hover:shadow-amber-500/10',
   },
 };
 
