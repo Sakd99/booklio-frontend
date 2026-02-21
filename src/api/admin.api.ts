@@ -47,4 +47,18 @@ export const adminApi = {
 
   deleteBlogPost: (id: string) =>
     api.delete(`/admin/blog/${id}`).then((r) => r.data),
+
+  // System Settings
+  getSettings: (group?: string) =>
+    api.get(`/admin/settings${group ? `?group=${group}` : ''}`).then((r) => r.data),
+
+  upsertSettings: (settings: { key: string; value: string; group?: string; label?: string; encrypted?: boolean }[]) =>
+    api.post('/admin/settings', { settings }).then((r) => r.data),
+
+  deleteSetting: (key: string) =>
+    api.delete(`/admin/settings/${key}`).then((r) => r.data),
+
+  // Notifications
+  broadcastNotification: (title: string, body: string) =>
+    api.post('/admin/notifications/broadcast', { title, body }).then((r) => r.data),
 };

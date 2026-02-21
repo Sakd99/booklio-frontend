@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard, Scissors, Calendar, Radio,
   Users, LogOut, Sparkles, Menu, X,
-  MessageSquare, Brain, Sun, Moon, Globe, ChevronDown
+  MessageSquare, Brain, Sun, Moon, Globe, ChevronDown, Workflow
 } from 'lucide-react';
 import { useAuthStore } from '../../store/auth.store';
 import { useThemeStore } from '../../store/theme.store';
@@ -13,6 +13,7 @@ import { LOCALE_META, type Locale } from '../../i18n/translations';
 import { authApi } from '../../api/auth.api';
 import { teamApi } from '../../api/team.api';
 import toast from 'react-hot-toast';
+import NotificationBell from '../../components/ui/NotificationBell';
 
 export default function DashboardLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -46,6 +47,7 @@ export default function DashboardLayout() {
     { to: '/dashboard/bookings', icon: <Calendar className="w-4 h-4" />, label: t('navBookings'), resource: 'bookings' },
     { to: '/dashboard/channels', icon: <Radio className="w-4 h-4" />, label: t('navChannels'), resource: 'channels' },
     { to: '/dashboard/team', icon: <Users className="w-4 h-4" />, label: t('navTeam'), resource: 'team' },
+    { to: '/dashboard/automations', icon: <Workflow className="w-4 h-4" />, label: t('navAutomations'), resource: null },
   ];
 
   // Filter nav based on permissions (null = show all, {} = show only allowed)
@@ -218,6 +220,7 @@ export default function DashboardLayout() {
             <Menu className="w-5 h-5" />
           </button>
           <div className="flex-1" />
+          <NotificationBell />
           <div className="flex items-center gap-2 text-xs text-dim">
             <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
             {t('allSystemsOp')}

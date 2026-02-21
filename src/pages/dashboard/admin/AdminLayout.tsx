@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BarChart3, Building2, CreditCard, FileText, LogOut, Sparkles, Sun, Moon, Globe, ChevronDown } from 'lucide-react';
+import { BarChart3, Building2, CreditCard, FileText, LogOut, Sparkles, Sun, Moon, Globe, ChevronDown, Settings2, Bell } from 'lucide-react';
 import { useAuthStore } from '../../../store/auth.store';
 import { useThemeStore } from '../../../store/theme.store';
 import { useI18n } from '../../../store/i18n.store';
@@ -22,6 +22,8 @@ export default function AdminLayout() {
     { to: '/admin/tenants', icon: <Building2 className="w-4 h-4" />, label: t('adminTenants') },
     { to: '/admin/plans', icon: <CreditCard className="w-4 h-4" />, label: t('adminPlans') },
     { to: '/admin/blog', icon: <FileText className="w-4 h-4" />, label: t('blogTitle') },
+    { to: '/admin/settings', icon: <Settings2 className="w-4 h-4" />, label: t('adminSettings') },
+    { to: '/admin/notifications', icon: <Bell className="w-4 h-4" />, label: t('adminNotifications') },
   ];
 
   // Close lang dropdown on outside click

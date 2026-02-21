@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { useAuthStore } from './store/auth.store';
@@ -27,6 +27,11 @@ import Tenants from './pages/dashboard/admin/Tenants';
 import Plans from './pages/dashboard/admin/Plans';
 import AdminBlog from './pages/dashboard/admin/Blog';
 import TenantDetail from './pages/dashboard/admin/TenantDetail';
+import AdminSettings from './pages/dashboard/admin/Settings';
+import AdminNotifications from './pages/dashboard/admin/Notifications';
+
+const Automations = lazy(() => import('./pages/dashboard/Automations'));
+const FlowBuilder = lazy(() => import('./pages/dashboard/FlowBuilder'));
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const token = useAuthStore((s) => s.accessToken);
@@ -99,6 +104,8 @@ export default function App() {
           <Route path="conversations" element={<Conversations />} />
           <Route path="ai" element={<AiSettings />} />
           <Route path="team" element={<Team />} />
+          <Route path="automations" element={<Suspense fallback={<div />}><Automations /></Suspense>} />
+          <Route path="automations/:id" element={<Suspense fallback={<div />}><FlowBuilder /></Suspense>} />
         </Route>
 
         {/* Admin Panel */}
@@ -115,6 +122,8 @@ export default function App() {
           <Route path="tenants/:id" element={<TenantDetail />} />
           <Route path="plans" element={<Plans />} />
           <Route path="blog" element={<AdminBlog />} />
+          <Route path="settings" element={<AdminSettings />} />
+          <Route path="notifications" element={<AdminNotifications />} />
         </Route>
 
         {/* Fallback */}
