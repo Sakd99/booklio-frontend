@@ -19,10 +19,11 @@ import {
   Position,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
-  ArrowLeft, Save, Play, Pause, MessageSquare, Bot, Clock,
-  GitBranch, Calendar, Tag, Send, Variable, Trash2, Plus
+  ArrowLeft, Save, Play, Pause, Bot, Clock,
+  GitBranch, Calendar, Tag, Send, Variable, ChevronLeft, ChevronRight,
+  Zap, Hash,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { automationsApi } from '../../api/automations.api';
@@ -33,7 +34,7 @@ import { useI18n } from '../../store/i18n.store';
 // ─── Node Types ─────────────────────────────────
 
 const NODE_PALETTE = [
-  { type: 'trigger', label: 'Trigger', icon: <Play className="w-4 h-4" />, color: 'bg-blue-500', borderColor: 'border-blue-500/40' },
+  { type: 'trigger', label: 'Trigger', icon: <Zap className="w-4 h-4" />, color: 'bg-blue-500', borderColor: 'border-blue-500/40' },
   { type: 'sendMessage', label: 'Send Message', icon: <Send className="w-4 h-4" />, color: 'bg-emerald-500', borderColor: 'border-emerald-500/40' },
   { type: 'aiStep', label: 'AI Step', icon: <Bot className="w-4 h-4" />, color: 'bg-violet-500', borderColor: 'border-violet-500/40' },
   { type: 'condition', label: 'Condition', icon: <GitBranch className="w-4 h-4" />, color: 'bg-orange-500', borderColor: 'border-orange-500/40' },
@@ -48,21 +49,21 @@ function FlowNode({ data, type }: { data: any; type?: string }) {
   const isCondition = type === 'condition';
 
   return (
-    <div className={`min-w-[200px] rounded-2xl border-2 ${meta.borderColor} bg-[var(--color-card)] shadow-lg`}>
+    <div className={`w-[240px] rounded-2xl border-2 ${meta.borderColor} bg-[var(--color-card)] shadow-lg transition-shadow hover:shadow-xl`}>
       <Handle type="target" position={Position.Top} className="!w-3 !h-3 !bg-muted !border-2 !border-[var(--color-card)]" />
       <div className="flex items-center gap-2.5 px-4 py-3 border-b border-b-border/50">
-        <div className={`w-7 h-7 rounded-lg ${meta.color} flex items-center justify-center text-white`}>
+        <div className={`w-8 h-8 rounded-lg ${meta.color} flex items-center justify-center text-white shadow-sm`}>
           {meta.icon}
         </div>
-        <span className="text-sm font-semibold text-foreground">{data.label || meta.label}</span>
+        <span className="text-sm font-semibold text-foreground flex-1 truncate">{data.label || meta.label}</span>
       </div>
-      <div className="px-4 py-2.5">
+      <div className="px-4 py-3">
         {type === 'sendMessage' && (
           <textarea
             value={data.message ?? ''}
             onChange={(e) => data.onChange?.('message', e.target.value)}
             placeholder="Message text..."
-            className="w-full text-xs bg-surface rounded-lg px-2.5 py-2 text-foreground placeholder:text-muted/50 resize-none border border-b-border focus:outline-none focus:ring-1 focus:ring-violet-500/40"
+            className="w-full text-xs bg-surface rounded-lg px-3 py-2 text-foreground placeholder:text-muted/50 resize-none border border-b-border focus:outline-none focus:ring-2 focus:ring-violet-500/30"
             rows={2}
             onClick={(e) => e.stopPropagation()}
           />
@@ -72,18 +73,24 @@ function FlowNode({ data, type }: { data: any; type?: string }) {
             value={data.prompt ?? ''}
             onChange={(e) => data.onChange?.('prompt', e.target.value)}
             placeholder="AI prompt..."
-            className="w-full text-xs bg-surface rounded-lg px-2.5 py-2 text-foreground placeholder:text-muted/50 border border-b-border focus:outline-none focus:ring-1 focus:ring-violet-500/40"
+            className="w-full text-xs bg-surface rounded-lg px-3 py-2 text-foreground placeholder:text-muted/50 border border-b-border focus:outline-none focus:ring-2 focus:ring-violet-500/30"
             onClick={(e) => e.stopPropagation()}
           />
         )}
         {type === 'condition' && (
-          <input
-            value={data.condition ?? ''}
-            onChange={(e) => data.onChange?.('condition', e.target.value)}
-            placeholder="e.g. intent == booking"
-            className="w-full text-xs bg-surface rounded-lg px-2.5 py-2 text-foreground placeholder:text-muted/50 border border-b-border focus:outline-none focus:ring-1 focus:ring-violet-500/40"
-            onClick={(e) => e.stopPropagation()}
-          />
+          <>
+            <input
+              value={data.condition ?? ''}
+              onChange={(e) => data.onChange?.('condition', e.target.value)}
+              placeholder="e.g. intent == booking"
+              className="w-full text-xs bg-surface rounded-lg px-3 py-2 text-foreground placeholder:text-muted/50 border border-b-border focus:outline-none focus:ring-2 focus:ring-violet-500/30"
+              onClick={(e) => e.stopPropagation()}
+            />
+            <div className="flex items-center justify-between mt-2 text-[10px]">
+              <span className="text-emerald-500 font-medium">True →</span>
+              <span className="text-red-500 font-medium">← False</span>
+            </div>
+          </>
         )}
         {type === 'delay' && (
           <div className="flex items-center gap-2">
@@ -91,39 +98,42 @@ function FlowNode({ data, type }: { data: any; type?: string }) {
               type="number"
               value={data.delayValue ?? 5}
               onChange={(e) => data.onChange?.('delayValue', e.target.value)}
-              className="w-16 text-xs bg-surface rounded-lg px-2.5 py-2 text-foreground border border-b-border focus:outline-none focus:ring-1 focus:ring-violet-500/40"
+              className="w-20 text-xs bg-surface rounded-lg px-3 py-2 text-foreground border border-b-border focus:outline-none focus:ring-2 focus:ring-violet-500/30"
               min={1}
               onClick={(e) => e.stopPropagation()}
             />
             <select
-              value={data.delayUnit ?? 'seconds'}
+              value={data.delayUnit ?? 'minutes'}
               onChange={(e) => data.onChange?.('delayUnit', e.target.value)}
-              className="text-xs bg-surface rounded-lg px-2 py-2 text-foreground border border-b-border focus:outline-none"
+              className="flex-1 text-xs bg-surface rounded-lg px-2 py-2 text-foreground border border-b-border focus:outline-none"
               onClick={(e) => e.stopPropagation()}
             >
-              <option value="seconds">sec</option>
-              <option value="minutes">min</option>
-              <option value="hours">hr</option>
+              <option value="seconds">Seconds</option>
+              <option value="minutes">Minutes</option>
+              <option value="hours">Hours</option>
             </select>
           </div>
         )}
         {type === 'createBooking' && (
-          <div className="text-xs text-muted">Auto-create booking from conversation data</div>
+          <div className="text-xs text-muted flex items-center gap-1.5">
+            <Calendar className="w-3 h-3" />
+            Auto-create booking from conversation
+          </div>
         )}
         {type === 'setVariable' && (
-          <div className="flex gap-2">
+          <div className="space-y-2">
             <input
               value={data.varName ?? ''}
               onChange={(e) => data.onChange?.('varName', e.target.value)}
-              placeholder="name"
-              className="flex-1 text-xs bg-surface rounded-lg px-2.5 py-2 text-foreground placeholder:text-muted/50 border border-b-border focus:outline-none focus:ring-1 focus:ring-violet-500/40"
+              placeholder="Variable name"
+              className="w-full text-xs bg-surface rounded-lg px-3 py-2 text-foreground placeholder:text-muted/50 border border-b-border focus:outline-none focus:ring-2 focus:ring-violet-500/30"
               onClick={(e) => e.stopPropagation()}
             />
             <input
               value={data.varValue ?? ''}
               onChange={(e) => data.onChange?.('varValue', e.target.value)}
-              placeholder="value"
-              className="flex-1 text-xs bg-surface rounded-lg px-2.5 py-2 text-foreground placeholder:text-muted/50 border border-b-border focus:outline-none focus:ring-1 focus:ring-violet-500/40"
+              placeholder="Value"
+              className="w-full text-xs bg-surface rounded-lg px-3 py-2 text-foreground placeholder:text-muted/50 border border-b-border focus:outline-none focus:ring-2 focus:ring-violet-500/30"
               onClick={(e) => e.stopPropagation()}
             />
           </div>
@@ -133,12 +143,15 @@ function FlowNode({ data, type }: { data: any; type?: string }) {
             value={data.tag ?? ''}
             onChange={(e) => data.onChange?.('tag', e.target.value)}
             placeholder="Tag name..."
-            className="w-full text-xs bg-surface rounded-lg px-2.5 py-2 text-foreground placeholder:text-muted/50 border border-b-border focus:outline-none focus:ring-1 focus:ring-violet-500/40"
+            className="w-full text-xs bg-surface rounded-lg px-3 py-2 text-foreground placeholder:text-muted/50 border border-b-border focus:outline-none focus:ring-2 focus:ring-violet-500/30"
             onClick={(e) => e.stopPropagation()}
           />
         )}
         {type === 'trigger' && (
-          <div className="text-xs text-muted">Flow starts here</div>
+          <div className="text-xs text-muted flex items-center gap-1.5">
+            <Zap className="w-3 h-3 text-blue-500" />
+            Flow starts here
+          </div>
         )}
       </div>
       <Handle type="source" position={Position.Bottom} className="!w-3 !h-3 !bg-muted !border-2 !border-[var(--color-card)]" />
@@ -170,6 +183,7 @@ export default function FlowBuilder() {
   const navigate = useNavigate();
   const { t } = useI18n();
   const qc = useQueryClient();
+  const [paletteOpen, setPaletteOpen] = useState(true);
 
   const { data: automation, isLoading } = useQuery({
     queryKey: ['automation', id],
@@ -242,7 +256,7 @@ export default function FlowBuilder() {
     const newNode: Node = {
       id: newId,
       type,
-      position: { x: 250 + Math.random() * 100, y: 150 + nodes.length * 120 },
+      position: { x: 250 + Math.random() * 100, y: 150 + nodes.length * 150 },
       data: {
         label: meta.label,
         onChange: (field: string, value: string) => {
@@ -259,45 +273,50 @@ export default function FlowBuilder() {
     setHasChanges(true);
   };
 
-  const deleteSelectedNodes = useCallback(() => {
-    setNodes((nds: Node[]) => nds.filter((n: Node) => !n.selected));
-    setEdges((eds: Edge[]) => {
-      const selectedNodeIds = nodes.filter((n: Node) => n.selected).map((n: Node) => n.id);
-      return eds.filter((e: Edge) => !selectedNodeIds.includes(e.source) && !selectedNodeIds.includes(e.target));
-    });
-    setHasChanges(true);
-  }, [nodes, setNodes, setEdges]);
-
   if (isLoading) return <Spinner />;
   if (!automation) return null;
 
   return (
     <div className="h-[calc(100vh-3.5rem)] flex flex-col -m-6">
       {/* Top Bar */}
-      <div className="flex items-center justify-between px-4 py-2.5 border-b border-b-border bg-base/80 backdrop-blur-sm flex-shrink-0">
-        <div className="flex items-center gap-3">
+      <div className="flex items-center justify-between px-3 sm:px-5 py-2.5 border-b border-b-border bg-base/80 backdrop-blur-sm flex-shrink-0 gap-2">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
           <button
             onClick={() => navigate('/dashboard/automations')}
-            className="p-2 rounded-xl text-muted hover:text-foreground hover:bg-surface transition-all"
+            className="p-2 rounded-xl text-muted hover:text-foreground hover:bg-surface transition-all flex-shrink-0"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <div>
-            <h1 className="text-base font-semibold text-foreground">{automation.name}</h1>
-            <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${automation.isActive ? 'bg-emerald-500/10 text-emerald-500' : 'bg-surface text-muted'}`}>
-              {automation.isActive ? t('active') : t('inactive')}
-            </span>
+          <div className="min-w-0">
+            <h1 className="text-sm sm:text-base font-semibold text-foreground truncate">{automation.name}</h1>
+            <div className="flex items-center gap-2">
+              <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${automation.isActive ? 'bg-emerald-500/10 text-emerald-500' : 'bg-surface text-muted'}`}>
+                {automation.isActive ? t('active') : t('inactive')}
+              </span>
+              <span className="text-[10px] text-dim flex items-center gap-1">
+                <Hash className="w-3 h-3" />
+                {automation.runCount} {t('runs')}
+              </span>
+            </div>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-shrink-0">
           <Button
             variant="secondary"
             size="sm"
             onClick={() => toggleMut.mutate()}
             icon={automation.isActive ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+            className="hidden sm:flex"
           >
             {automation.isActive ? t('deactivate') : t('activate')}
           </Button>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => toggleMut.mutate()}
+            icon={automation.isActive ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+            className="sm:hidden"
+          >{''}</Button>
           <Button
             size="sm"
             onClick={() => saveMut.mutate()}
@@ -305,7 +324,7 @@ export default function FlowBuilder() {
             disabled={!hasChanges}
             icon={<Save className="w-4 h-4" />}
           >
-            {t('save')}
+            <span className="hidden sm:inline">{t('save')}</span>
           </Button>
         </div>
       </div>
@@ -323,37 +342,73 @@ export default function FlowBuilder() {
           deleteKeyCode={['Backspace', 'Delete']}
           onNodesDelete={() => setHasChanges(true)}
           className="bg-base"
+          proOptions={{ hideAttribution: true }}
         >
-          <Controls className="!bg-[var(--color-card)] !border-[var(--color-border)] !rounded-xl !shadow-lg" />
+          <Controls
+            className="!bg-[var(--color-card)] !border-[var(--color-border)] !rounded-xl !shadow-lg"
+            position="bottom-right"
+          />
           <MiniMap
-            className="!bg-[var(--color-card)] !border-[var(--color-border)] !rounded-xl"
+            className="!bg-[var(--color-card)] !border-[var(--color-border)] !rounded-xl hidden sm:block"
             nodeColor={() => '#8b5cf6'}
             maskColor="rgba(0,0,0,0.1)"
+            position="bottom-right"
+            style={{ marginBottom: 50 }}
           />
           <Background variant={BackgroundVariant.Dots} gap={20} size={1} color="var(--color-muted)" className="opacity-30" />
 
           {/* Node Palette */}
           <Panel position="top-left">
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="glass-card rounded-2xl border border-b-border shadow-xl p-3 space-y-1.5"
-            >
-              <div className="text-[10px] text-muted font-semibold uppercase tracking-wider px-2 mb-2">{t('addNode')}</div>
-              {NODE_PALETTE.filter((n) => n.type !== 'trigger').map((n) => (
-                <button
-                  key={n.type}
-                  onClick={() => addNode(n.type)}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-muted hover:text-foreground hover:bg-surface transition-all"
-                >
-                  <div className={`w-6 h-6 rounded-md ${n.color} flex items-center justify-center text-white`}>
-                    {n.icon}
-                  </div>
-                  <span className="text-xs font-medium">{n.label}</span>
-                </button>
-              ))}
-            </motion.div>
+            <div className="flex items-start gap-1">
+              <AnimatePresence mode="wait">
+                {paletteOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, x: -20, scale: 0.95 }}
+                    animate={{ opacity: 1, x: 0, scale: 1 }}
+                    exit={{ opacity: 0, x: -20, scale: 0.95 }}
+                    transition={{ duration: 0.2 }}
+                    className="glass-card rounded-2xl border border-b-border shadow-xl p-2 sm:p-3"
+                  >
+                    <div className="text-[10px] text-muted font-semibold uppercase tracking-wider px-2 mb-2">{t('addNode')}</div>
+                    <div className="space-y-0.5">
+                      {NODE_PALETTE.filter((n) => n.type !== 'trigger').map((n) => (
+                        <button
+                          key={n.type}
+                          onClick={() => addNode(n.type)}
+                          className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-muted hover:text-foreground hover:bg-surface transition-all group"
+                        >
+                          <div className={`w-7 h-7 rounded-lg ${n.color} flex items-center justify-center text-white shadow-sm group-hover:scale-110 transition-transform`}>
+                            {n.icon}
+                          </div>
+                          <span className="text-xs font-medium hidden sm:inline">{n.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+              <button
+                onClick={() => setPaletteOpen(!paletteOpen)}
+                className="p-1.5 rounded-lg glass-card border border-b-border shadow-md text-muted hover:text-foreground transition-all mt-1"
+              >
+                {paletteOpen ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+              </button>
+            </div>
           </Panel>
+
+          {/* Unsaved changes indicator */}
+          {hasChanges && (
+            <Panel position="bottom-center">
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="px-4 py-2 rounded-full glass-card border border-amber-500/30 shadow-lg text-xs text-amber-500 font-medium flex items-center gap-2"
+              >
+                <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                Unsaved changes
+              </motion.div>
+            </Panel>
+          )}
         </ReactFlow>
       </div>
     </div>

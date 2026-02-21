@@ -40,14 +40,14 @@ export default function DashboardLayout() {
   }, [user]);
 
   const ALL_NAV = [
-    { to: '/dashboard', icon: <LayoutDashboard className="w-4 h-4" />, label: t('navOverview'), end: true, resource: null },
-    { to: '/dashboard/conversations', icon: <MessageSquare className="w-4 h-4" />, label: t('navConversations'), resource: 'conversations' },
-    { to: '/dashboard/ai', icon: <Brain className="w-4 h-4" />, label: t('navAiSettings'), resource: 'ai_settings' },
-    { to: '/dashboard/services', icon: <Scissors className="w-4 h-4" />, label: t('navServices'), resource: 'services' },
-    { to: '/dashboard/bookings', icon: <Calendar className="w-4 h-4" />, label: t('navBookings'), resource: 'bookings' },
-    { to: '/dashboard/channels', icon: <Radio className="w-4 h-4" />, label: t('navChannels'), resource: 'channels' },
-    { to: '/dashboard/team', icon: <Users className="w-4 h-4" />, label: t('navTeam'), resource: 'team' },
-    { to: '/dashboard/automations', icon: <Workflow className="w-4 h-4" />, label: t('navAutomations'), resource: null },
+    { to: '/dashboard', icon: <LayoutDashboard className="w-5 h-5" />, label: t('navOverview'), end: true, resource: null },
+    { to: '/dashboard/conversations', icon: <MessageSquare className="w-5 h-5" />, label: t('navConversations'), resource: 'conversations' },
+    { to: '/dashboard/ai', icon: <Brain className="w-5 h-5" />, label: t('navAiSettings'), resource: 'ai_settings' },
+    { to: '/dashboard/services', icon: <Scissors className="w-5 h-5" />, label: t('navServices'), resource: 'services' },
+    { to: '/dashboard/bookings', icon: <Calendar className="w-5 h-5" />, label: t('navBookings'), resource: 'bookings' },
+    { to: '/dashboard/channels', icon: <Radio className="w-5 h-5" />, label: t('navChannels'), resource: 'channels' },
+    { to: '/dashboard/team', icon: <Users className="w-5 h-5" />, label: t('navTeam'), resource: 'team' },
+    { to: '/dashboard/automations', icon: <Workflow className="w-5 h-5" />, label: t('navAutomations'), resource: null },
   ];
 
   // Filter nav based on permissions (null = show all, {} = show only allowed)
@@ -94,7 +94,7 @@ export default function DashboardLayout() {
             end={item.end}
             onClick={() => setSidebarOpen(false)}
             className={({ isActive }) =>
-              `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+              `flex items-center gap-3 px-3 py-2.5 rounded-xl text-[15px] font-medium transition-all duration-200 ${
                 isActive
                   ? 'bg-blue-500/10 text-blue-500 border border-blue-500/20'
                   : 'text-muted hover:text-foreground hover:bg-surface'

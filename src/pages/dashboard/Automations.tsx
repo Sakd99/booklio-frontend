@@ -3,8 +3,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
-  Plus, Workflow, Play, Pause, Trash2, Pencil,
-  MessageSquare, Bot, Calendar, Zap, Tag
+  Plus, Workflow, Play, Pause, Trash2,
+  MessageSquare, Calendar, Zap, Tag, ArrowRight, Hash
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { automationsApi } from '../../api/automations.api';
@@ -14,11 +14,11 @@ import Spinner from '../../components/ui/Spinner';
 import { useI18n } from '../../store/i18n.store';
 
 const TRIGGERS = [
-  { value: 'NEW_CONVERSATION', icon: <MessageSquare className="w-4 h-4" />, color: 'text-blue-500 bg-blue-500/10' },
-  { value: 'KEYWORD', icon: <Tag className="w-4 h-4" />, color: 'text-violet-500 bg-violet-500/10' },
-  { value: 'BOOKING_CREATED', icon: <Calendar className="w-4 h-4" />, color: 'text-emerald-500 bg-emerald-500/10' },
-  { value: 'BOOKING_STATUS_CHANGED', icon: <Zap className="w-4 h-4" />, color: 'text-orange-500 bg-orange-500/10' },
-  { value: 'MANUAL', icon: <Play className="w-4 h-4" />, color: 'text-gray-500 bg-gray-500/10' },
+  { value: 'NEW_CONVERSATION', icon: <MessageSquare className="w-4 h-4" />, color: 'text-blue-500 bg-blue-500/10', gradient: 'from-blue-500 to-blue-600' },
+  { value: 'KEYWORD', icon: <Tag className="w-4 h-4" />, color: 'text-violet-500 bg-violet-500/10', gradient: 'from-violet-500 to-violet-600' },
+  { value: 'BOOKING_CREATED', icon: <Calendar className="w-4 h-4" />, color: 'text-emerald-500 bg-emerald-500/10', gradient: 'from-emerald-500 to-emerald-600' },
+  { value: 'BOOKING_STATUS_CHANGED', icon: <Zap className="w-4 h-4" />, color: 'text-orange-500 bg-orange-500/10', gradient: 'from-orange-500 to-orange-600' },
+  { value: 'MANUAL', icon: <Play className="w-4 h-4" />, color: 'text-gray-500 bg-gray-500/10', gradient: 'from-gray-500 to-gray-600' },
 ] as const;
 
 const triggerMeta = (trigger: string) => TRIGGERS.find((t) => t.value === trigger) ?? TRIGGERS[4];
@@ -66,18 +66,53 @@ export default function Automations() {
 
   if (isLoading) return <Spinner />;
 
+  const activeCount = (automations ?? []).filter((a: any) => a.isActive).length;
+  const totalRuns = (automations ?? []).reduce((sum: number, a: any) => sum + (a.runCount || 0), 0);
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-[1400px] mx-auto">
       {/* Header */}
-      <div className="flex items-center justify-between gap-4 flex-wrap">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">{t('automationsTitle')}</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">{t('automationsTitle')}</h1>
           <p className="text-muted text-sm mt-1">{t('automationsDesc')}</p>
         </div>
         <Button onClick={() => setCreateModal(true)} icon={<Plus className="w-4 h-4" />}>
           {t('createAutomation')}
         </Button>
       </div>
+
+      {/* Stats row */}
+      {automations && automations.length > 0 && (
+        <div className="grid grid-cols-3 gap-3">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="glass-card rounded-2xl p-4 border border-b-border text-center"
+          >
+            <div className="text-2xl font-bold text-foreground">{automations.length}</div>
+            <div className="text-xs text-muted mt-0.5">{t('total')}</div>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.05 }}
+            className="glass-card rounded-2xl p-4 border border-emerald-500/20 bg-emerald-500/5 text-center"
+          >
+            <div className="text-2xl font-bold text-emerald-500">{activeCount}</div>
+            <div className="text-xs text-muted mt-0.5">{t('active')}</div>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="glass-card rounded-2xl p-4 border border-b-border text-center"
+          >
+            <div className="text-2xl font-bold text-foreground">{totalRuns}</div>
+            <div className="text-xs text-muted mt-0.5">{t('runs')}</div>
+          </motion.div>
+        </div>
+      )}
 
       {/* Automations list */}
       {!automations?.length ? (
@@ -96,7 +131,7 @@ export default function Automations() {
           </Button>
         </motion.div>
       ) : (
-        <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-5">
+        <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-4">
           {automations.map((auto: any, i: number) => {
             const tm = triggerMeta(auto.trigger);
             return (
@@ -105,41 +140,53 @@ export default function Automations() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.06 }}
-                className="glass-card rounded-2xl p-5 border border-b-border hover:border-violet-500/30 transition-all cursor-pointer group"
+                className="glass-card rounded-2xl border border-b-border hover:border-violet-500/30 hover:shadow-lg hover:shadow-violet-500/5 transition-all cursor-pointer group flex flex-col"
                 onClick={() => navigate(`/dashboard/automations/${auto.id}`)}
               >
-                <div className="flex items-start justify-between mb-3">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${tm.color}`}>
-                    {tm.icon}
+                {/* Card Header */}
+                <div className="p-5 pb-0">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${tm.color}`}>
+                      {tm.icon}
+                    </div>
+                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button
+                        onClick={(e) => { e.stopPropagation(); toggleMut.mutate(auto.id); }}
+                        className={`p-1.5 rounded-lg transition-colors ${auto.isActive ? 'text-emerald-500 hover:bg-emerald-500/10' : 'text-muted hover:bg-surface'}`}
+                        title={auto.isActive ? t('deactivate') : t('activate')}
+                      >
+                        {auto.isActive ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setDeleteTarget(auto); }}
+                        className="p-1.5 rounded-lg text-muted hover:text-red-500 hover:bg-red-500/10 transition-colors"
+                        title={t('delete')}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <button
-                      onClick={(e) => { e.stopPropagation(); toggleMut.mutate(auto.id); }}
-                      className={`p-1.5 rounded-lg transition-colors ${auto.isActive ? 'text-emerald-500 hover:bg-emerald-500/10' : 'text-muted hover:bg-surface'}`}
-                    >
-                      {auto.isActive ? <Play className="w-4 h-4" /> : <Pause className="w-4 h-4" />}
-                    </button>
-                    <button
-                      onClick={(e) => { e.stopPropagation(); setDeleteTarget(auto); }}
-                      className="p-1.5 rounded-lg text-muted hover:text-red-500 hover:bg-red-500/10 transition-colors"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
+
+                  <h3 className="text-base font-semibold text-foreground mb-1 truncate">{auto.name}</h3>
+                  {auto.description && (
+                    <p className="text-xs text-muted mb-3 line-clamp-2">{auto.description}</p>
+                  )}
                 </div>
 
-                <h3 className="text-base font-semibold text-foreground mb-1">{auto.name}</h3>
-                {auto.description && (
-                  <p className="text-xs text-muted mb-3 line-clamp-2">{auto.description}</p>
-                )}
-
-                <div className="flex items-center justify-between mt-auto pt-3 border-t border-b-border">
-                  <span className={`text-xs px-2 py-0.5 rounded-full ${auto.isActive ? 'bg-emerald-500/10 text-emerald-500' : 'bg-surface text-muted'}`}>
-                    {auto.isActive ? t('active') : t('inactive')}
-                  </span>
-                  <span className="text-[10px] text-dim">
-                    {auto.runCount} {t('runs')}
-                  </span>
+                {/* Card Footer */}
+                <div className="mt-auto p-5 pt-3">
+                  <div className="flex items-center justify-between pt-3 border-t border-b-border">
+                    <div className="flex items-center gap-3">
+                      <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${auto.isActive ? 'bg-emerald-500/10 text-emerald-500' : 'bg-surface text-muted'}`}>
+                        {auto.isActive ? t('active') : t('inactive')}
+                      </span>
+                      <span className="text-[11px] text-dim flex items-center gap-1">
+                        <Hash className="w-3 h-3" />
+                        {auto.runCount} {t('runs')}
+                      </span>
+                    </div>
+                    <ArrowRight className="w-4 h-4 text-muted opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
+                  </div>
                 </div>
               </motion.div>
             );
@@ -151,7 +198,7 @@ export default function Automations() {
       <Modal open={createModal} onClose={() => setCreateModal(false)} title={t('createAutomation')}>
         <form onSubmit={(e) => { e.preventDefault(); createMut.mutate(); }} className="space-y-4">
           <div>
-            <label className="block text-sm text-muted mb-1.5">{t('name')}</label>
+            <label className="block text-sm font-medium text-foreground mb-1.5">{t('name')}</label>
             <input
               type="text"
               required
@@ -162,7 +209,7 @@ export default function Automations() {
             />
           </div>
           <div>
-            <label className="block text-sm text-muted mb-1.5">{t('description')}</label>
+            <label className="block text-sm font-medium text-foreground mb-1.5">{t('description')}</label>
             <input
               type="text"
               value={form.description}
@@ -172,14 +219,14 @@ export default function Automations() {
             />
           </div>
           <div>
-            <label className="block text-sm text-muted mb-2">{t('trigger')}</label>
+            <label className="block text-sm font-medium text-foreground mb-2">{t('trigger')}</label>
             <div className="grid grid-cols-1 gap-2">
               {TRIGGERS.map((tr) => (
                 <label
                   key={tr.value}
                   className={`flex items-center gap-3 px-4 py-3 rounded-xl border cursor-pointer transition-all ${
                     form.trigger === tr.value
-                      ? 'border-violet-500/40 bg-violet-500/5'
+                      ? 'border-violet-500/40 bg-violet-500/5 shadow-sm'
                       : 'border-b-border hover:bg-surface'
                   }`}
                 >
@@ -191,7 +238,7 @@ export default function Automations() {
                     onChange={(e) => setForm((f) => ({ ...f, trigger: e.target.value }))}
                     className="sr-only"
                   />
-                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${tr.color}`}>
+                  <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${tr.color}`}>
                     {tr.icon}
                   </div>
                   <span className="text-sm font-medium text-foreground">
