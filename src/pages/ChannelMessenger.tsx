@@ -118,16 +118,16 @@ export default function ChannelMessenger() {
                 <div>
                   <div className="text-sm font-semibold text-foreground">Convly AI</div>
                   <div className="text-[10px] text-blue-400 flex items-center gap-1">
-                    <Zap className="w-2 h-2" /> Active
+                    <Zap className="w-2 h-2" /> {t('chatStatusActive')}
                   </div>
                 </div>
               </div>
               <div className="p-3 space-y-2.5 min-h-[240px] bg-base">
                 {[
-                  { from: 'user', text: 'Do you have availability this week?' },
-                  { from: 'ai', text: 'Yes! We have openings every day. What service are you looking for?' },
-                  { from: 'user', text: 'Beard trim tomorrow' },
-                  { from: 'ai', text: 'Done! Beard trim booked for tomorrow at 10 AM. See you! 👋' },
+                  { from: 'user', text: t('msPageChatUser1') },
+                  { from: 'ai', text: t('msPageChatAi1') },
+                  { from: 'user', text: t('msPageChatUser2') },
+                  { from: 'ai', text: t('msPageChatAi2') },
                 ].map((msg, i) => (
                   <motion.div
                     key={i}

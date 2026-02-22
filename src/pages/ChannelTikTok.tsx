@@ -118,16 +118,16 @@ export default function ChannelTikTok() {
                 <div>
                   <div className="text-sm font-semibold text-foreground">Convly AI</div>
                   <div className="text-[10px] text-[#fe2c55] flex items-center gap-1">
-                    <Zap className="w-2 h-2" /> Active
+                    <Zap className="w-2 h-2" /> {t('chatStatusActive')}
                   </div>
                 </div>
               </div>
               <div className="p-3 space-y-2.5 min-h-[240px] bg-base">
                 {[
-                  { from: 'user', text: 'Hey! I saw your video, can I book a session?' },
-                  { from: 'ai', text: 'Hi! Of course! We have slots available tomorrow and Friday. Which works for you?' },
-                  { from: 'user', text: 'Friday at 3 PM' },
-                  { from: 'ai', text: 'Done! You\'re booked for Friday at 3 PM. See you then! 🎵' },
+                  { from: 'user', text: t('ttPageChatUser1') },
+                  { from: 'ai', text: t('ttPageChatAi1') },
+                  { from: 'user', text: t('ttPageChatUser2') },
+                  { from: 'ai', text: t('ttPageChatAi2') },
                 ].map((msg, i) => (
                   <motion.div
                     key={i}

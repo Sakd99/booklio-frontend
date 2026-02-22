@@ -34,27 +34,27 @@ const CHANNEL_ICONS: Record<string, { svg: string; gradient: string; bg: string;
 type ChannelKey = 'instagram' | 'whatsapp' | 'telegram' | 'messenger';
 const TABS: ChannelKey[] = ['instagram', 'whatsapp', 'telegram', 'messenger'];
 
-const chatPreviews: Record<ChannelKey, { user: string; ai: string }[]> = {
-  instagram: [
-    { user: 'Hey, can I book a facial?', ai: 'Of course! We have openings tomorrow at 2 PM and 4 PM. Which one works?' },
-    { user: '2 PM!', ai: 'Booked! See you tomorrow at 2 PM for your facial treatment.' },
-  ],
-  whatsapp: [
-    { user: 'Hi, I need an appointment for a haircut', ai: 'Welcome! We have slots today at 11 AM, 1 PM, and 5 PM. Pick one!' },
-    { user: '5 PM today', ai: 'All set! Your haircut is confirmed for 5 PM today.' },
-  ],
-  telegram: [
-    { user: '/book massage', ai: 'Great choice! Available times: Mon 10 AM, Tue 3 PM, Wed 11 AM.' },
-    { user: 'Tuesday 3 PM', ai: 'Your massage session is booked for Tuesday at 3 PM!' },
-  ],
-  messenger: [
-    { user: 'Do you have availability this week?', ai: 'Yes! We have openings every day. What service are you looking for?' },
-    { user: 'Beard trim tomorrow', ai: 'Done! Beard trim booked for tomorrow at 10 AM. See you!' },
-  ],
-};
-
 export default function ChannelsShowcase() {
   const { t } = useI18n();
+
+  const chatPreviews: Record<ChannelKey, { user: string; ai: string }[]> = {
+    instagram: [
+      { user: t('showcaseIgUser1'), ai: t('showcaseIgAi1') },
+      { user: t('showcaseIgUser2'), ai: t('showcaseIgAi2') },
+    ],
+    whatsapp: [
+      { user: t('showcaseWaUser1'), ai: t('showcaseWaAi1') },
+      { user: t('showcaseWaUser2'), ai: t('showcaseWaAi2') },
+    ],
+    telegram: [
+      { user: t('showcaseTgUser1'), ai: t('showcaseTgAi1') },
+      { user: t('showcaseTgUser2'), ai: t('showcaseTgAi2') },
+    ],
+    messenger: [
+      { user: t('showcaseMsUser1'), ai: t('showcaseMsAi1') },
+      { user: t('showcaseMsUser2'), ai: t('showcaseMsAi2') },
+    ],
+  };
   const [active, setActive] = useState<ChannelKey>('instagram');
   const icon = CHANNEL_ICONS[active];
 
@@ -170,7 +170,7 @@ export default function ChannelsShowcase() {
                   <div>
                     <div className="text-xs font-semibold text-foreground">{nameKeys[active]}</div>
                     <div className="text-[9px] text-emerald-500 flex items-center gap-0.5">
-                      <Zap className="w-2 h-2" /> Convly AI Active
+                      <Zap className="w-2 h-2" /> {t('chatConvlyAiActive')}
                     </div>
                   </div>
                 </div>

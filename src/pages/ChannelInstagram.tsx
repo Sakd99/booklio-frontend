@@ -118,16 +118,16 @@ export default function ChannelInstagram() {
                 <div>
                   <div className="text-sm font-semibold text-foreground">Convly AI</div>
                   <div className="text-[10px] text-pink-400 flex items-center gap-1">
-                    <Zap className="w-2 h-2" /> Active
+                    <Zap className="w-2 h-2" /> {t('chatStatusActive')}
                   </div>
                 </div>
               </div>
               <div className="p-3 space-y-2.5 min-h-[240px] bg-base">
                 {[
-                  { from: 'user', text: 'Hey, can I book a facial?' },
-                  { from: 'ai', text: 'Of course! We have openings tomorrow at 2 PM and 4 PM. Which one works?' },
-                  { from: 'user', text: '2 PM!' },
-                  { from: 'ai', text: 'Booked! See you tomorrow at 2 PM for your facial treatment. ✨' },
+                  { from: 'user', text: t('igPageChatUser1') },
+                  { from: 'ai', text: t('igPageChatAi1') },
+                  { from: 'user', text: t('igPageChatUser2') },
+                  { from: 'ai', text: t('igPageChatAi2') },
                 ].map((msg, i) => (
                   <motion.div
                     key={i}

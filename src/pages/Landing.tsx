@@ -11,6 +11,7 @@ import Testimonials from '../components/landing/Testimonials';
 import PricingSection from '../components/landing/PricingSection';
 import FaqAccordion from '../components/landing/FaqAccordion';
 import CtaBanner from '../components/landing/CtaBanner';
+import ChannelPagesSection from '../components/landing/ChannelPagesSection';
 
 export default function Landing() {
   return (
@@ -27,6 +28,7 @@ export default function Landing() {
       <PricingSection />
       <FaqAccordion />
       <CtaBanner />
+      <ChannelPagesSection />
       <PublicFooter />
     </div>
   );

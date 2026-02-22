@@ -119,16 +119,16 @@ export default function ChannelWhatsApp() {
                 <div>
                   <div className="text-sm font-semibold text-white">Convly AI</div>
                   <div className="text-[10px] text-white/70 flex items-center gap-1">
-                    <Zap className="w-2 h-2" /> Online
+                    <Zap className="w-2 h-2" /> {t('chatStatusOnline')}
                   </div>
                 </div>
               </div>
               <div className="p-3 space-y-2.5 min-h-[240px] bg-base">
                 {[
-                  { from: 'user', text: 'مرحباً، أريد حجز موعد قص شعر' },
-                  { from: 'ai', text: 'أهلاً! لدينا مواعيد متاحة غداً: 10 صباحاً، 2 ظهراً، 5 مساءً. أيها يناسبك؟' },
-                  { from: 'user', text: '2 ظهراً' },
-                  { from: 'ai', text: 'تم! موعدك محجوز غداً الساعة 2 ظهراً. نراك هناك! ✅' },
+                  { from: 'user', text: t('waPageChatUser1') },
+                  { from: 'ai', text: t('waPageChatAi1') },
+                  { from: 'user', text: t('waPageChatUser2') },
+                  { from: 'ai', text: t('waPageChatAi2') },
                 ].map((msg, i) => (
                   <motion.div
                     key={i}
