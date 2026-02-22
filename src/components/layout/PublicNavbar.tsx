@@ -41,6 +41,7 @@ export default function PublicNavbar() {
     { label: 'WhatsApp', href: '/whatsapp' },
     { label: 'Instagram', href: '/instagram' },
     { label: 'Messenger', href: '/messenger' },
+    { label: 'TikTok', href: '/tiktok' },
   ];
 
   const navLinks = [

@@ -18,6 +18,7 @@ import Privacy from './pages/Privacy';
 import ChannelWhatsApp from './pages/ChannelWhatsApp';
 import ChannelInstagram from './pages/ChannelInstagram';
 import ChannelMessenger from './pages/ChannelMessenger';
+import ChannelTikTok from './pages/ChannelTikTok';
 
 import DashboardLayout from './pages/dashboard/DashboardLayout';
 import Overview from './pages/dashboard/Overview';
@@ -101,6 +102,7 @@ export default function App() {
         <Route path="/whatsapp" element={<ChannelWhatsApp />} />
         <Route path="/instagram" element={<ChannelInstagram />} />
         <Route path="/messenger" element={<ChannelMessenger />} />
+        <Route path="/tiktok" element={<ChannelTikTok />} />
 
         {/* Tenant Dashboard */}
         <Route
