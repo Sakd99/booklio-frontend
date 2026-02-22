@@ -134,7 +134,7 @@ export default function HeroSection() {
                 <Sparkles className="w-4 h-4 text-white" />
               </div>
               <div>
-                <div className="text-sm font-semibold text-foreground">Booklio AI</div>
+                <div className="text-sm font-semibold text-foreground">Convly AI</div>
                 <div className="text-[10px] text-emerald-500 flex items-center gap-1">
                   <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Online
                 </div>

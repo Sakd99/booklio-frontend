@@ -23,7 +23,7 @@ export default function Privacy() {
           <h2 className="text-xl font-bold text-foreground mt-8">2. How We Use Your Data</h2>
           <p>We use your data to:</p>
           <ul className="list-disc pl-6 space-y-2">
-            <li>Provide and improve the Booklio service</li>
+            <li>Provide and improve the Convly service</li>
             <li>Process and manage bookings</li>
             <li>Power AI-driven conversation responses</li>
             <li>Send transactional notifications</li>
@@ -68,7 +68,7 @@ export default function Privacy() {
           <p>We may update this Privacy Policy from time to time. We will notify you of significant changes via email or through the Service.</p>
 
           <h2 className="text-xl font-bold text-foreground mt-8">9. Contact</h2>
-          <p>For privacy-related inquiries, contact us at <a href="mailto:privacy@booklio.dev" className="text-blue-400 hover:underline">privacy@booklio.dev</a>.</p>
+          <p>For privacy-related inquiries, contact us at <a href="mailto:privacy@convly.ai" className="text-blue-400 hover:underline">privacy@convly.ai</a>.</p>
         </div>
       </div>
       <PublicFooter />

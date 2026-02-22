@@ -52,7 +52,7 @@ export default function AdminLayout() {
               <Sparkles className="w-4 h-4 text-white" />
             </div>
             <div>
-              <span className="font-bold text-base gradient-text">Booklio</span>
+              <span className="font-bold text-base gradient-text">Convly</span>
               <div className="text-[10px] text-violet-500 font-medium -mt-0.5">SUPER ADMIN</div>
             </div>
           </div>

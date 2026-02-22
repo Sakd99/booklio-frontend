@@ -28,7 +28,7 @@ const LANGUAGES = [
   { value: 'tr', label: 'Türkçe' },
 ];
 
-const ONBOARDING_KEY = 'booklio-ai-onboarding';
+const ONBOARDING_KEY = 'convly-ai-onboarding';
 
 const ONBOARDING_STEPS: OnboardingStep[] = [
   { targetId: 'ai-section-autoreply', titleKey: 'onboardingAutoReply', descKey: 'onboardingAutoReplyDesc' },

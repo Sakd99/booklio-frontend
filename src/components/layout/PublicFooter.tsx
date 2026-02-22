@@ -51,7 +51,7 @@ export default function PublicFooter() {
               <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center">
                 <Sparkles className="w-3.5 h-3.5 text-white" />
               </div>
-              <span className="font-bold text-lg gradient-text">Booklio</span>
+              <span className="font-bold text-lg gradient-text">Convly</span>
             </div>
             <p className="text-dim text-sm leading-relaxed mb-6">
               {t('footerDesc')}
@@ -94,7 +94,7 @@ export default function PublicFooter() {
         </div>
 
         <div className="flex flex-col md:flex-row items-center justify-between pt-8 border-t border-b-border gap-4">
-          <p className="text-sm text-dim">&copy; 2026 Booklio. {t('footerAllRights')}</p>
+          <p className="text-sm text-dim">&copy; 2026 Convly. {t('footerAllRights')}</p>
           <div className="flex items-center gap-4 text-sm text-dim">
             <Link to="/terms" className="hover:text-muted transition-colors">{t('footerTerms')}</Link>
             <Link to="/privacy" className="hover:text-muted transition-colors">{t('footerPrivacy')}</Link>

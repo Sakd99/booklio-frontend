@@ -51,7 +51,7 @@ export default function Login() {
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center shadow-lg shadow-blue-500/25">
               <Sparkles className="w-5 h-5 text-white" />
             </div>
-            <span className="font-bold text-2xl gradient-text">Booklio</span>
+            <span className="font-bold text-2xl gradient-text">Convly</span>
           </Link>
         </div>
 
@@ -97,8 +97,8 @@ export default function Login() {
             {/* Demo credentials */}
             <div className="p-3 rounded-xl bg-blue-500/5 border border-blue-500/10 text-xs text-muted">
               <div className="font-semibold text-fg-secondary mb-1">{t('loginDemoCredentials')}</div>
-              <div>Tenant: <span className="text-blue-500">demo@booklio.dev</span> / <span className="text-blue-500">Demo@12345</span></div>
-              <div>Admin: <span className="text-violet-500">super@booklio.dev</span> / <span className="text-violet-500">SuperAdmin@123</span></div>
+              <div>Tenant: <span className="text-blue-500">demo@convly.ai</span> / <span className="text-blue-500">Demo@12345</span></div>
+              <div>Admin: <span className="text-violet-500">super@convly.ai</span> / <span className="text-violet-500">SuperAdmin@123</span></div>
             </div>
 
             <motion.button

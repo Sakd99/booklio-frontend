@@ -58,7 +58,7 @@ export const useAuthStore = create<AuthState>()(
       },
     }),
     {
-      name: 'booklio-auth',
+      name: 'convly-auth',
       partialize: (s) => ({
         accessToken: s.accessToken,
         refreshToken: s.refreshToken,

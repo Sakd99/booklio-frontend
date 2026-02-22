@@ -170,7 +170,7 @@ export default function ChannelsShowcase() {
                   <div>
                     <div className="text-xs font-semibold text-foreground">{nameKeys[active]}</div>
                     <div className="text-[9px] text-emerald-500 flex items-center gap-0.5">
-                      <Zap className="w-2 h-2" /> Booklio AI Active
+                      <Zap className="w-2 h-2" /> Convly AI Active
                     </div>
                   </div>
                 </div>

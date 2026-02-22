@@ -35,7 +35,7 @@ export const useThemeStore = create<ThemeState>()(
       },
     }),
     {
-      name: 'booklio-theme',
+      name: 'convly-theme',
       partialize: (s) => ({ theme: s.theme }),
       onRehydrateStorage: () => (state) => {
         if (state) applyTheme(state.theme);

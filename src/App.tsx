@@ -15,6 +15,9 @@ import Features from './pages/Features';
 import Pricing from './pages/Pricing';
 import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
+import ChannelWhatsApp from './pages/ChannelWhatsApp';
+import ChannelInstagram from './pages/ChannelInstagram';
+import ChannelMessenger from './pages/ChannelMessenger';
 
 import DashboardLayout from './pages/dashboard/DashboardLayout';
 import Overview from './pages/dashboard/Overview';
@@ -95,6 +98,9 @@ export default function App() {
         <Route path="/pricing" element={<Pricing />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/privacy" element={<Privacy />} />
+        <Route path="/whatsapp" element={<ChannelWhatsApp />} />
+        <Route path="/instagram" element={<ChannelInstagram />} />
+        <Route path="/messenger" element={<ChannelMessenger />} />
 
         {/* Tenant Dashboard */}
         <Route

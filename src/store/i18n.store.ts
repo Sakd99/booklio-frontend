@@ -2,6 +2,17 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { translations, LOCALE_META, type Locale, type TranslationKeys } from '../i18n/translations';
 
+const SUPPORTED_LOCALES: Locale[] = ['ar', 'en', 'es', 'fr', 'tr'];
+
+function detectBrowserLocale(): Locale {
+  const langs = navigator.languages ?? [navigator.language];
+  for (const lang of langs) {
+    const code = lang.split('-')[0].toLowerCase() as Locale;
+    if (SUPPORTED_LOCALES.includes(code)) return code;
+  }
+  return 'ar'; // default to Arabic
+}
+
 interface I18nState {
   locale: Locale;
   setLocale: (locale: Locale) => void;
@@ -11,7 +22,7 @@ interface I18nState {
 export const useI18n = create<I18nState>()(
   persist(
     (set, get) => ({
-      locale: 'en',
+      locale: detectBrowserLocale(),
       setLocale: (locale: Locale) => {
         const { dir } = LOCALE_META[locale];
         document.documentElement.dir = dir;
@@ -24,7 +35,7 @@ export const useI18n = create<I18nState>()(
       },
     }),
     {
-      name: 'booklio-locale',
+      name: 'convly-locale',
       partialize: (s) => ({ locale: s.locale }),
       onRehydrateStorage: () => (state) => {
         if (state) {

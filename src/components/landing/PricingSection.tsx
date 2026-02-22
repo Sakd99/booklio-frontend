@@ -152,7 +152,7 @@ export default function PricingSection() {
         {/* Enterprise CTA */}
         <FadeIn className="text-center mt-12">
           <p className="text-muted mb-3">{t('pricingEnterprise')}</p>
-          <a href="mailto:sales@booklio.dev" className="text-blue-400 hover:text-blue-300 font-medium transition-colors">
+          <a href="mailto:sales@convly.ai" className="text-blue-400 hover:text-blue-300 font-medium transition-colors">
             {t('pricingContactSales')}
           </a>
         </FadeIn>

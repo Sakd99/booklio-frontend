@@ -28,7 +28,7 @@ interface BlogPostData {
 function BlogCard({ post, index }: { post: BlogPostData; index: number }) {
   const { t } = useI18n();
 
-  const authorName = post.author?.name ?? post.authorName ?? 'Booklio Team';
+  const authorName = post.author?.name ?? post.authorName ?? 'Convly Team';
   const publishedDate = post.publishedAt
     ? new Date(post.publishedAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
     : null;

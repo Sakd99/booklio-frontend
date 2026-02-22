@@ -20,7 +20,7 @@ export default function BlogPost() {
     enabled: !!slug,
   });
 
-  const authorName = post?.author?.name ?? (post?.author?.firstName ? `${post.author.firstName} ${post.author.lastName}`.trim() : null) ?? post?.authorName ?? 'Booklio Team';
+  const authorName = post?.author?.name ?? (post?.author?.firstName ? `${post.author.firstName} ${post.author.lastName}`.trim() : null) ?? post?.authorName ?? 'Convly Team';
   const parsedTags = post?.tags ? (typeof post.tags === 'string' ? JSON.parse(post.tags) : post.tags) : [];
   const publishedDate = post?.publishedAt
     ? new Date(post.publishedAt).toLocaleDateString(undefined, {

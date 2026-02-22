@@ -32,9 +32,15 @@ export default function PublicNavbar() {
   }, []);
 
   const productLinks = [
-    { label: t('landingFeaturesTag'), href: '#features' },
+    { label: t('landingFeaturesTag'), href: '/features', isRoute: true },
     { label: t('navChannelsLink'), href: '#channels' },
-    { label: t('landingPricingTag'), href: '#pricing' },
+    { label: t('landingPricingTag'), href: '/pricing', isRoute: true },
+  ];
+
+  const channelLinks = [
+    { label: 'WhatsApp', href: '/whatsapp' },
+    { label: 'Instagram', href: '/instagram' },
+    { label: 'Messenger', href: '/messenger' },
   ];
 
   const navLinks = [
@@ -58,7 +64,7 @@ export default function PublicNavbar() {
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center">
             <Sparkles className="w-4 h-4 text-white" />
           </div>
-          <span className="font-bold text-xl gradient-text">Booklio</span>
+          <span className="font-bold text-xl gradient-text">Convly</span>
         </Link>
 
         {/* Desktop nav */}
@@ -80,15 +86,38 @@ export default function PublicNavbar() {
                   exit={{ opacity: 0, y: 4 }}
                   className="absolute top-full left-0 mt-1 rounded-xl glass-card border border-b-border shadow-xl overflow-hidden z-50 min-w-[180px]"
                 >
-                  {productLinks.map((l) => (
-                    <a
+                  {productLinks.map((l) =>
+                    l.isRoute ? (
+                      <Link
+                        key={l.label}
+                        to={l.href}
+                        onClick={() => setProductOpen(false)}
+                        className="block px-4 py-3 text-sm text-muted hover:text-foreground hover:bg-surface transition-colors"
+                      >
+                        {l.label}
+                      </Link>
+                    ) : (
+                      <a
+                        key={l.label}
+                        href={l.href}
+                        onClick={() => setProductOpen(false)}
+                        className="block px-4 py-3 text-sm text-muted hover:text-foreground hover:bg-surface transition-colors"
+                      >
+                        {l.label}
+                      </a>
+                    )
+                  )}
+                  <div className="border-t border-b-border my-1" />
+                  <span className="block px-4 py-1.5 text-[10px] font-semibold text-dim uppercase tracking-wider">{t('navChannelsLink')}</span>
+                  {channelLinks.map((l) => (
+                    <Link
                       key={l.label}
-                      href={l.href}
+                      to={l.href}
                       onClick={() => setProductOpen(false)}
-                      className="block px-4 py-3 text-sm text-muted hover:text-foreground hover:bg-surface transition-colors"
+                      className="block px-4 py-2.5 text-sm text-muted hover:text-foreground hover:bg-surface transition-colors"
                     >
                       {l.label}
-                    </a>
+                    </Link>
                   ))}
                 </motion.div>
               )}

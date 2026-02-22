@@ -11,10 +11,10 @@ export default function Terms() {
           <p className="text-lg">Last updated: February 2026</p>
 
           <h2 className="text-xl font-bold text-foreground mt-8">1. Acceptance of Terms</h2>
-          <p>By accessing or using Booklio ("Service"), you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use the Service.</p>
+          <p>By accessing or using Convly ("Service"), you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use the Service.</p>
 
           <h2 className="text-xl font-bold text-foreground mt-8">2. Description of Service</h2>
-          <p>Booklio provides AI-powered appointment booking automation through social media direct messages, including Instagram, WhatsApp, Telegram, and Facebook Messenger.</p>
+          <p>Convly provides AI-powered appointment booking automation through social media direct messages, including Instagram, WhatsApp, Telegram, and Facebook Messenger.</p>
 
           <h2 className="text-xl font-bold text-foreground mt-8">3. User Accounts</h2>
           <p>You must provide accurate and complete information when creating an account. You are responsible for maintaining the confidentiality of your account credentials and for all activities under your account.</p>
@@ -36,13 +36,13 @@ export default function Terms() {
           <p>Your use of the Service is also governed by our Privacy Policy. We use industry-standard encryption (AES-256-GCM) and data isolation practices to protect your information.</p>
 
           <h2 className="text-xl font-bold text-foreground mt-8">7. Limitation of Liability</h2>
-          <p>Booklio is provided "as is" without warranties of any kind. We shall not be liable for any indirect, incidental, or consequential damages arising from your use of the Service.</p>
+          <p>Convly is provided "as is" without warranties of any kind. We shall not be liable for any indirect, incidental, or consequential damages arising from your use of the Service.</p>
 
           <h2 className="text-xl font-bold text-foreground mt-8">8. Changes to Terms</h2>
           <p>We reserve the right to modify these terms at any time. Continued use of the Service after changes constitutes acceptance of the new terms.</p>
 
           <h2 className="text-xl font-bold text-foreground mt-8">9. Contact</h2>
-          <p>For questions about these Terms, please contact us at <a href="mailto:legal@booklio.dev" className="text-blue-400 hover:underline">legal@booklio.dev</a>.</p>
+          <p>For questions about these Terms, please contact us at <a href="mailto:legal@convly.ai" className="text-blue-400 hover:underline">legal@convly.ai</a>.</p>
         </div>
       </div>
       <PublicFooter />
