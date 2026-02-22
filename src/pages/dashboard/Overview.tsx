@@ -94,35 +94,35 @@ export default function Overview() {
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
         <StatCard
           label={t('contactsTotal')}
-          value={u ? `${u.contacts.used} / ${u.contacts.max === -1 ? '∞' : u.contacts.max}` : '—'}
+          value={u?.contacts ? `${u.contacts.used} / ${u.contacts.max === -1 ? '∞' : u.contacts.max}` : '—'}
           icon={<Users className="w-5 h-5" />}
           color="violet"
           delay={0}
         />
         <StatCard
           label={t('messagesThisMonth')}
-          value={u ? `${u.messages.used} / ${u.messages.max === -1 ? '∞' : u.messages.max}` : '—'}
+          value={u?.messages ? `${u.messages.used} / ${u.messages.max === -1 ? '∞' : u.messages.max}` : '—'}
           icon={<MessageSquare className="w-5 h-5" />}
           color="blue"
           delay={0.05}
         />
         <StatCard
           label={t('bookingsThisMonth')}
-          value={u ? `${u.bookings.used} / ${u.bookings.max === -1 ? '∞' : u.bookings.max}` : '—'}
+          value={u?.bookings ? `${u.bookings.used} / ${u.bookings.max === -1 ? '∞' : u.bookings.max}` : '—'}
           icon={<Calendar className="w-5 h-5" />}
           color="emerald"
           delay={0.1}
         />
         <StatCard
           label={t('aiCallsThisMonth')}
-          value={u ? `${u.aiCalls.used} / ${u.aiCalls.max === -1 ? '∞' : u.aiCalls.max}` : '—'}
+          value={u?.aiCalls ? `${u.aiCalls.used} / ${u.aiCalls.max === -1 ? '∞' : u.aiCalls.max}` : '—'}
           icon={<TrendingUp className="w-5 h-5" />}
           color="amber"
           delay={0.15}
         />
         <StatCard
           label={t('channels')}
-          value={u ? `${u.channels.used} / ${u.channels.max === -1 ? '∞' : u.channels.max}` : '—'}
+          value={u?.channels ? `${u.channels.used} / ${u.channels.max === -1 ? '∞' : u.channels.max}` : '—'}
           icon={<Radio className="w-5 h-5" />}
           color="rose"
           delay={0.2}
@@ -166,10 +166,10 @@ export default function Overview() {
             </h2>
             <div className="space-y-5">
               {[
-                { label: t('contacts'), used: u.contacts.used, max: u.contacts.max, color: 'violet' },
-                { label: t('messages'), used: u.messages.used, max: u.messages.max, color: 'blue' },
-                { label: t('aiCalls'), used: u.aiCalls.used, max: u.aiCalls.max, color: 'emerald' },
-                { label: t('bookings'), used: u.bookings.used, max: u.bookings.max, color: 'amber' },
+                { label: t('contacts'), used: u.contacts?.used ?? 0, max: u.contacts?.max ?? 0, color: 'violet' },
+                { label: t('messages'), used: u.messages?.used ?? 0, max: u.messages?.max ?? 0, color: 'blue' },
+                { label: t('aiCalls'), used: u.aiCalls?.used ?? 0, max: u.aiCalls?.max ?? 0, color: 'emerald' },
+                { label: t('bookings'), used: u.bookings?.used ?? 0, max: u.bookings?.max ?? 0, color: 'amber' },
               ].map((item) => {
                 const pct = item.max === -1 ? 20 : Math.min(100, (item.used / item.max) * 100);
                 const colors: Record<string, string> = {
