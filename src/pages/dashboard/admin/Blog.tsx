@@ -8,7 +8,10 @@ import {
   ChevronLeft,
   ChevronRight,
   FileText,
+  Eye,
+  Code,
 } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 import toast from 'react-hot-toast';
 import { adminApi } from '../../../api/admin.api';
 import Spinner from '../../../components/ui/Spinner';
@@ -63,6 +66,7 @@ export default function Blog() {
   const [form, setForm] = useState<BlogFormData>(emptyForm);
   const [deleteConfirm, setDeleteConfirm] = useState<BlogPost | null>(null);
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
+  const [previewMode, setPreviewMode] = useState(false);
 
   const { data, isLoading } = useQuery({
     queryKey: ['admin-blog', page],
@@ -342,18 +346,45 @@ export default function Blog() {
             />
           </div>
 
-          {/* Content */}
+          {/* Content with Markdown Preview */}
           <div>
-            <label className="block text-sm font-medium text-foreground mb-1.5">
-              Content
-            </label>
-            <textarea
-              rows={8}
-              value={form.content}
-              onChange={(e) => setForm((f) => ({ ...f, content: e.target.value }))}
-              className="w-full input-base rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-dim resize-y"
-              placeholder="Write your blog post content here..."
-            />
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block text-sm font-medium text-foreground">
+                Content (Markdown)
+              </label>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setPreviewMode(false)}
+                  className={`px-3 py-1 text-xs rounded-lg transition-colors ${!previewMode ? 'bg-blue-500 text-white' : 'text-muted hover:text-foreground'}`}
+                >
+                  <Code className="w-3 h-3 inline mr-1" />
+                  Edit
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPreviewMode(true)}
+                  className={`px-3 py-1 text-xs rounded-lg transition-colors ${previewMode ? 'bg-blue-500 text-white' : 'text-muted hover:text-foreground'}`}
+                >
+                  <Eye className="w-3 h-3 inline mr-1" />
+                  Preview
+                </button>
+              </div>
+            </div>
+            {!previewMode ? (
+              <textarea
+                rows={12}
+                value={form.content}
+                onChange={(e) => setForm((f) => ({ ...f, content: e.target.value }))}
+                className="w-full input-base rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-dim resize-y font-mono"
+                placeholder="# My Blog Post\n\nWrite your content in **Markdown** format...\n\n- List item 1\n- List item 2"
+              />
+            ) : (
+              <div className="w-full min-h-[300px] input-base rounded-xl px-4 py-2.5 text-sm text-foreground prose prose-sm max-w-none">
+                <ReactMarkdown>{form.content || '*No content yet*'}</ReactMarkdown>
+              </div>
+            )}
+            <p className="text-xs text-dim mt-1">Supports Markdown: **bold**, *italic*, # headings, - lists, etc.</p>
           </div>
 
           {/* Tags */}
