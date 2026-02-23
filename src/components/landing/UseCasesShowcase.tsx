@@ -178,20 +178,6 @@ export default function UseCasesShowcase() {
 
   return (
     <section className="relative min-h-screen flex items-center px-6 pt-24 pb-20">
-      {/* Background */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <motion.div
-          animate={{ scale: [1, 1.1, 1], opacity: [0.15, 0.25, 0.15] }}
-          transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
-          className="absolute -top-40 -left-40 w-[500px] h-[500px] bg-blue-500 rounded-full blur-[150px]"
-        />
-        <motion.div
-          animate={{ scale: [1, 1.15, 1], opacity: [0.1, 0.2, 0.1] }}
-          transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
-          className="absolute -top-20 -right-40 w-[500px] h-[500px] bg-violet-500 rounded-full blur-[150px]"
-        />
-      </div>
-
       <div className="max-w-7xl mx-auto w-full relative">
         {/* Title */}
         <motion.div

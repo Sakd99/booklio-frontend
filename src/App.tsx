@@ -44,14 +44,30 @@ import AdminNotifications from './pages/dashboard/admin/Notifications';
 const Automations = lazy(() => import('./pages/dashboard/Automations'));
 const FlowBuilder = lazy(() => import('./pages/dashboard/FlowBuilder'));
 
+function isTokenExpired(token: string): boolean {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.exp * 1000 < Date.now();
+  } catch {
+    return true;
+  }
+}
+
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const token = useAuthStore((s) => s.accessToken);
-  return token ? <>{children}</> : <Navigate to="/login" replace />;
+  const { accessToken, logout } = useAuthStore();
+  if (!accessToken || isTokenExpired(accessToken)) {
+    if (accessToken) logout();
+    return <Navigate to="/login" replace />;
+  }
+  return <>{children}</>;
 }
 
 function AdminRoute({ children }: { children: React.ReactNode }) {
-  const { accessToken, user } = useAuthStore();
-  if (!accessToken) return <Navigate to="/login" replace />;
+  const { accessToken, user, logout } = useAuthStore();
+  if (!accessToken || isTokenExpired(accessToken)) {
+    if (accessToken) logout();
+    return <Navigate to="/login" replace />;
+  }
   if (user?.role !== 'SUPER_ADMIN') return <Navigate to="/dashboard" replace />;
   return <>{children}</>;
 }
