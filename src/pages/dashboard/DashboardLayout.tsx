@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard, Scissors, Calendar, Radio,
   Users, LogOut, Sparkles, Menu, X,
-  MessageSquare, Brain, Sun, Moon, Globe, ChevronDown, Workflow
+  MessageSquare, Brain, Sun, Moon, Globe, ChevronDown, Workflow, CreditCard
 } from 'lucide-react';
 import { useAuthStore } from '../../store/auth.store';
 import { useThemeStore } from '../../store/theme.store';
@@ -48,6 +48,7 @@ export default function DashboardLayout() {
     { to: '/dashboard/channels', icon: <Radio className="w-5 h-5" />, label: t('navChannels'), resource: 'channels' },
     { to: '/dashboard/team', icon: <Users className="w-5 h-5" />, label: t('navTeam'), resource: 'team' },
     { to: '/dashboard/automations', icon: <Workflow className="w-5 h-5" />, label: t('navAutomations'), resource: null },
+    { to: '/dashboard/billing', icon: <CreditCard className="w-5 h-5" />, label: t('navBilling'), resource: null },
   ];
 
   // Filter nav based on permissions (null = show all, {} = show only allowed)

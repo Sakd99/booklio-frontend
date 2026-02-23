@@ -30,7 +30,7 @@ export default function Register() {
       const data = await authApi.register(form);
       setAuth(data.accessToken, data.refreshToken);
       toast.success(t('registerSuccess'));
-      navigate('/dashboard');
+      navigate('/onboarding');
     } catch (err: any) {
       const msg = err?.response?.data?.error;
       toast.error(Array.isArray(msg) ? msg[0] : (msg ?? 'Registration failed'));

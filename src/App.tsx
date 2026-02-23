@@ -1,10 +1,11 @@
-import { useEffect, lazy, Suspense } from 'react';
+import { useEffect, useState, lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { useAuthStore } from './store/auth.store';
 import { useThemeStore } from './store/theme.store';
 import { useI18n } from './store/i18n.store';
 import { LOCALE_META } from './i18n/translations';
+import { onboardingApi } from './api/onboarding.api';
 
 import Landing from './pages/Landing';
 import Login from './pages/Login';
@@ -20,6 +21,7 @@ import ChannelInstagram from './pages/ChannelInstagram';
 import ChannelMessenger from './pages/ChannelMessenger';
 import ChannelTikTok from './pages/ChannelTikTok';
 
+import Onboarding from './pages/Onboarding';
 import DashboardLayout from './pages/dashboard/DashboardLayout';
 import Overview from './pages/dashboard/Overview';
 import Services from './pages/dashboard/Services';
@@ -28,6 +30,7 @@ import Channels from './pages/dashboard/Channels';
 import Team from './pages/dashboard/Team';
 import Conversations from './pages/dashboard/Conversations';
 import AiSettings from './pages/dashboard/AiSettings';
+import Billing from './pages/dashboard/Billing';
 
 import AdminLayout from './pages/dashboard/admin/AdminLayout';
 import Metrics from './pages/dashboard/admin/Metrics';
@@ -50,6 +53,21 @@ function AdminRoute({ children }: { children: React.ReactNode }) {
   const { accessToken, user } = useAuthStore();
   if (!accessToken) return <Navigate to="/login" replace />;
   if (user?.role !== 'SUPER_ADMIN') return <Navigate to="/dashboard" replace />;
+  return <>{children}</>;
+}
+
+function OnboardingGuard({ children }: { children: React.ReactNode }) {
+  const [status, setStatus] = useState<'loading' | 'done' | 'pending'>('loading');
+
+  useEffect(() => {
+    onboardingApi
+      .getStatus()
+      .then((s) => setStatus(s.completed ? 'done' : 'pending'))
+      .catch(() => setStatus('done'));
+  }, []);
+
+  if (status === 'loading') return null;
+  if (status === 'pending') return <Navigate to="/onboarding" replace />;
   return <>{children}</>;
 }
 
@@ -104,12 +122,24 @@ export default function App() {
         <Route path="/messenger" element={<ChannelMessenger />} />
         <Route path="/tiktok" element={<ChannelTikTok />} />
 
+        {/* Onboarding */}
+        <Route
+          path="/onboarding"
+          element={
+            <ProtectedRoute>
+              <Onboarding />
+            </ProtectedRoute>
+          }
+        />
+
         {/* Tenant Dashboard */}
         <Route
           path="/dashboard"
           element={
             <ProtectedRoute>
-              <DashboardLayout />
+              <OnboardingGuard>
+                <DashboardLayout />
+              </OnboardingGuard>
             </ProtectedRoute>
           }
         >
@@ -122,6 +152,7 @@ export default function App() {
           <Route path="team" element={<Team />} />
           <Route path="automations" element={<Suspense fallback={<div />}><Automations /></Suspense>} />
           <Route path="automations/:id" element={<Suspense fallback={<div />}><FlowBuilder /></Suspense>} />
+          <Route path="billing" element={<Billing />} />
         </Route>
 
         {/* Admin Panel */}
