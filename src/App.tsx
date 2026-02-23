@@ -17,6 +17,7 @@ import Pricing from './pages/Pricing';
 import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
 import HelpCenter from './pages/HelpCenter';
+import PublicBooking from './pages/PublicBooking';
 import ChannelWhatsApp from './pages/ChannelWhatsApp';
 import ChannelInstagram from './pages/ChannelInstagram';
 import ChannelMessenger from './pages/ChannelMessenger';
@@ -36,6 +37,11 @@ const AiSettings = lazy(() => import('./pages/dashboard/AiSettings'));
 const Billing = lazy(() => import('./pages/dashboard/Billing'));
 const Automations = lazy(() => import('./pages/dashboard/Automations'));
 const FlowBuilder = lazy(() => import('./pages/dashboard/FlowBuilder'));
+const Reminders = lazy(() => import('./pages/dashboard/Reminders'));
+const OutgoingWebhooks = lazy(() => import('./pages/dashboard/OutgoingWebhooks'));
+const Reviews = lazy(() => import('./pages/dashboard/Reviews'));
+const Analytics = lazy(() => import('./pages/dashboard/Analytics'));
+const AiPlayground = lazy(() => import('./pages/dashboard/AiPlayground'));
 
 const Metrics = lazy(() => import('./pages/dashboard/admin/Metrics'));
 const Tenants = lazy(() => import('./pages/dashboard/admin/Tenants'));
@@ -135,6 +141,7 @@ export default function App() {
         <Route path="/terms" element={<Terms />} />
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/help" element={<HelpCenter />} />
+        <Route path="/b/:slug" element={<PublicBooking />} />
         <Route path="/whatsapp" element={<ChannelWhatsApp />} />
         <Route path="/instagram" element={<ChannelInstagram />} />
         <Route path="/messenger" element={<ChannelMessenger />} />
@@ -171,6 +178,11 @@ export default function App() {
           <Route path="automations" element={<Suspense fallback={<div />}><Automations /></Suspense>} />
           <Route path="automations/:id" element={<Suspense fallback={<div />}><FlowBuilder /></Suspense>} />
           <Route path="billing" element={<Suspense fallback={<div />}><Billing /></Suspense>} />
+          <Route path="reminders" element={<Suspense fallback={<div />}><Reminders /></Suspense>} />
+          <Route path="webhooks" element={<Suspense fallback={<div />}><OutgoingWebhooks /></Suspense>} />
+          <Route path="reviews" element={<Suspense fallback={<div />}><Reviews /></Suspense>} />
+          <Route path="analytics" element={<Suspense fallback={<div />}><Analytics /></Suspense>} />
+          <Route path="ai-playground" element={<Suspense fallback={<div />}><AiPlayground /></Suspense>} />
         </Route>
 
         {/* Admin Panel */}
