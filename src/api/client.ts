@@ -1,4 +1,5 @@
 import axios from 'axios';
+import toast from 'react-hot-toast';
 
 const BASE = '/api';
 
@@ -22,6 +23,8 @@ api.interceptors.response.use(
   (res) => res,
   async (err) => {
     const original = err.config;
+    
+    // Handle 401 with refresh token
     if (err.response?.status === 401 && !original._retry) {
       original._retry = true;
       const refreshToken = localStorage.getItem('refreshToken');
@@ -57,6 +60,23 @@ api.interceptors.response.use(
         refreshing = false;
       }
     }
+
+    // Show error toast for non-401 errors (unless explicitly silenced)
+    if (!original?.skipErrorToast) {
+      const message = err.response?.data?.error || err.response?.data?.message || err.message || 'An error occurred';
+      if (err.response?.status === 403) {
+        toast.error('Access denied');
+      } else if (err.response?.status === 404) {
+        toast.error('Resource not found');
+      } else if (err.response?.status === 500) {
+        toast.error('Server error. Please try again.');
+      } else if (err.response?.status >= 400) {
+        toast.error(message);
+      } else if (!navigator.onLine) {
+        toast.error('No internet connection');
+      }
+    }
+
     return Promise.reject(err);
   },
 );

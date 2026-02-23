@@ -5,6 +5,7 @@ import {
   Calendar, MessageSquare, Radio, TrendingUp, ArrowRight,
   Scissors, Brain, Workflow, Zap, Bell, Clock, Users,
 } from 'lucide-react';
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { tenantApi } from '../../api/tenant.api';
 import { bookingsApi } from '../../api/bookings.api';
 import { notificationsApi } from '../../api/notifications.api';

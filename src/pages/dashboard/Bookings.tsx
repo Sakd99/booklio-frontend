@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { Plus, Calendar, ChevronLeft, ChevronRight, Filter } from 'lucide-react';
+import { Plus, Calendar, ChevronLeft, ChevronRight, Filter, Download } from 'lucide-react';
 import toast from 'react-hot-toast';
+import dayjs from 'dayjs';
 import { bookingsApi, CreateBookingPayload } from '../../api/bookings.api';
 import { servicesApi } from '../../api/services.api';
 import Button from '../../components/ui/Button';
@@ -40,6 +41,32 @@ export default function Bookings() {
 
   const totalPages = data ? Math.ceil(data.total / 15) : 1;
 
+  const exportToCSV = () => {
+    if (!data?.appointments || data.appointments.length === 0) {
+      toast.error('No bookings to export');
+      return;
+    }
+    const headers = ['Customer', 'Service', 'Date', 'Time', 'Contact', 'Status', 'Notes'];
+    const rows = data.appointments.map((bk: any) => [
+      bk.customerName,
+      bk.service?.name || 'N/A',
+      dayjs(bk.startsAt).format('YYYY-MM-DD'),
+      dayjs(bk.startsAt).format('HH:mm'),
+      bk.customerContact,
+      bk.status,
+      bk.notes || '',
+    ]);
+    const csv = [headers, ...rows].map(row => row.map((cell: string | number) => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `bookings_${dayjs().format('YYYY-MM-DD')}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+    toast.success('Exported successfully!');
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -55,6 +82,7 @@ export default function Bookings() {
               {STATUSES.filter(Boolean).map((s) => <option key={s} value={s}>{s}</option>)}
             </select>
           </div>
+          <Button onClick={exportToCSV} variant="secondary" icon={<Download className="w-4 h-4" />}>Export CSV</Button>
           <Button onClick={() => setCreateOpen(true)} icon={<Plus className="w-4 h-4" />}>{t('create')}</Button>
         </div>
       </div>
