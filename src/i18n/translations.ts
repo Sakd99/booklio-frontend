@@ -740,6 +740,7 @@ const en = {
   aiAssistantClear: 'Clear chat',
   aiAssistantWelcome: "Hey! I'm your AI business assistant. Ask me anything about your account, performance, or how to improve your setup.",
   aiAssistantError: 'Something went wrong. Please try again.',
+  aiAssistantWorking: 'Working on it…',
 
   // Channel AI mode
   channelModeLabel: 'Mode',
@@ -1563,6 +1564,7 @@ const ar: typeof en = {
   aiAssistantClear: 'مسح المحادثة',
   aiAssistantWelcome: 'مرحباً! أنا مساعدك الذكي. اسألني عن حسابك أو أدائك أو كيفية تحسين إعداداتك.',
   aiAssistantError: 'حدث خطأ. يرجى المحاولة مرة أخرى.',
+  aiAssistantWorking: 'جارٍ التنفيذ…',
 
   // Channel AI mode
   channelModeLabel: 'الوضع',
@@ -2242,6 +2244,7 @@ const es: typeof en = {
   aiAssistantClear: 'Limpiar chat',
   aiAssistantWelcome: '¡Hola! Soy tu asistente IA. Pregúntame sobre tu cuenta, rendimiento o cómo mejorar tu configuración.',
   aiAssistantError: 'Algo salió mal. Por favor intenta de nuevo.',
+  aiAssistantWorking: 'Trabajando en ello…',
   channelModeLabel: 'Modo',
   channelModeAi: 'IA',
   channelModeAutomation: 'Automatización',
@@ -2918,6 +2921,7 @@ const fr: typeof en = {
   aiAssistantClear: 'Effacer le chat',
   aiAssistantWelcome: "Bonjour ! Je suis votre assistant IA. Posez-moi des questions sur votre compte, vos performances ou comment améliorer votre configuration.",
   aiAssistantError: 'Une erreur s\'est produite. Veuillez réessayer.',
+  aiAssistantWorking: 'En cours…',
   channelModeLabel: 'Mode',
   channelModeAi: 'IA',
   channelModeAutomation: 'Automatisation',
@@ -3594,6 +3598,7 @@ const tr: typeof en = {
   aiAssistantClear: 'Sohbeti temizle',
   aiAssistantWelcome: 'Merhaba! YZ asistanınızım. Hesabınız, performansınız veya kurulumunuzu nasıl iyileştireceğiniz hakkında soru sorabilirsiniz.',
   aiAssistantError: 'Bir şeyler yanlış gitti. Lütfen tekrar deneyin.',
+  aiAssistantWorking: 'Üzerinde çalışılıyor…',
   channelModeLabel: 'Mod',
   channelModeAi: 'Yapay Zeka',
   channelModeAutomation: 'Otomasyon',

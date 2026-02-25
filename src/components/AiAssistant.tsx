@@ -199,8 +199,9 @@ export default function AiAssistant({ open, onClose }: AiAssistantProps) {
                   <div className="w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center bg-gradient-to-br from-violet-500 to-blue-500">
                     <Bot className="w-3.5 h-3.5 text-white" />
                   </div>
-                  <div className="rounded-2xl rounded-tl-sm bg-surface border border-b-border px-4 py-3">
-                    <Loader2 className="w-4 h-4 animate-spin text-violet-500" />
+                  <div className="rounded-2xl rounded-tl-sm bg-surface border border-b-border px-4 py-3 flex items-center gap-2">
+                    <Loader2 className="w-4 h-4 animate-spin text-violet-500 flex-shrink-0" />
+                    <span className="text-xs text-muted">{t('aiAssistantWorking')}</span>
                   </div>
                 </div>
               )}
