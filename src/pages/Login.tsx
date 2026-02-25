@@ -97,8 +97,8 @@ export default function Login() {
             {/* Demo credentials */}
             <div className="p-3 rounded-xl bg-blue-500/5 border border-blue-500/10 text-xs text-muted">
               <div className="font-semibold text-fg-secondary mb-1">{t('loginDemoCredentials')}</div>
-              <div>Tenant: <span className="text-blue-500">demo@convly.ai</span> / <span className="text-blue-500">Demo@12345</span></div>
-              <div>Admin: <span className="text-violet-500">super@convly.ai</span> / <span className="text-violet-500">SuperAdmin@123</span></div>
+              <div>Tenant: <span className="text-blue-500">demo@booklio.dev</span> / <span className="text-blue-500">Demo@12345</span></div>
+              <div>Admin: <span className="text-violet-500">super@booklio.dev</span> / <span className="text-violet-500">SuperAdmin@123</span></div>
             </div>
 
             <motion.button

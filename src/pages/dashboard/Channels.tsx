@@ -9,7 +9,6 @@ import {
 import toast from 'react-hot-toast';
 import { channelsApi } from '../../api/channels.api';
 import Button from '../../components/ui/Button';
-import Modal from '../../components/ui/Modal';
 import Spinner from '../../components/ui/Spinner';
 import { statusBadge } from '../../components/ui/Badge';
 import { useI18n } from '../../store/i18n.store';
@@ -27,9 +26,6 @@ export default function Channels() {
   // --- Messenger page picker state ---
   const [messengerPages, setMessengerPages] = useState<any[] | null>(null);
   const [messengerPagesKey, setMessengerPagesKey] = useState<string | null>(null);
-
-  // --- Disconnect confirmation state ---
-  const [disconnectTarget, setDisconnectTarget] = useState<{ id: string; name: string } | null>(null);
 
   // --- WhatsApp Embedded Signup state ---
   const wabaRef = useRef<{ wabaId: string; phoneNumberId: string } | null>(null);
@@ -631,7 +627,7 @@ export default function Channels() {
                     <Activity className="w-3.5 h-3.5" />
                   </button>
                   <button
-                    onClick={() => setDisconnectTarget({ id: ch.id, name: ch.externalName || ch.type })}
+                    onClick={() => { if (confirm('Disconnect this channel?')) disconnectMut.mutate(ch.id); }}
                     className="p-1.5 text-dim hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
                     title="Disconnect"
                   >
@@ -643,41 +639,6 @@ export default function Channels() {
           </div>
         )}
       </div>
-
-      {/* Disconnect Confirmation Modal */}
-      <Modal
-        open={!!disconnectTarget}
-        onClose={() => setDisconnectTarget(null)}
-        title="Disconnect Channel"
-        size="sm"
-      >
-        <div className="space-y-4">
-          <p className="text-sm text-muted">
-            Are you sure you want to disconnect{' '}
-            <span className="font-medium text-foreground">{disconnectTarget?.name}</span>?
-            This will stop receiving messages from this channel.
-          </p>
-          <div className="flex gap-3">
-            <Button variant="secondary" className="flex-1" onClick={() => setDisconnectTarget(null)}>
-              Cancel
-            </Button>
-            <Button
-              variant="danger"
-              className="flex-1"
-              loading={disconnectMut.isPending}
-              onClick={() => {
-                if (disconnectTarget) {
-                  disconnectMut.mutate(disconnectTarget.id, {
-                    onSuccess: () => setDisconnectTarget(null),
-                  });
-                }
-              }}
-            >
-              Disconnect
-            </Button>
-          </div>
-        </div>
-      </Modal>
     </div>
   );
 }

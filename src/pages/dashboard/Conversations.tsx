@@ -128,32 +128,19 @@ export default function Conversations() {
         </div>
 
         <div className="px-3 pb-2 flex gap-1.5 overflow-x-auto">
-          {['ALL', 'INSTAGRAM', 'TIKTOK', 'WHATSAPP', 'TELEGRAM', 'MESSENGER'].map((ch) => {
-            const count = ch === 'ALL' 
-              ? (convList?.data ?? []).length 
-              : (convList?.data ?? []).filter((c: any) => c.channelType === ch).length;
-            return (
-              <button
-                key={ch}
-                onClick={() => setChannelFilter(ch)}
-                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-medium whitespace-nowrap transition-all ${
-                  channelFilter === ch
-                    ? 'bg-blue-500/10 text-blue-500 border border-blue-500/20'
-                    : 'text-dim hover:text-muted hover:bg-surface border border-transparent'
-                }`}
-              >
-                {ch !== 'ALL' && <span className="flex-shrink-0">{channelIcon(ch)}</span>}
-                <span>{ch === 'ALL' ? t('all') : channelLabel(ch)}</span>
-                {count > 0 && (
-                  <span className={`px-1.5 py-0.5 rounded-full text-[9px] font-bold ${
-                    channelFilter === ch ? 'bg-blue-500 text-white' : 'bg-surface text-muted'
-                  }`}>
-                    {count}
-                  </span>
-                )}
-              </button>
-            );
-          })}
+          {['ALL', 'INSTAGRAM', 'TIKTOK', 'WHATSAPP', 'TELEGRAM', 'MESSENGER'].map((ch) => (
+            <button
+              key={ch}
+              onClick={() => setChannelFilter(ch)}
+              className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-medium whitespace-nowrap transition-all ${
+                channelFilter === ch
+                  ? 'bg-blue-500/10 text-blue-500 border border-blue-500/20'
+                  : 'text-dim hover:text-muted hover:bg-surface border border-transparent'
+              }`}
+            >
+              {ch === 'ALL' ? t('all') : channelLabel(ch)}
+            </button>
+          ))}
         </div>
 
         <div className="flex-1 overflow-y-auto">

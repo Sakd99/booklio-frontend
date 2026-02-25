@@ -20,14 +20,32 @@ export interface AuthResponse {
 
 export const authApi = {
   register: (data: RegisterPayload) =>
-    api.post<AuthResponse>('/auth/register', data).then((r) => r.data),
+    api
+      .post<AuthResponse>('/auth/register', data, {
+        skipAuthRefresh: true,
+        skipErrorToast: true,
+      })
+      .then((r) => r.data),
 
   login: (data: LoginPayload) =>
-    api.post<AuthResponse>('/auth/login', data).then((r) => r.data),
+    api
+      .post<AuthResponse>('/auth/login', data, {
+        skipAuthRefresh: true,
+        skipErrorToast: true,
+      })
+      .then((r) => r.data),
 
   refresh: (refreshToken: string) =>
-    api.post<AuthResponse>('/auth/refresh', { refreshToken }).then((r) => r.data),
+    api
+      .post<AuthResponse>(
+        '/auth/refresh',
+        { refreshToken },
+        { skipAuthRefresh: true, skipErrorToast: true },
+      )
+      .then((r) => r.data),
 
   logout: (refreshToken: string) =>
-    api.post('/auth/logout', { refreshToken }).then((r) => r.data),
+    api
+      .post('/auth/logout', { refreshToken }, { skipAuthRefresh: true })
+      .then((r) => r.data),
 };

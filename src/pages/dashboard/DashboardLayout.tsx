@@ -4,8 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard, Scissors, Calendar, Radio,
   Users, LogOut, Sparkles, Menu, X,
-  MessageSquare, Brain, Sun, Moon, Globe, ChevronDown, Workflow, CreditCard,
-  Bell, Webhook, Star, TrendingUp, FlaskConical
+  MessageSquare, Brain, Sun, Moon, Globe, ChevronDown, Workflow, CreditCard
 } from 'lucide-react';
 import { useAuthStore } from '../../store/auth.store';
 import { useThemeStore } from '../../store/theme.store';
@@ -49,11 +48,6 @@ export default function DashboardLayout() {
     { to: '/dashboard/channels', icon: <Radio className="w-5 h-5" />, label: t('navChannels'), resource: 'channels' },
     { to: '/dashboard/team', icon: <Users className="w-5 h-5" />, label: t('navTeam'), resource: 'team' },
     { to: '/dashboard/automations', icon: <Workflow className="w-5 h-5" />, label: t('navAutomations'), resource: null },
-    { to: '/dashboard/analytics', icon: <TrendingUp className="w-5 h-5" />, label: 'Analytics', resource: null },
-    { to: '/dashboard/reviews', icon: <Star className="w-5 h-5" />, label: 'Reviews', resource: null },
-    { to: '/dashboard/reminders', icon: <Bell className="w-5 h-5" />, label: 'Reminders', resource: null },
-    { to: '/dashboard/webhooks', icon: <Webhook className="w-5 h-5" />, label: 'Webhooks', resource: null },
-    { to: '/dashboard/ai-playground', icon: <FlaskConical className="w-5 h-5" />, label: 'AI Playground', resource: null },
     { to: '/dashboard/billing', icon: <CreditCard className="w-5 h-5" />, label: t('navBilling'), resource: null },
   ];
 

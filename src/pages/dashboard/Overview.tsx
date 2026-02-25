@@ -5,7 +5,6 @@ import {
   Calendar, MessageSquare, Radio, TrendingUp, ArrowRight,
   Scissors, Brain, Workflow, Zap, Bell, Clock, Users,
 } from 'lucide-react';
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { tenantApi } from '../../api/tenant.api';
 import { bookingsApi } from '../../api/bookings.api';
 import { notificationsApi } from '../../api/notifications.api';
@@ -151,45 +150,6 @@ export default function Overview() {
           </motion.button>
         ))}
       </div>
-
-      {/* Bookings Trend Chart */}
-      {bookings?.appointments && bookings.appointments.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="glass-card rounded-2xl p-6 border border-b-border"
-        >
-          <h2 className="text-sm font-semibold text-muted uppercase tracking-wider mb-5">
-            Bookings Trend (Last 7 Days)
-          </h2>
-          <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={(() => {
-              const last7Days = Array.from({ length: 7 }, (_, i) => {
-                const date = dayjs().subtract(6 - i, 'day');
-                const count = bookings.appointments.filter((bk: any) => 
-                  dayjs(bk.startsAt).format('YYYY-MM-DD') === date.format('YYYY-MM-DD')
-                ).length;
-                return { name: date.format('MMM D'), bookings: count };
-              });
-              return last7Days;
-            })()}>
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" opacity={0.3} />
-              <XAxis dataKey="name" stroke="var(--color-muted)" fontSize={12} />
-              <YAxis stroke="var(--color-muted)" fontSize={12} />
-              <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: 'var(--color-card)', 
-                  border: '1px solid var(--color-border)',
-                  borderRadius: '8px',
-                  fontSize: '12px'
-                }}
-              />
-              <Bar dataKey="bookings" fill="#3b82f6" radius={[8, 8, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </motion.div>
-      )}
 
       {/* Two Column: Usage + Automations */}
       <div className="grid lg:grid-cols-2 gap-5">
