@@ -108,6 +108,16 @@ export default function DashboardLayout() {
             {item.label}
           </NavLink>
         ))}
+
+        {/* AI Assistant nav item */}
+        <button
+          onClick={() => { setAssistantOpen(true); setSidebarOpen(false); }}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[15px] font-medium transition-all duration-200 text-violet-500 hover:bg-violet-500/8 group"
+        >
+          <Bot className="w-5 h-5" />
+          <span className="flex-1 text-left">{t('aiAssistantTitle')}</span>
+          <span className="text-[10px] font-bold bg-violet-500 text-white px-1.5 py-0.5 rounded-full leading-none">AI</span>
+        </button>
       </nav>
 
       {/* Theme + Language controls */}
@@ -157,18 +167,6 @@ export default function DashboardLayout() {
             )}
           </AnimatePresence>
         </div>
-      </div>
-
-      {/* AI Assistant button */}
-      <div className="px-3 pb-2">
-        <button
-          onClick={() => setAssistantOpen(true)}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium bg-gradient-to-r from-violet-500/10 to-blue-500/10 border border-violet-500/20 text-violet-500 hover:from-violet-500/20 hover:to-blue-500/20 transition-all"
-        >
-          <Bot className="w-4 h-4" />
-          {t('aiAssistantTitle')}
-          <span className="ml-auto text-[10px] bg-violet-500/20 px-1.5 py-0.5 rounded-full font-bold">AI</span>
-        </button>
       </div>
 
       {/* User + logout */}

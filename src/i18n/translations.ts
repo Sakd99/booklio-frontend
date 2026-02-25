@@ -741,6 +741,7 @@ const en = {
   aiAssistantWelcome: "Hey! I'm your AI business assistant. Ask me anything about your account, performance, or how to improve your setup.",
   aiAssistantError: 'Something went wrong. Please try again.',
   aiAssistantWorking: 'Working on it…',
+  aiAssistantModeLabel: 'Mode:',
 
   // Channel AI mode
   channelModeLabel: 'Mode',
@@ -1565,6 +1566,7 @@ const ar: typeof en = {
   aiAssistantWelcome: 'مرحباً! أنا مساعدك الذكي. اسألني عن حسابك أو أدائك أو كيفية تحسين إعداداتك.',
   aiAssistantError: 'حدث خطأ. يرجى المحاولة مرة أخرى.',
   aiAssistantWorking: 'جارٍ التنفيذ…',
+  aiAssistantModeLabel: 'الوضع:',
 
   // Channel AI mode
   channelModeLabel: 'الوضع',
@@ -2245,6 +2247,7 @@ const es: typeof en = {
   aiAssistantWelcome: '¡Hola! Soy tu asistente IA. Pregúntame sobre tu cuenta, rendimiento o cómo mejorar tu configuración.',
   aiAssistantError: 'Algo salió mal. Por favor intenta de nuevo.',
   aiAssistantWorking: 'Trabajando en ello…',
+  aiAssistantModeLabel: 'Modo:',
   channelModeLabel: 'Modo',
   channelModeAi: 'IA',
   channelModeAutomation: 'Automatización',
@@ -2922,6 +2925,7 @@ const fr: typeof en = {
   aiAssistantWelcome: "Bonjour ! Je suis votre assistant IA. Posez-moi des questions sur votre compte, vos performances ou comment améliorer votre configuration.",
   aiAssistantError: 'Une erreur s\'est produite. Veuillez réessayer.',
   aiAssistantWorking: 'En cours…',
+  aiAssistantModeLabel: 'Mode :',
   channelModeLabel: 'Mode',
   channelModeAi: 'IA',
   channelModeAutomation: 'Automatisation',
@@ -3599,6 +3603,7 @@ const tr: typeof en = {
   aiAssistantWelcome: 'Merhaba! YZ asistanınızım. Hesabınız, performansınız veya kurulumunuzu nasıl iyileştireceğiniz hakkında soru sorabilirsiniz.',
   aiAssistantError: 'Bir şeyler yanlış gitti. Lütfen tekrar deneyin.',
   aiAssistantWorking: 'Üzerinde çalışılıyor…',
+  aiAssistantModeLabel: 'Mod:',
   channelModeLabel: 'Mod',
   channelModeAi: 'Yapay Zeka',
   channelModeAutomation: 'Otomasyon',
