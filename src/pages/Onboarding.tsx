@@ -313,7 +313,7 @@ function StepIndustry({
               className={`flex items-start gap-3 p-4 rounded-xl border text-left transition-all ${
                 isSelected
                   ? 'border-blue-500 bg-blue-500/5 ring-1 ring-blue-500/20'
-                  : 'border-b-border bg-surface/50 hover:border-blue-500/30'
+                  : 'border-b-border bg-surface hover:border-blue-500/30'
               }`}
             >
               <div
@@ -353,7 +353,7 @@ function StepWebsite({
       <p className="text-muted text-sm mb-8">{t('obWebsiteSubtitle')}</p>
 
       <div className="mb-8">
-        <div className="flex items-center rounded-xl border border-b-border bg-surface/50 overflow-hidden focus-within:border-blue-500/50 focus-within:ring-1 focus-within:ring-blue-500/20 transition-all">
+        <div className="flex items-center rounded-xl border border-b-border bg-input-bg overflow-hidden focus-within:border-blue-500/50 focus-within:ring-1 focus-within:ring-blue-500/20 transition-all">
           <div className="px-4 py-3 bg-surface border-r border-b-border">
             <Globe className="w-4 h-4 text-muted" />
           </div>
@@ -448,7 +448,7 @@ function StepDocuments({
           {files.map((file, i) => (
             <div
               key={i}
-              className="flex items-center gap-3 p-3 rounded-xl border border-b-border bg-surface/50"
+              className="flex items-center gap-3 p-3 rounded-xl border border-b-border bg-surface"
             >
               <FileText className="w-4 h-4 text-blue-500 flex-shrink-0" />
               <div className="flex-1 min-w-0">
@@ -489,18 +489,18 @@ function StepInstructions({
   onLangChange: (v: string) => void;
 }) {
   const tones = [
-    { key: 'friendly', label: t('aiToneFriendly') },
-    { key: 'professional', label: t('aiToneProfessional') },
-    { key: 'casual', label: t('aiToneCasual') },
+    { key: 'friendly', label: t('toneFriendly') },
+    { key: 'professional', label: t('toneProfessional') },
+    { key: 'casual', label: t('toneCasual') },
   ];
 
   const languages = [
-    { key: 'auto', label: t('aiLangAuto') },
-    { key: 'en', label: 'English' },
+    { key: 'auto', label: 'الكشف التلقائي' },
     { key: 'ar', label: 'العربية' },
-    { key: 'es', label: 'Español' },
-    { key: 'fr', label: 'Français' },
-    { key: 'tr', label: 'Türkçe' },
+    { key: 'en', label: 'الإنجليزية' },
+    { key: 'es', label: 'الإسبانية' },
+    { key: 'fr', label: 'الفرنسية' },
+    { key: 'tr', label: 'التركية' },
   ];
 
   return (
@@ -526,7 +526,7 @@ function StepInstructions({
         maxLength={2000}
         rows={5}
         placeholder={t('obInstructionsPlaceholder')}
-        className="w-full rounded-xl border border-b-border bg-surface/50 px-4 py-3 text-sm text-foreground outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/20 resize-none transition-all placeholder:text-dim"
+        className="w-full rounded-xl border border-b-border bg-input-bg px-4 py-3 text-sm text-foreground outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/20 resize-none transition-all placeholder:text-dim"
       />
 
       {/* Tone */}
@@ -555,7 +555,7 @@ function StepInstructions({
         <select
           value={lang}
           onChange={(e) => onLangChange(e.target.value)}
-          className="w-full sm:w-64 rounded-xl border border-b-border bg-surface/50 px-4 py-2.5 text-sm text-foreground outline-none focus:border-blue-500/50 transition-all"
+          className="w-full sm:w-64 rounded-xl border border-b-border bg-input-bg px-4 py-2.5 text-sm text-foreground outline-none focus:border-blue-500/50 transition-all"
         >
           {languages.map((l) => (
             <option key={l.key} value={l.key}>{l.label}</option>

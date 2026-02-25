@@ -1,16 +1,13 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Sparkles, ArrowRight, CheckCircle2, Pause, Play,
+  Sparkles, ArrowRight, CheckCircle2,
   Scissors, Stethoscope, UtensilsCrossed, Building2, Heart, Activity,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useI18n } from '../../store/i18n.store';
 
 type Category = 'beauty' | 'dental' | 'restaurant' | 'realestate' | 'spa' | 'medical';
-
-const CATEGORY_KEYS: Category[] = ['beauty', 'dental', 'restaurant', 'realestate', 'spa', 'medical'];
-const AUTO_INTERVAL = 3500; // ms between auto-switches
 
 const CATEGORY_ICONS: Record<Category, React.ReactNode> = {
   beauty: <Scissors className="w-4 h-4" />,
@@ -21,13 +18,13 @@ const CATEGORY_ICONS: Record<Category, React.ReactNode> = {
   medical: <Activity className="w-4 h-4" />,
 };
 
-const CATEGORY_COLORS: Record<Category, { bg: string; border: string; text: string; gradient: string; progress: string }> = {
-  beauty: { bg: 'bg-pink-500/10', border: 'border-pink-500/30', text: 'text-pink-500', gradient: 'from-pink-500 to-rose-500', progress: 'bg-pink-500' },
-  dental: { bg: 'bg-cyan-500/10', border: 'border-cyan-500/30', text: 'text-cyan-500', gradient: 'from-cyan-500 to-blue-500', progress: 'bg-cyan-500' },
-  restaurant: { bg: 'bg-amber-500/10', border: 'border-amber-500/30', text: 'text-amber-500', gradient: 'from-amber-500 to-orange-500', progress: 'bg-amber-500' },
-  realestate: { bg: 'bg-emerald-500/10', border: 'border-emerald-500/30', text: 'text-emerald-500', gradient: 'from-emerald-500 to-teal-500', progress: 'bg-emerald-500' },
-  spa: { bg: 'bg-violet-500/10', border: 'border-violet-500/30', text: 'text-violet-500', gradient: 'from-violet-500 to-purple-500', progress: 'bg-violet-500' },
-  medical: { bg: 'bg-blue-500/10', border: 'border-blue-500/30', text: 'text-blue-500', gradient: 'from-blue-500 to-indigo-500', progress: 'bg-blue-500' },
+const CATEGORY_COLORS: Record<Category, { bg: string; border: string; text: string; gradient: string }> = {
+  beauty: { bg: 'bg-pink-500/10', border: 'border-pink-500/30', text: 'text-pink-500', gradient: 'from-pink-500 to-rose-500' },
+  dental: { bg: 'bg-cyan-500/10', border: 'border-cyan-500/30', text: 'text-cyan-500', gradient: 'from-cyan-500 to-blue-500' },
+  restaurant: { bg: 'bg-amber-500/10', border: 'border-amber-500/30', text: 'text-amber-500', gradient: 'from-amber-500 to-orange-500' },
+  realestate: { bg: 'bg-emerald-500/10', border: 'border-emerald-500/30', text: 'text-emerald-500', gradient: 'from-emerald-500 to-teal-500' },
+  spa: { bg: 'bg-violet-500/10', border: 'border-violet-500/30', text: 'text-violet-500', gradient: 'from-violet-500 to-purple-500' },
+  medical: { bg: 'bg-blue-500/10', border: 'border-blue-500/30', text: 'text-blue-500', gradient: 'from-blue-500 to-indigo-500' },
 };
 
 function useTypewriter(text: string, speed = 30) {
@@ -58,60 +55,6 @@ function useTypewriter(text: string, speed = 30) {
 export default function UseCasesShowcase() {
   const { t } = useI18n();
   const [active, setActive] = useState<Category>('beauty');
-  const [paused, setPaused] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const progressRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const pausedRef = useRef(false);
-
-  const clearTimers = useCallback(() => {
-    if (intervalRef.current) clearInterval(intervalRef.current);
-    if (progressRef.current) clearInterval(progressRef.current);
-  }, []);
-
-  const startAuto = useCallback(() => {
-    clearTimers();
-    setProgress(0);
-
-    const TICK = 50;
-    const steps = AUTO_INTERVAL / TICK;
-    let step = 0;
-
-    progressRef.current = setInterval(() => {
-      step++;
-      setProgress(Math.min((step / steps) * 100, 100));
-    }, TICK);
-
-    intervalRef.current = setInterval(() => {
-      if (pausedRef.current) return;
-      setActive((prev) => {
-        const idx = CATEGORY_KEYS.indexOf(prev);
-        return CATEGORY_KEYS[(idx + 1) % CATEGORY_KEYS.length];
-      });
-      step = 0;
-      setProgress(0);
-    }, AUTO_INTERVAL);
-  }, [clearTimers]);
-
-  useEffect(() => {
-    pausedRef.current = paused;
-    if (paused) {
-      clearTimers();
-      setProgress(0);
-    } else {
-      startAuto();
-    }
-    return clearTimers;
-  }, [paused, startAuto, clearTimers]);
-
-  const handleCategoryClick = (key: Category) => {
-    setActive(key);
-    setPaused(true);
-  };
-
-  const handleTogglePause = () => {
-    setPaused((p) => !p);
-  };
 
   const categories: { key: Category; label: string }[] = [
     { key: 'beauty', label: t('ucCatBeauty') },
@@ -178,6 +121,20 @@ export default function UseCasesShowcase() {
 
   return (
     <section className="relative min-h-screen flex items-center px-6 pt-24 pb-20">
+      {/* Background */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <motion.div
+          animate={{ scale: [1, 1.1, 1], opacity: [0.15, 0.25, 0.15] }}
+          transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+          className="absolute -top-40 -left-40 w-[500px] h-[500px] bg-blue-500 rounded-full blur-[150px]"
+        />
+        <motion.div
+          animate={{ scale: [1, 1.15, 1], opacity: [0.1, 0.2, 0.1] }}
+          transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
+          className="absolute -top-20 -right-40 w-[500px] h-[500px] bg-violet-500 rounded-full blur-[150px]"
+        />
+      </div>
+
       <div className="max-w-7xl mx-auto w-full relative">
         {/* Title */}
         <motion.div
@@ -254,34 +211,18 @@ export default function UseCasesShowcase() {
                 return (
                   <button
                     key={cat.key}
-                    onClick={() => handleCategoryClick(cat.key)}
-                    className={`relative flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 border overflow-hidden ${
+                    onClick={() => setActive(cat.key)}
+                    className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 border ${
                       isActive
                         ? `${catColors.bg} ${catColors.text} ${catColors.border} shadow-lg`
                         : 'bg-surface/60 text-muted border-b-border hover:text-foreground hover:border-blue-500/20'
                     }`}
                   >
-                    {/* Auto-progress bar at bottom of active pill */}
-                    {isActive && !paused && (
-                      <span
-                        className={`absolute bottom-0 left-0 h-0.5 ${catColors.progress} transition-none`}
-                        style={{ width: `${progress}%` }}
-                      />
-                    )}
                     {CATEGORY_ICONS[cat.key]}
                     {cat.label}
                   </button>
                 );
               })}
-
-              {/* Pause / Play toggle */}
-              <button
-                onClick={handleTogglePause}
-                title={paused ? 'Resume auto-play' : 'Pause auto-play'}
-                className="flex items-center justify-center w-10 h-10 rounded-xl border border-b-border bg-surface/60 text-muted hover:text-foreground hover:border-blue-500/20 transition-all duration-200"
-              >
-                {paused ? <Play className="w-4 h-4" /> : <Pause className="w-4 h-4" />}
-              </button>
             </div>
 
             {/* CTA */}

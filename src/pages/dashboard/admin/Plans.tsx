@@ -41,6 +41,7 @@ interface PlanForm {
   type: PlanType;
   description: string;
   priceUsd: number;
+  stripePriceId: string;
   maxMessagesPerMonth: number;
   maxAiCallsPerMonth: number;
   maxBookingsPerMonth: number;
@@ -54,6 +55,7 @@ const emptyForm = (): PlanForm => ({
   type: 'FREE',
   description: '',
   priceUsd: 0,
+  stripePriceId: '',
   maxMessagesPerMonth: 0,
   maxAiCallsPerMonth: 0,
   maxBookingsPerMonth: 0,
@@ -138,6 +140,7 @@ export default function Plans() {
       type: plan.type ?? 'FREE',
       description: plan.description ?? '',
       priceUsd: plan.priceUsd ?? 0,
+      stripePriceId: plan.stripePriceId ?? '',
       maxMessagesPerMonth: plan.maxMessagesPerMonth ?? 0,
       maxAiCallsPerMonth: plan.maxAiCallsPerMonth ?? 0,
       maxBookingsPerMonth: plan.maxBookingsPerMonth ?? 0,
@@ -203,7 +206,15 @@ export default function Plans() {
                 <span className="text-sm font-bold text-dim">Free</span>
               )}
             </div>
-            <p className="text-xs text-muted mb-4">{plan.description}</p>
+            <p className="text-xs text-muted mb-1">{plan.description}</p>
+            {plan.stripePriceId && (
+              <p className="text-[10px] font-mono text-dim bg-surface px-2 py-0.5 rounded mb-3 truncate" title={plan.stripePriceId}>
+                {plan.stripePriceId}
+              </p>
+            )}
+            {!plan.stripePriceId && plan.priceUsd > 0 && (
+              <p className="text-[10px] text-amber-500 mb-3">⚠ No Stripe Price ID</p>
+            )}
 
             <div className="space-y-2.5">
               {[
@@ -316,6 +327,21 @@ export default function Plans() {
               onChange={(e) => setForm((f) => ({ ...f, priceUsd: parseFloat(e.target.value) || 0 }))}
               className="w-full rounded-xl bg-surface border border-b-border px-4 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500/40"
             />
+          </div>
+
+          {/* Stripe Price ID */}
+          <div>
+            <label className="block text-sm text-muted mb-1.5">Stripe Price ID</label>
+            <input
+              type="text"
+              value={form.stripePriceId}
+              onChange={(e) => setForm((f) => ({ ...f, stripePriceId: e.target.value }))}
+              className="w-full rounded-xl bg-surface border border-b-border px-4 py-2.5 text-sm text-foreground placeholder:text-muted/50 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
+              placeholder="price_1..."
+            />
+            <p className="text-[10px] text-muted mt-0.5">
+              From Stripe Dashboard → Products → Price ID. Leave blank for FREE plan.
+            </p>
           </div>
 
           {/* Numeric limits */}

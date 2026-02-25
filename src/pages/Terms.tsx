@@ -6,43 +6,46 @@ export default function Terms() {
     <div className="min-h-screen bg-base text-foreground overflow-x-hidden transition-colors duration-200">
       <PublicNavbar />
       <div className="max-w-3xl mx-auto px-6 pt-28 pb-20">
-        <h1 className="text-4xl font-black mb-8">Terms of Service</h1>
-        <div className="prose prose-invert max-w-none space-y-6 text-muted leading-relaxed">
-          <p className="text-lg">Last updated: February 2026</p>
+        <h1 className="text-4xl font-black mb-3">Terms of Service</h1>
+        <p className="text-muted mb-10">Last updated: February 8, 2026</p>
+        <div className="prose prose-invert max-w-none space-y-8 text-muted leading-relaxed">
+          <p>These Terms of Service ("Terms") govern your access to and use of the services provided by <strong className="text-foreground">Whatsapio, Inc.</strong>, a company incorporated in Delaware, United States. By creating an account or using our platform, Convly, you agree to be bound by these Terms.</p>
 
-          <h2 className="text-xl font-bold text-foreground mt-8">1. Acceptance of Terms</h2>
-          <p>By accessing or using Convly ("Service"), you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use the Service.</p>
+          <section><h2 className="text-xl font-bold text-foreground">1. Acceptance of Terms</h2><p>By accessing or using Convly ("Service"), you acknowledge that you have read, understood, and agree to be bound by these Terms. If you are using the Service on behalf of a business, you represent that you have authority to bind that entity.</p></section>
 
-          <h2 className="text-xl font-bold text-foreground mt-8">2. Description of Service</h2>
-          <p>Convly provides AI-powered appointment booking automation through social media direct messages, including Instagram, WhatsApp, Telegram, and Facebook Messenger.</p>
+          <section><h2 className="text-xl font-bold text-foreground">2. Description of Services</h2><p>Whatsapio, Inc. provides software tools for messaging automation and customer communication management. <strong className="text-foreground">We provide software tools only, not messaging services directly.</strong> Our capabilities include automating customer workflows, managing multi-channel communications (WhatsApp, Instagram, Messenger, TikTok), AI-powered booking and support, and performance analytics.</p></section>
 
-          <h2 className="text-xl font-bold text-foreground mt-8">3. User Accounts</h2>
-          <p>You must provide accurate and complete information when creating an account. You are responsible for maintaining the confidentiality of your account credentials and for all activities under your account.</p>
+          <section><h2 className="text-xl font-bold text-foreground">3. User Responsibilities</h2><ul className="list-disc pl-6 space-y-2 mt-3"><li>Provide accurate and complete registration information</li><li>Maintain the security of your account credentials</li><li>Comply with all applicable laws and regulations</li><li>Obtain proper consent before messaging your customers</li><li>Follow all policies of third-party messaging platforms</li></ul></section>
 
-          <h2 className="text-xl font-bold text-foreground mt-8">4. Acceptable Use</h2>
-          <p>You agree not to use the Service to:</p>
-          <ul className="list-disc pl-6 space-y-2">
-            <li>Violate any applicable laws or regulations</li>
-            <li>Send spam or unsolicited messages</li>
-            <li>Infringe on intellectual property rights</li>
-            <li>Transmit malicious code or interfere with the Service</li>
-            <li>Impersonate any person or entity</li>
-          </ul>
+          <section><h2 className="text-xl font-bold text-foreground">4. Prohibited Activities</h2><p>You agree not to use the Service to send spam, scrape data, violate applicable laws, impersonate any person, distribute malicious code, attempt unauthorized access, or engage in any fraudulent or deceptive purpose.</p></section>
 
-          <h2 className="text-xl font-bold text-foreground mt-8">5. Subscription & Billing</h2>
-          <p>Paid plans are billed monthly or annually. You may cancel your subscription at any time. Refunds are handled on a case-by-case basis. Usage limits are enforced per your selected plan.</p>
+          <section><h2 className="text-xl font-bold text-foreground">5. Compliance with Messaging Platform Policies</h2><p>Users must comply with all applicable messaging platform policies including Meta's Messaging Policies and TikTok's Platform Guidelines. Users bear sole responsibility for ensuring compliance. Whatsapio, Inc. maintains no official affiliation with any third-party messaging platform.</p></section>
 
-          <h2 className="text-xl font-bold text-foreground mt-8">6. Data & Privacy</h2>
-          <p>Your use of the Service is also governed by our Privacy Policy. We use industry-standard encryption (AES-256-GCM) and data isolation practices to protect your information.</p>
+          <section><h2 className="text-xl font-bold text-foreground">6. Account Termination</h2><p>We reserve the right to suspend or terminate your account immediately for violation of these Terms, prohibited activities, illegal use, third-party platform policy breaches, or non-payment of subscription fees.</p></section>
 
-          <h2 className="text-xl font-bold text-foreground mt-8">7. Limitation of Liability</h2>
-          <p>Convly is provided "as is" without warranties of any kind. We shall not be liable for any indirect, incidental, or consequential damages arising from your use of the Service.</p>
+          <section><h2 className="text-xl font-bold text-foreground">7. Intellectual Property</h2><p>All content, features, and functionality of our services are owned by <strong className="text-foreground">Whatsapio, Inc.</strong> and are protected by applicable intellectual property laws. You may not copy, modify, distribute, or create derivative works without our express written consent.</p></section>
 
-          <h2 className="text-xl font-bold text-foreground mt-8">8. Changes to Terms</h2>
-          <p>We reserve the right to modify these terms at any time. Continued use of the Service after changes constitutes acceptance of the new terms.</p>
+          <section><h2 className="text-xl font-bold text-foreground">8. Disclaimer of Warranties</h2><p>The Service is provided "as is" and "as available" without warranties of any kind. We do not warrant that the Service will be uninterrupted, error-free, completely secure, or meet your specific requirements.</p></section>
 
-          <h2 className="text-xl font-bold text-foreground mt-8">9. Contact</h2>
-          <p>For questions about these Terms, please contact us at <a href="mailto:legal@convly.ai" className="text-blue-400 hover:underline">legal@convly.ai</a>.</p>
+          <section><h2 className="text-xl font-bold text-foreground">9. Limitation of Liability</h2><p>Whatsapio, Inc. shall not be liable for any indirect, incidental, special, consequential, or punitive damages — including loss of profits, data, or goodwill — arising from your use of or inability to use the Service.</p></section>
+
+          <section><h2 className="text-xl font-bold text-foreground">10. Indemnification</h2><p>You agree to indemnify and hold harmless Whatsapio, Inc. and its officers, directors, employees, and agents from any claims, liabilities, damages, and expenses arising out of your use of the Service or violation of these Terms.</p></section>
+
+          <section><h2 className="text-xl font-bold text-foreground">11. Payment Terms</h2><p>Paid subscriptions are billed monthly or annually in advance. Pricing changes will be communicated with at least 30 days' notice. By subscribing, you authorize us to charge your payment method on a recurring basis until you cancel.</p></section>
+
+          <section><h2 className="text-xl font-bold text-foreground">12. Refund Policy</h2><p>Customers are eligible for a full refund within <strong className="text-foreground">14 days</strong> of the initial purchase if the services have not been substantially used. After 14 days, all payments are non-refundable.</p></section>
+
+          <section><h2 className="text-xl font-bold text-foreground">13. Data Processing</h2><p>Your personal data is handled in accordance with our Privacy Policy. We implement industry-standard security measures including AES-256-GCM encryption and per-tenant data isolation.</p></section>
+
+          <section><h2 className="text-xl font-bold text-foreground">14. Modifications to Terms</h2><p>We may modify these Terms at any time. We will notify you of significant changes by updating the "Last updated" date above and, where appropriate, via email. Continued use of the Service constitutes acceptance.</p></section>
+
+          <section><h2 className="text-xl font-bold text-foreground">15. Governing Law</h2><p>These Terms shall be governed by the laws of the State of Delaware, United States, without regard to its conflict of law provisions.</p></section>
+
+          <section><h2 className="text-xl font-bold text-foreground">16. Dispute Resolution</h2><p>Disputes shall first be resolved through good-faith negotiation. If negotiation fails, disputes shall be resolved through binding arbitration in accordance with the rules of the American Arbitration Association.</p></section>
+
+          <section><h2 className="text-xl font-bold text-foreground">17. Severability</h2><p>If any provision of these Terms is found to be unenforceable, it shall be modified to the minimum extent necessary, and the remaining provisions shall continue in full force and effect.</p></section>
+
+          <section><h2 className="text-xl font-bold text-foreground">18. Contact Information</h2><p><strong className="text-foreground">Whatsapio, Inc.</strong><br />Email: <a href="mailto:legal@whatsapio.com" className="text-blue-400 hover:underline">legal@whatsapio.com</a><br />Support: <a href="mailto:support@whatsapio.com" className="text-blue-400 hover:underline">support@whatsapio.com</a></p></section>
         </div>
       </div>
       <PublicFooter />

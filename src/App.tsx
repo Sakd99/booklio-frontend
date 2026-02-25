@@ -16,8 +16,6 @@ import Features from './pages/Features';
 import Pricing from './pages/Pricing';
 import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
-import HelpCenter from './pages/HelpCenter';
-import PublicBooking from './pages/PublicBooking';
 import ChannelWhatsApp from './pages/ChannelWhatsApp';
 import ChannelInstagram from './pages/ChannelInstagram';
 import ChannelMessenger from './pages/ChannelMessenger';
@@ -26,55 +24,34 @@ import ChannelTikTok from './pages/ChannelTikTok';
 import Onboarding from './pages/Onboarding';
 import DashboardLayout from './pages/dashboard/DashboardLayout';
 import Overview from './pages/dashboard/Overview';
-import AdminLayout from './pages/dashboard/admin/AdminLayout';
+import Services from './pages/dashboard/Services';
+import Bookings from './pages/dashboard/Bookings';
+import Channels from './pages/dashboard/Channels';
+import Team from './pages/dashboard/Team';
+import Conversations from './pages/dashboard/Conversations';
+import AiSettings from './pages/dashboard/AiSettings';
+import Billing from './pages/dashboard/Billing';
 
-const Services = lazy(() => import('./pages/dashboard/Services'));
-const Bookings = lazy(() => import('./pages/dashboard/Bookings'));
-const Channels = lazy(() => import('./pages/dashboard/Channels'));
-const Team = lazy(() => import('./pages/dashboard/Team'));
-const Conversations = lazy(() => import('./pages/dashboard/Conversations'));
-const AiSettings = lazy(() => import('./pages/dashboard/AiSettings'));
-const Billing = lazy(() => import('./pages/dashboard/Billing'));
+import AdminLayout from './pages/dashboard/admin/AdminLayout';
+import Metrics from './pages/dashboard/admin/Metrics';
+import Tenants from './pages/dashboard/admin/Tenants';
+import Plans from './pages/dashboard/admin/Plans';
+import AdminBlog from './pages/dashboard/admin/Blog';
+import TenantDetail from './pages/dashboard/admin/TenantDetail';
+import AdminSettings from './pages/dashboard/admin/Settings';
+import AdminNotifications from './pages/dashboard/admin/Notifications';
+
 const Automations = lazy(() => import('./pages/dashboard/Automations'));
 const FlowBuilder = lazy(() => import('./pages/dashboard/FlowBuilder'));
-const Reminders = lazy(() => import('./pages/dashboard/Reminders'));
-const OutgoingWebhooks = lazy(() => import('./pages/dashboard/OutgoingWebhooks'));
-const Reviews = lazy(() => import('./pages/dashboard/Reviews'));
-const Analytics = lazy(() => import('./pages/dashboard/Analytics'));
-const AiPlayground = lazy(() => import('./pages/dashboard/AiPlayground'));
-
-const Metrics = lazy(() => import('./pages/dashboard/admin/Metrics'));
-const Tenants = lazy(() => import('./pages/dashboard/admin/Tenants'));
-const Plans = lazy(() => import('./pages/dashboard/admin/Plans'));
-const AdminBlog = lazy(() => import('./pages/dashboard/admin/Blog'));
-const TenantDetail = lazy(() => import('./pages/dashboard/admin/TenantDetail'));
-const AdminSettings = lazy(() => import('./pages/dashboard/admin/Settings'));
-const AdminNotifications = lazy(() => import('./pages/dashboard/admin/Notifications'));
-
-function isTokenExpired(token: string): boolean {
-  try {
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    return payload.exp * 1000 < Date.now();
-  } catch {
-    return true;
-  }
-}
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { accessToken, logout } = useAuthStore();
-  if (!accessToken || isTokenExpired(accessToken)) {
-    if (accessToken) logout();
-    return <Navigate to="/login" replace />;
-  }
-  return <>{children}</>;
+  const token = useAuthStore((s) => s.accessToken);
+  return token ? <>{children}</> : <Navigate to="/login" replace />;
 }
 
 function AdminRoute({ children }: { children: React.ReactNode }) {
-  const { accessToken, user, logout } = useAuthStore();
-  if (!accessToken || isTokenExpired(accessToken)) {
-    if (accessToken) logout();
-    return <Navigate to="/login" replace />;
-  }
+  const { accessToken, user } = useAuthStore();
+  if (!accessToken) return <Navigate to="/login" replace />;
   if (user?.role !== 'SUPER_ADMIN') return <Navigate to="/dashboard" replace />;
   return <>{children}</>;
 }
@@ -140,8 +117,6 @@ export default function App() {
         <Route path="/pricing" element={<Pricing />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/privacy" element={<Privacy />} />
-        <Route path="/help" element={<HelpCenter />} />
-        <Route path="/b/:slug" element={<PublicBooking />} />
         <Route path="/whatsapp" element={<ChannelWhatsApp />} />
         <Route path="/instagram" element={<ChannelInstagram />} />
         <Route path="/messenger" element={<ChannelMessenger />} />
@@ -169,20 +144,15 @@ export default function App() {
           }
         >
           <Route index element={<Overview />} />
-          <Route path="services" element={<Suspense fallback={<div />}><Services /></Suspense>} />
-          <Route path="bookings" element={<Suspense fallback={<div />}><Bookings /></Suspense>} />
-          <Route path="channels" element={<Suspense fallback={<div />}><Channels /></Suspense>} />
-          <Route path="conversations" element={<Suspense fallback={<div />}><Conversations /></Suspense>} />
-          <Route path="ai" element={<Suspense fallback={<div />}><AiSettings /></Suspense>} />
-          <Route path="team" element={<Suspense fallback={<div />}><Team /></Suspense>} />
+          <Route path="services" element={<Services />} />
+          <Route path="bookings" element={<Bookings />} />
+          <Route path="channels" element={<Channels />} />
+          <Route path="conversations" element={<Conversations />} />
+          <Route path="ai" element={<AiSettings />} />
+          <Route path="team" element={<Team />} />
           <Route path="automations" element={<Suspense fallback={<div />}><Automations /></Suspense>} />
           <Route path="automations/:id" element={<Suspense fallback={<div />}><FlowBuilder /></Suspense>} />
-          <Route path="billing" element={<Suspense fallback={<div />}><Billing /></Suspense>} />
-          <Route path="reminders" element={<Suspense fallback={<div />}><Reminders /></Suspense>} />
-          <Route path="webhooks" element={<Suspense fallback={<div />}><OutgoingWebhooks /></Suspense>} />
-          <Route path="reviews" element={<Suspense fallback={<div />}><Reviews /></Suspense>} />
-          <Route path="analytics" element={<Suspense fallback={<div />}><Analytics /></Suspense>} />
-          <Route path="ai-playground" element={<Suspense fallback={<div />}><AiPlayground /></Suspense>} />
+          <Route path="billing" element={<Billing />} />
         </Route>
 
         {/* Admin Panel */}
@@ -194,13 +164,13 @@ export default function App() {
             </AdminRoute>
           }
         >
-          <Route index element={<Suspense fallback={<div />}><Metrics /></Suspense>} />
-          <Route path="tenants" element={<Suspense fallback={<div />}><Tenants /></Suspense>} />
-          <Route path="tenants/:id" element={<Suspense fallback={<div />}><TenantDetail /></Suspense>} />
-          <Route path="plans" element={<Suspense fallback={<div />}><Plans /></Suspense>} />
-          <Route path="blog" element={<Suspense fallback={<div />}><AdminBlog /></Suspense>} />
-          <Route path="settings" element={<Suspense fallback={<div />}><AdminSettings /></Suspense>} />
-          <Route path="notifications" element={<Suspense fallback={<div />}><AdminNotifications /></Suspense>} />
+          <Route index element={<Metrics />} />
+          <Route path="tenants" element={<Tenants />} />
+          <Route path="tenants/:id" element={<TenantDetail />} />
+          <Route path="plans" element={<Plans />} />
+          <Route path="blog" element={<AdminBlog />} />
+          <Route path="settings" element={<AdminSettings />} />
+          <Route path="notifications" element={<AdminNotifications />} />
         </Route>
 
         {/* Fallback */}
