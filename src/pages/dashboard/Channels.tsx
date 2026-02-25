@@ -210,6 +210,12 @@ export default function Channels() {
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['channels'] }); toast.success('Channel disconnected'); },
   });
 
+  const modeMut = useMutation({
+    mutationFn: ({ id, aiMode }: { id: string; aiMode: string }) => channelsApi.updateMode(id, aiMode),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['channels'] }); },
+    onError: () => toast.error('Failed to update mode'),
+  });
+
   // --- Channel icon helper ---
   const channelIcon = (type: string) => {
     switch (type) {
@@ -610,29 +616,57 @@ export default function Channels() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05 }}
-                className="glass-card rounded-2xl p-4 border border-b-border flex items-center gap-4"
+                className="glass-card rounded-2xl p-4 border border-b-border"
               >
-                {channelIcon(ch.type)}
-                <div className="flex-1 min-w-0">
-                  <div className="font-medium text-foreground text-sm">{ch.externalName ?? ch.externalId}</div>
-                  <div className="text-xs text-muted mt-0.5">{ch.type}</div>
+                <div className="flex items-center gap-4">
+                  {channelIcon(ch.type)}
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium text-foreground text-sm">{ch.externalName ?? ch.externalId}</div>
+                    <div className="text-xs text-muted mt-0.5">{ch.type}</div>
+                  </div>
+                  {statusBadge(ch.status)}
+                  <div className="flex gap-1">
+                    <button
+                      onClick={() => healthMut.mutate(ch.id)}
+                      className="p-1.5 text-dim hover:text-blue-500 hover:bg-blue-500/10 rounded-lg transition-colors"
+                      title="Health check"
+                    >
+                      <Activity className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={() => { if (confirm('Disconnect this channel?')) disconnectMut.mutate(ch.id); }}
+                      className="p-1.5 text-dim hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
+                      title="Disconnect"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </div>
-                {statusBadge(ch.status)}
-                <div className="flex gap-1">
-                  <button
-                    onClick={() => healthMut.mutate(ch.id)}
-                    className="p-1.5 text-dim hover:text-blue-500 hover:bg-blue-500/10 rounded-lg transition-colors"
-                    title="Health check"
-                  >
-                    <Activity className="w-3.5 h-3.5" />
-                  </button>
-                  <button
-                    onClick={() => { if (confirm('Disconnect this channel?')) disconnectMut.mutate(ch.id); }}
-                    className="p-1.5 text-dim hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
-                    title="Disconnect"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
+
+                {/* AI Mode selector */}
+                <div className="mt-3 flex items-center gap-2 pt-3 border-t border-b-border">
+                  <span className="text-[10px] font-medium text-muted uppercase tracking-wider">{t('channelModeLabel')}:</span>
+                  <div className="flex gap-1">
+                    {([
+                      { id: 'ai', label: t('channelModeAi'), title: t('channelModeAiDesc'), icon: '🤖' },
+                      { id: 'automation', label: t('channelModeAutomation'), title: t('channelModeAutomationDesc'), icon: '⚡' },
+                      { id: 'both', label: t('channelModeBoth'), title: t('channelModeBothDesc'), icon: '🔀' },
+                    ] as const).map((m) => (
+                      <button
+                        key={m.id}
+                        title={m.title}
+                        onClick={() => modeMut.mutate({ id: ch.id, aiMode: m.id })}
+                        className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-medium transition-all ${
+                          (ch.aiMode ?? 'ai') === m.id
+                            ? 'bg-violet-500/15 text-violet-500 border border-violet-500/30'
+                            : 'bg-surface border border-b-border text-muted hover:text-foreground'
+                        }`}
+                      >
+                        <span>{m.icon}</span>
+                        {m.label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </motion.div>
             ))}

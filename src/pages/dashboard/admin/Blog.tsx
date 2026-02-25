@@ -161,7 +161,7 @@ export default function Blog() {
   }
 
   const totalPages = data ? Math.ceil((data.total ?? 0) / 20) : 1;
-  const posts: BlogPost[] = data?.posts ?? [];
+  const posts: BlogPost[] = data?.items ?? [];
 
   return (
     <div className="space-y-6">

@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard, Scissors, Calendar, Radio,
   Users, LogOut, Sparkles, Menu, X,
-  MessageSquare, Brain, Sun, Moon, Globe, ChevronDown, Workflow, CreditCard
+  MessageSquare, Brain, Sun, Moon, Globe, ChevronDown, Workflow, CreditCard, Bot
 } from 'lucide-react';
 import { useAuthStore } from '../../store/auth.store';
 import { useThemeStore } from '../../store/theme.store';
@@ -14,10 +14,12 @@ import { authApi } from '../../api/auth.api';
 import { teamApi } from '../../api/team.api';
 import toast from 'react-hot-toast';
 import NotificationBell from '../../components/ui/NotificationBell';
+import AiAssistant from '../../components/AiAssistant';
 
 export default function DashboardLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
+  const [assistantOpen, setAssistantOpen] = useState(false);
   const [permissions, setPermissions] = useState<Record<string, boolean> | null>(null);
   const langRef = useRef<HTMLDivElement>(null);
   const { user, logout, refreshToken } = useAuthStore();
@@ -157,6 +159,18 @@ export default function DashboardLayout() {
         </div>
       </div>
 
+      {/* AI Assistant button */}
+      <div className="px-3 pb-2">
+        <button
+          onClick={() => setAssistantOpen(true)}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium bg-gradient-to-r from-violet-500/10 to-blue-500/10 border border-violet-500/20 text-violet-500 hover:from-violet-500/20 hover:to-blue-500/20 transition-all"
+        >
+          <Bot className="w-4 h-4" />
+          {t('aiAssistantTitle')}
+          <span className="ml-auto text-[10px] bg-violet-500/20 px-1.5 py-0.5 rounded-full font-bold">AI</span>
+        </button>
+      </div>
+
       {/* User + logout */}
       <div className="px-3 py-4 border-t border-b-border">
         <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-surface">
@@ -239,6 +253,9 @@ export default function DashboardLayout() {
           </motion.div>
         </main>
       </div>
+
+      {/* AI Assistant Panel */}
+      <AiAssistant open={assistantOpen} onClose={() => setAssistantOpen(false)} />
     </div>
   );
 }

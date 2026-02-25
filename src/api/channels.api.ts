@@ -52,4 +52,7 @@ export const channelsApi = {
 
   disconnect: (id: string) =>
     api.delete(`/channels/${id}`).then((r) => r.data),
+
+  updateMode: (id: string, aiMode: string) =>
+    api.patch(`/channels/${id}/mode`, { aiMode }).then((r) => r.data),
 };

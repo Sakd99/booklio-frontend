@@ -65,7 +65,7 @@ export default function Tenants() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-b-border">
-                {data?.tenants?.map((t: any) => {
+                {data?.items?.map((t: any) => {
                   const plan = t.subscriptions?.[0]?.plan;
                   const active = t.isActive;
                   return (
