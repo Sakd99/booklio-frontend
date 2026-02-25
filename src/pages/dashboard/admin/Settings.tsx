@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import {
   Settings2, Database, Key, Globe, Cpu, Shield, Save, Eye, EyeOff,
-  ToggleLeft, ToggleRight, RefreshCw
+  ToggleLeft, ToggleRight, RefreshCw, CreditCard
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { adminApi } from '../../../api/admin.api';
@@ -26,6 +26,7 @@ const SETTING_GROUPS = [
   { id: 'channels', icon: <Globe className="w-4 h-4" />, label: 'Channels' },
   { id: 'ai', icon: <Cpu className="w-4 h-4" />, label: 'AI' },
   { id: 'security', icon: <Shield className="w-4 h-4" />, label: 'Security' },
+  { id: 'stripe', icon: <CreditCard className="w-4 h-4" />, label: 'Stripe' },
 ];
 
 const ENV_DEFAULTS: { key: string; label: string; group: string; encrypted: boolean }[] = [
@@ -72,6 +73,10 @@ const ENV_DEFAULTS: { key: string; label: string; group: string; encrypted: bool
   // Rate Limiting
   { key: 'THROTTLE_TTL', label: 'Rate Limit TTL (ms)', group: 'general', encrypted: false },
   { key: 'THROTTLE_LIMIT', label: 'Rate Limit Max Requests', group: 'general', encrypted: false },
+  // Stripe
+  { key: 'STRIPE_SECRET_KEY', label: 'Stripe Secret Key', group: 'stripe', encrypted: true },
+  { key: 'STRIPE_PUBLISHABLE_KEY', label: 'Stripe Publishable Key', group: 'stripe', encrypted: false },
+  { key: 'STRIPE_WEBHOOK_SECRET', label: 'Stripe Webhook Secret', group: 'stripe', encrypted: true },
 ];
 
 const isChannelToggle = (key: string) => key.startsWith('CHANNEL_');
