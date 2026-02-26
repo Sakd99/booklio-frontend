@@ -59,9 +59,10 @@ export default function Overview() {
 
   const plan = profile?.subscriptions?.[0]?.plan;
   const u = usage?.usage;
-  const notifs = notifData?.items ?? [];
-  const activeAutomations = (automationsData ?? []).filter((a: any) => a.isActive).length;
-  const totalAutomations = (automationsData ?? []).length;
+  const notifs = Array.isArray(notifData?.items) ? notifData.items : [];
+  const autoList = Array.isArray(automationsData) ? automationsData : [];
+  const activeAutomations = autoList.filter((a: any) => a.isActive).length;
+  const totalAutomations = autoList.length;
 
   const quickActions = [
     { icon: <Scissors className="w-5 h-5" />, label: t('navServices'), to: '/dashboard/services', color: 'from-blue-500 to-blue-600' },
@@ -244,7 +245,7 @@ export default function Overview() {
             </div>
           ) : (
             <div className="space-y-2">
-              {(automationsData ?? []).slice(0, 3).map((auto: any) => (
+              {autoList.slice(0, 3).map((auto: any) => (
                 <button
                   key={auto.id}
                   onClick={() => navigate(`/dashboard/automations/${auto.id}`)}
@@ -286,13 +287,13 @@ export default function Overview() {
 
           {bookingsLoading ? (
             <Spinner size="sm" />
-          ) : bookings?.appointments?.length === 0 ? (
+          ) : !bookings?.items?.length ? (
             <div className="px-6 py-12 text-center text-dim text-sm">
               {t('noBookingsYet')}
             </div>
           ) : (
             <div className="divide-y divide-b-border">
-              {bookings?.appointments?.map((bk: any) => (
+              {bookings.items.map((bk: any) => (
                 <div key={bk.id} className="px-6 py-4 flex items-center gap-4 hover:bg-surface/50 transition-colors">
                   <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500 flex-shrink-0">
                     <Calendar className="w-4 h-4" />

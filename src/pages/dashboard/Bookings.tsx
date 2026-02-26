@@ -59,7 +59,7 @@ export default function Bookings() {
         </div>
       </div>
 
-      {isLoading ? <Spinner /> : data?.appointments?.length === 0 ? (
+      {isLoading ? <Spinner /> : !data?.items?.length ? (
         <div className="glass-card rounded-2xl p-16 text-center border border-b-border">
           <Calendar className="w-12 h-12 text-dim mx-auto mb-4" />
           <p className="text-muted">{t('noBookingsFound')}</p>
@@ -76,7 +76,7 @@ export default function Bookings() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-b-border">
-                {data?.appointments?.map((bk: any) => (
+                {data?.items?.map((bk: any) => (
                   <motion.tr key={bk.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="hover:bg-surface transition-colors">
                     <td className="px-4 py-3.5 text-sm text-foreground font-medium">{bk.customerName}</td>
                     <td className="px-4 py-3.5 text-sm text-muted">{bk.service?.name ?? '—'}</td>

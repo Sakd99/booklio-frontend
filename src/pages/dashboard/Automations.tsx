@@ -66,8 +66,9 @@ export default function Automations() {
 
   if (isLoading) return <Spinner />;
 
-  const activeCount = (automations ?? []).filter((a: any) => a.isActive).length;
-  const totalRuns = (automations ?? []).reduce((sum: number, a: any) => sum + (a.runCount || 0), 0);
+  const autoList = Array.isArray(automations) ? automations : [];
+  const activeCount = autoList.filter((a: any) => a.isActive).length;
+  const totalRuns = autoList.reduce((sum: number, a: any) => sum + (a.runCount || 0), 0);
 
   return (
     <div className="space-y-6 max-w-[1400px] mx-auto">
@@ -83,14 +84,14 @@ export default function Automations() {
       </div>
 
       {/* Stats row */}
-      {automations && automations.length > 0 && (
+      {autoList.length > 0 && (
         <div className="grid grid-cols-3 gap-3">
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             className="glass-card rounded-2xl p-4 border border-b-border text-center"
           >
-            <div className="text-2xl font-bold text-foreground">{automations.length}</div>
+            <div className="text-2xl font-bold text-foreground">{autoList.length}</div>
             <div className="text-xs text-muted mt-0.5">{t('total')}</div>
           </motion.div>
           <motion.div
@@ -115,7 +116,7 @@ export default function Automations() {
       )}
 
       {/* Automations list */}
-      {!automations?.length ? (
+      {!autoList.length ? (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -132,7 +133,7 @@ export default function Automations() {
         </motion.div>
       ) : (
         <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-4">
-          {automations.map((auto: any, i: number) => {
+          {autoList.map((auto: any, i: number) => {
             const tm = triggerMeta(auto.trigger);
             return (
               <motion.div

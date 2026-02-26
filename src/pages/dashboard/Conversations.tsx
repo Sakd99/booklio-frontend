@@ -98,7 +98,8 @@ export default function Conversations() {
     msgEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [convDetail?.messages]);
 
-  const conversations = (convList?.data ?? []).filter(
+  const convItems = Array.isArray(convList?.data) ? convList.data : [];
+  const conversations = convItems.filter(
     (c: any) =>
       (!search || c.customerName?.toLowerCase().includes(search.toLowerCase())) &&
       (channelFilter === 'ALL' || c.channelType === channelFilter)
