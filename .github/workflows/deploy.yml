@@ -14,9 +14,9 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: root
           password: ${{ secrets.SSH_PASSWORD }}
-          script_stop: true
-          timeout: 180s
+          command_timeout: 3m
           script: |
+            set -e
             cd /opt/convly/frontend
             git pull origin master
             npm install
