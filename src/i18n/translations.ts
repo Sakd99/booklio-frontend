@@ -156,6 +156,9 @@ const en = {
   reconnect: 'Reconnect',
   channelReconnected: 'Reconnection started',
   reconnectFailed: 'Failed to reconnect',
+  noChannel: 'No channel',
+  channelUpdated: 'Channel updated',
+  updateFailed: 'Failed to update',
 
   // Conversations
   conversationsTitle: 'Conversations',
@@ -1077,6 +1080,9 @@ const ar: typeof en = {
   reconnect: 'إعادة الاتصال',
   channelReconnected: 'بدأت إعادة الاتصال',
   reconnectFailed: 'فشلت إعادة الاتصال',
+  noChannel: 'لا توجد قناة',
+  channelUpdated: 'تم تحديث القناة',
+  updateFailed: 'فشل التحديث',
 
   conversationsTitle: 'المحادثات',
   searchConversations: 'بحث في المحادثات...',
@@ -1863,6 +1869,7 @@ const es: typeof en = {
   ttDesc: 'Conecta tu cuenta de TikTok Business', ttFeature1: 'Recibir y responder DMs', ttFeature2: 'OAuth PKCE seguro', ttFeature3: 'Actualización automática de token',
   deleteChannel: 'Eliminar canal', deleteChannelConfirm: '¿Estás seguro de eliminar este canal? Esta acción no se puede deshacer.', channelDeleted: 'Canal eliminado', deleting: 'Eliminando...',
   reconnect: 'Reconectar', channelReconnected: 'Reconexión iniciada', reconnectFailed: 'Error al reconectar',
+  noChannel: 'Sin canal', channelUpdated: 'Canal actualizado', updateFailed: 'Error al actualizar',
 
   conversationsTitle: 'Conversaciones', searchConversations: 'Buscar conversaciones...',
   noConversations: 'Sin conversaciones', conversationsAppear: 'Los mensajes aparecerán aquí',
@@ -2562,6 +2569,7 @@ const fr: typeof en = {
   ttDesc: 'Connectez votre compte TikTok Business', ttFeature1: 'Recevoir et répondre aux DMs', ttFeature2: 'OAuth PKCE sécurisé', ttFeature3: 'Rafraîchissement automatique du token',
   deleteChannel: 'Supprimer le canal', deleteChannelConfirm: 'Êtes-vous sûr de vouloir supprimer ce canal ? Cette action est irréversible.', channelDeleted: 'Canal supprimé', deleting: 'Suppression...',
   reconnect: 'Reconnecter', channelReconnected: 'Reconnexion lancée', reconnectFailed: 'Échec de la reconnexion',
+  noChannel: 'Aucun canal', channelUpdated: 'Canal mis à jour', updateFailed: 'Échec de la mise à jour',
 
   conversationsTitle: 'Conversations', searchConversations: 'Rechercher...',
   noConversations: 'Aucune conversation', conversationsAppear: 'Les messages apparaîtront ici',
@@ -3260,6 +3268,7 @@ const tr: typeof en = {
   ttDesc: 'TikTok Business hesabınızı bağlayın', ttFeature1: 'DM al ve yanıtla', ttFeature2: 'Güvenli PKCE OAuth', ttFeature3: 'Otomatik token yenileme',
   deleteChannel: 'Kanalı sil', deleteChannelConfirm: 'Bu kanalı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.', channelDeleted: 'Kanal silindi', deleting: 'Siliniyor...',
   reconnect: 'Yeniden bağlan', channelReconnected: 'Yeniden bağlantı başlatıldı', reconnectFailed: 'Yeniden bağlanma başarısız',
+  noChannel: 'Kanal yok', channelUpdated: 'Kanal güncellendi', updateFailed: 'Güncelleme başarısız',
 
   conversationsTitle: 'Sohbetler', searchConversations: 'Sohbet ara...',
   noConversations: 'Henüz sohbet yok', conversationsAppear: 'Mesajlar burada görünecek',

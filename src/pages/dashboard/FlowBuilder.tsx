@@ -23,10 +23,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft, Save, Play, Pause, Bot, Clock,
   GitBranch, Calendar, Tag, Send, Variable, ChevronLeft, ChevronRight,
-  Zap, Hash, CircleStop,
+  Zap, Hash, CircleStop, Radio, AlertTriangle,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { automationsApi } from '../../api/automations.api';
+import { channelsApi } from '../../api/channels.api';
 import Button from '../../components/ui/Button';
 import Spinner from '../../components/ui/Spinner';
 import { useI18n } from '../../store/i18n.store';
@@ -265,6 +266,23 @@ export default function FlowBuilder() {
     },
   });
 
+  const { data: channels } = useQuery({
+    queryKey: ['channels'],
+    queryFn: channelsApi.list,
+  });
+
+  const connectedChannels = (channels ?? []).filter((ch: any) => ch.status === 'CONNECTED');
+
+  const channelMut = useMutation({
+    mutationFn: (channelId: string) => automationsApi.update(id!, { channelId }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['automation', id] });
+      qc.invalidateQueries({ queryKey: ['automations'] });
+      toast.success(t('channelUpdated'));
+    },
+    onError: () => toast.error(t('updateFailed')),
+  });
+
   const addNode = useCallback((type: string, position?: { x: number; y: number }) => {
     const newId = `${type}_${Date.now()}`;
     const meta = NODE_PALETTE.find((n) => n.type === type)!;
@@ -331,10 +349,36 @@ export default function FlowBuilder() {
                 <Hash className="w-3 h-3" />
                 {automation.runCount} {t('runs')}
               </span>
+              {automation.channel ? (
+                <span className="text-[10px] text-dim flex items-center gap-1">
+                  <Radio className="w-3 h-3" />
+                  {automation.channel.externalName ?? automation.channel.type}
+                </span>
+              ) : (
+                <span className="text-[10px] text-red-500 flex items-center gap-1 font-medium">
+                  <AlertTriangle className="w-3 h-3" />
+                  {t('noChannel')}
+                </span>
+              )}
             </div>
           </div>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
+          <select
+            value={automation.channelId ?? ''}
+            onChange={(e) => channelMut.mutate(e.target.value)}
+            disabled={channelMut.isPending}
+            className={`text-xs rounded-lg border px-2 py-1.5 bg-surface focus:outline-none focus:ring-2 focus:ring-violet-500/40 ${
+              !automation.channelId ? 'border-red-500/40 text-red-500' : 'border-b-border text-foreground'
+            }`}
+          >
+            <option value="" disabled>{t('selectChannel')}</option>
+            {connectedChannels.map((ch: any) => (
+              <option key={ch.id} value={ch.id}>
+                {ch.externalName ?? ch.externalId} ({ch.type})
+              </option>
+            ))}
+          </select>
           <Button
             variant="secondary"
             size="sm"

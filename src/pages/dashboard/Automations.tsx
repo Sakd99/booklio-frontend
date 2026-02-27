@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   Plus, Workflow, Play, Pause, Trash2,
-  MessageSquare, Calendar, Zap, Tag, ArrowRight, Hash, Radio
+  MessageSquare, Calendar, Zap, Tag, ArrowRight, Hash, Radio, AlertTriangle
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { automationsApi } from '../../api/automations.api';
@@ -193,10 +193,15 @@ export default function Automations() {
                         <Hash className="w-3 h-3" />
                         {auto.runCount} {t('runs')}
                       </span>
-                      {auto.channel && (
+                      {auto.channel ? (
                         <span className="text-[11px] text-dim flex items-center gap-1">
                           <Radio className="w-3 h-3" />
                           {auto.channel.externalName ?? auto.channel.type}
+                        </span>
+                      ) : (
+                        <span className="text-[11px] text-red-500 flex items-center gap-1 font-medium">
+                          <AlertTriangle className="w-3 h-3" />
+                          {t('noChannel')}
                         </span>
                       )}
                     </div>
