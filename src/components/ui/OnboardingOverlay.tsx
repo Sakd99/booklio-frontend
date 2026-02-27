@@ -77,7 +77,7 @@ export default function OnboardingOverlay({ steps, storageKey, active, onFinish,
 
     // Wait for scroll to settle, then measure
     const timer = setTimeout(() => {
-      const r = el.getBoundingClientRect();
+      const r = el!.getBoundingClientRect();
       setRect(r);
       setReady(true);
     }, 400);
