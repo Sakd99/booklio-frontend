@@ -9,9 +9,7 @@ import {
   useNodesState,
   useEdgesState,
   addEdge,
-  Panel,
-  BackgroundVariant,
-  NodeToolbar,
+  MarkerType,
   type Connection,
   type Node,
   type Edge,
@@ -23,9 +21,9 @@ import '@xyflow/react/dist/style.css';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft, Save, Play, Pause, Bot, Clock,
-  GitBranch, Calendar, Tag, Send, Variable, ChevronLeft, ChevronRight,
-  Zap, Hash, CircleStop, Radio, AlertTriangle, Trash2, Minimize2, Maximize2,
-  ZoomIn, ZoomOut, Maximize,
+  GitBranch, Calendar, Tag, Send, Variable,
+  Zap, Hash, CircleStop, Radio, AlertTriangle,
+  Trash2, X, ToggleLeft, ToggleRight, ChevronDown,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { automationsApi } from '../../api/automations.api';
@@ -34,159 +32,116 @@ import Button from '../../components/ui/Button';
 import Spinner from '../../components/ui/Spinner';
 import { useI18n } from '../../store/i18n.store';
 
-// ─── Node Types ─────────────────────────────────
-
-const NODE_PALETTE = [
-  { type: 'trigger', labelKey: 'node_trigger', descKey: 'node_trigger_desc', icon: <Zap className="w-4 h-4" />, color: 'bg-blue-500', borderColor: 'border-blue-500/40' },
-  { type: 'sendMessage', labelKey: 'node_sendMessage', descKey: 'node_sendMessage_desc', icon: <Send className="w-4 h-4" />, color: 'bg-emerald-500', borderColor: 'border-emerald-500/40' },
-  { type: 'aiStep', labelKey: 'node_aiStep', descKey: 'node_aiStep_desc', icon: <Bot className="w-4 h-4" />, color: 'bg-violet-500', borderColor: 'border-violet-500/40' },
-  { type: 'condition', labelKey: 'node_condition', descKey: 'node_condition_desc', icon: <GitBranch className="w-4 h-4" />, color: 'bg-orange-500', borderColor: 'border-orange-500/40' },
-  { type: 'delay', labelKey: 'node_delay', descKey: 'node_delay_desc', icon: <Clock className="w-4 h-4" />, color: 'bg-yellow-500', borderColor: 'border-yellow-500/40' },
-  { type: 'createBooking', labelKey: 'node_createBooking', descKey: 'node_createBooking_desc', icon: <Calendar className="w-4 h-4" />, color: 'bg-pink-500', borderColor: 'border-pink-500/40' },
-  { type: 'setVariable', labelKey: 'node_setVariable', descKey: 'node_setVariable_desc', icon: <Variable className="w-4 h-4" />, color: 'bg-cyan-500', borderColor: 'border-cyan-500/40' },
-  { type: 'tagUser', labelKey: 'node_tagUser', descKey: 'node_tagUser_desc', icon: <Tag className="w-4 h-4" />, color: 'bg-red-500', borderColor: 'border-red-500/40' },
-  { type: 'endFlow', labelKey: 'node_endFlow', descKey: 'node_endFlow_desc', icon: <CircleStop className="w-4 h-4" />, color: 'bg-gray-500', borderColor: 'border-gray-500/40' },
+// ─── Node Definitions (hex colors for Whatsapio-style) ─────
+const NODE_DEFS = [
+  { type: 'trigger', labelKey: 'node_trigger', descKey: 'node_trigger_desc', Icon: Zap, color: '#3b82f6', cat: 'trigger' },
+  { type: 'sendMessage', labelKey: 'node_sendMessage', descKey: 'node_sendMessage_desc', Icon: Send, color: '#10b981', cat: 'replies' },
+  { type: 'aiStep', labelKey: 'node_aiStep', descKey: 'node_aiStep_desc', Icon: Bot, color: '#8b5cf6', cat: 'replies' },
+  { type: 'condition', labelKey: 'node_condition', descKey: 'node_condition_desc', Icon: GitBranch, color: '#f59e0b', cat: 'logic' },
+  { type: 'delay', labelKey: 'node_delay', descKey: 'node_delay_desc', Icon: Clock, color: '#9ca3af', cat: 'logic' },
+  { type: 'createBooking', labelKey: 'node_createBooking', descKey: 'node_createBooking_desc', Icon: Calendar, color: '#ec4899', cat: 'actions' },
+  { type: 'setVariable', labelKey: 'node_setVariable', descKey: 'node_setVariable_desc', Icon: Variable, color: '#06b6d4', cat: 'actions' },
+  { type: 'tagUser', labelKey: 'node_tagUser', descKey: 'node_tagUser_desc', Icon: Tag, color: '#ef4444', cat: 'actions' },
+  { type: 'endFlow', labelKey: 'node_endFlow', descKey: 'node_endFlow_desc', Icon: CircleStop, color: '#6b7280', cat: 'actions' },
 ];
 
-function FlowNode({ data, type }: { data: any; type?: string }) {
+const SIDEBAR_CATEGORIES = [
+  { key: 'replies', labelKey: 'sidebarReplies' },
+  { key: 'logic', labelKey: 'sidebarLogic' },
+  { key: 'actions', labelKey: 'sidebarActions' },
+];
+
+const getMeta = (type?: string) => NODE_DEFS.find((n) => n.type === type) ?? NODE_DEFS[0];
+
+function getNodeSummary(type: string | undefined, data: any, t: any): string {
+  switch (type) {
+    case 'sendMessage': return (data.message as string)?.slice(0, 40) || '';
+    case 'aiStep': return (data.prompt as string)?.slice(0, 40) || '';
+    case 'condition': return (data.condition as string)?.slice(0, 40) || '';
+    case 'delay': {
+      const val = data.delayValue ?? 5;
+      const unit = data.delayUnit ?? 'minutes';
+      const unitKey = `delay${unit.charAt(0).toUpperCase() + unit.slice(1)}`;
+      return `${val} ${t(unitKey as any)}`;
+    }
+    case 'setVariable': return data.varName || '';
+    case 'tagUser': return data.tag || '';
+    case 'createBooking': return t('autoCreateBookingDesc');
+    case 'endFlow': return t('flowEndsHere');
+    default: return '';
+  }
+}
+
+// ─── Trigger Node (colored border & header) ──────────
+function TriggerNode({ data, selected }: { data: any; selected?: boolean }) {
   const { t } = useI18n();
-  const meta = NODE_PALETTE.find((n) => n.type === type) ?? NODE_PALETTE[0];
-  const isCondition = type === 'condition';
-  const inputCls = 'w-full text-xs bg-surface rounded-lg px-3 py-2 text-foreground placeholder:text-muted/50 border border-b-border focus:outline-none focus:ring-2 focus:ring-violet-500/30';
+  const meta = getMeta('trigger');
+  const Icon = meta.Icon;
 
   return (
-    <div className={`w-[260px] rounded-2xl border-2 ${meta.borderColor} bg-[var(--color-card)] shadow-lg transition-shadow hover:shadow-xl`}>
-      <NodeToolbar position={Position.Top} className="flex items-center gap-1">
-        <button
-          onClick={() => data.onToggleCollapse?.()}
-          className="p-1.5 rounded-lg bg-[var(--color-card)] border border-b-border shadow-md text-muted hover:text-foreground transition-colors"
-          title={data.collapsed ? t('expand') : t('collapse')}
-        >
-          {data.collapsed ? <Maximize2 className="w-3.5 h-3.5" /> : <Minimize2 className="w-3.5 h-3.5" />}
-        </button>
-        <button
-          onClick={() => data.onDelete?.()}
-          className="p-1.5 rounded-lg bg-[var(--color-card)] border border-b-border shadow-md text-muted hover:text-red-500 hover:border-red-500/30 transition-colors"
-          title={t('delete')}
-        >
-          <Trash2 className="w-3.5 h-3.5" />
-        </button>
-      </NodeToolbar>
-      <Handle type="target" position={Position.Top} className="!w-3 !h-3 !bg-muted !border-2 !border-[var(--color-card)]" />
-      <div className={`flex items-center gap-2.5 px-4 py-3 ${data.collapsed ? '' : 'border-b border-b-border/50'}`}>
-        <div className={`w-8 h-8 rounded-lg ${meta.color} flex items-center justify-center text-white shadow-sm`}>
-          {meta.icon}
-        </div>
-        <span className="text-sm font-semibold text-foreground flex-1 truncate">{t(meta.labelKey as any)}</span>
+    <div
+      className={`bg-[var(--color-card)] rounded-xl border-2 shadow-lg min-w-[220px] cursor-pointer transition-all ${
+        selected ? 'ring-2 ring-blue-400/50 shadow-xl' : ''
+      }`}
+      style={{ borderColor: meta.color }}
+    >
+      <div
+        className="px-4 py-3 rounded-t-[10px] flex items-center gap-2"
+        style={{ backgroundColor: meta.color + '15' }}
+      >
+        <Icon className="h-5 w-5" style={{ color: meta.color }} />
+        <span className="text-sm font-bold" style={{ color: meta.color }}>
+          {t(meta.labelKey as any)}
+        </span>
       </div>
-      {!data.collapsed && <div className="px-4 py-3">
-        {type === 'sendMessage' && (
-          <textarea
-            value={data.message ?? ''}
-            onChange={(e) => data.onChange?.('message', e.target.value)}
-            placeholder={t('messagePlaceholder')}
-            className={`${inputCls} resize-none`}
-            rows={2}
-            onClick={(e) => e.stopPropagation()}
-          />
-        )}
-        {type === 'aiStep' && (
-          <input
-            value={data.prompt ?? ''}
-            onChange={(e) => data.onChange?.('prompt', e.target.value)}
-            placeholder={t('aiPromptPlaceholder')}
-            className={inputCls}
-            onClick={(e) => e.stopPropagation()}
-          />
-        )}
-        {type === 'condition' && (
-          <>
-            <input
-              value={data.condition ?? ''}
-              onChange={(e) => data.onChange?.('condition', e.target.value)}
-              placeholder={t('conditionPlaceholder')}
-              className={inputCls}
-              onClick={(e) => e.stopPropagation()}
-            />
-            <div className="flex items-center justify-between mt-2 text-[10px]">
-              <span className="text-emerald-500 font-medium">{t('conditionTrue')} →</span>
-              <span className="text-red-500 font-medium">← {t('conditionFalse')}</span>
-            </div>
-          </>
-        )}
-        {type === 'delay' && (
-          <div className="flex items-center gap-2">
-            <input
-              type="number"
-              value={data.delayValue ?? 5}
-              onChange={(e) => data.onChange?.('delayValue', e.target.value)}
-              className="w-20 text-xs bg-surface rounded-lg px-3 py-2 text-foreground border border-b-border focus:outline-none focus:ring-2 focus:ring-violet-500/30"
-              min={1}
-              onClick={(e) => e.stopPropagation()}
-            />
-            <select
-              value={data.delayUnit ?? 'minutes'}
-              onChange={(e) => data.onChange?.('delayUnit', e.target.value)}
-              className="flex-1 text-xs bg-surface rounded-lg px-2 py-2 text-foreground border border-b-border focus:outline-none"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <option value="seconds">{t('delaySeconds')}</option>
-              <option value="minutes">{t('delayMinutes')}</option>
-              <option value="hours">{t('delayHours')}</option>
-            </select>
-          </div>
-        )}
-        {type === 'createBooking' && (
-          <div className="text-xs text-muted flex items-center gap-1.5">
-            <Calendar className="w-3 h-3" />
-            {t('autoCreateBookingDesc')}
-          </div>
-        )}
-        {type === 'setVariable' && (
-          <div className="space-y-2">
-            <input
-              value={data.varName ?? ''}
-              onChange={(e) => data.onChange?.('varName', e.target.value)}
-              placeholder={t('variableNamePlaceholder')}
-              className={inputCls}
-              onClick={(e) => e.stopPropagation()}
-            />
-            <input
-              value={data.varValue ?? ''}
-              onChange={(e) => data.onChange?.('varValue', e.target.value)}
-              placeholder={t('variableValuePlaceholder')}
-              className={inputCls}
-              onClick={(e) => e.stopPropagation()}
-            />
-          </div>
-        )}
-        {type === 'tagUser' && (
-          <input
-            value={data.tag ?? ''}
-            onChange={(e) => data.onChange?.('tag', e.target.value)}
-            placeholder={t('tagPlaceholder')}
-            className={inputCls}
-            onClick={(e) => e.stopPropagation()}
-          />
-        )}
-        {type === 'trigger' && (
-          <div className="text-xs text-muted flex items-center gap-1.5">
-            <Zap className="w-3 h-3 text-blue-500" />
-            {t('flowStartsHere')}
-          </div>
-        )}
-        {type === 'endFlow' && (
-          <div className="text-xs text-muted flex items-center gap-1.5">
-            <CircleStop className="w-3 h-3 text-gray-500" />
-            {t('flowEndsHere')}
-          </div>
-        )}
-      </div>}
-      <Handle type="source" position={Position.Bottom} className="!w-3 !h-3 !bg-muted !border-2 !border-[var(--color-card)]" />
+      <div className="px-4 py-3">
+        <p className="text-xs text-muted">{t('flowStartsHere')}</p>
+      </div>
+      <Handle type="source" position={Position.Bottom} className="!bg-gray-400 !w-3 !h-3" />
+    </div>
+  );
+}
+
+// ─── Action Node (clean border, icon header, summary) ──
+function ActionNode({ data, type, selected }: { data: any; type?: string; selected?: boolean }) {
+  const { t } = useI18n();
+  const meta = getMeta(type);
+  const Icon = meta.Icon;
+  const isCondition = type === 'condition';
+  const summary = getNodeSummary(type, data, t);
+
+  return (
+    <div
+      className={`bg-[var(--color-card)] rounded-xl border border-b-border shadow-md min-w-[200px] hover:shadow-lg transition-all cursor-pointer ${
+        selected ? 'ring-2 ring-violet-400/50 shadow-xl' : ''
+      }`}
+    >
+      <Handle type="target" position={Position.Top} className="!bg-gray-400 !w-3 !h-3" />
+      <div className="px-4 py-3 flex items-center gap-2 border-b border-b-border/50">
+        <div
+          className="w-7 h-7 rounded-lg flex items-center justify-center"
+          style={{ backgroundColor: meta.color + '15' }}
+        >
+          <Icon className="h-4 w-4" style={{ color: meta.color }} />
+        </div>
+        <span className="text-sm font-semibold text-foreground">{t(meta.labelKey as any)}</span>
+      </div>
+      {summary && (
+        <div className="px-4 py-2">
+          <p className="text-xs text-muted truncate max-w-[180px]">{summary}</p>
+        </div>
+      )}
+      {isCondition && (
+        <div className="flex items-center justify-between px-4 pb-2 text-[10px]">
+          <span className="text-emerald-500 font-medium">{t('conditionTrue')} →</span>
+          <span className="text-red-500 font-medium">← {t('conditionFalse')}</span>
+        </div>
+      )}
+      <Handle type="source" position={Position.Bottom} className="!bg-gray-400 !w-3 !h-3" />
       {isCondition && (
         <>
-          <Handle type="source" position={Position.Right} id="true" className="!w-3 !h-3 !bg-emerald-500 !border-2 !border-[var(--color-card)]" />
-          <Handle type="source" position={Position.Left} id="false" className="!w-3 !h-3 !bg-red-500 !border-2 !border-[var(--color-card)]" />
+          <Handle type="source" position={Position.Right} id="true" className="!w-3 !h-3 !bg-emerald-500" />
+          <Handle type="source" position={Position.Left} id="false" className="!w-3 !h-3 !bg-red-500" />
         </>
       )}
     </div>
@@ -194,25 +149,221 @@ function FlowNode({ data, type }: { data: any; type?: string }) {
 }
 
 const nodeTypes: NodeTypes = {
-  trigger: FlowNode,
-  sendMessage: FlowNode,
-  aiStep: FlowNode,
-  condition: FlowNode,
-  delay: FlowNode,
-  createBooking: FlowNode,
-  setVariable: FlowNode,
-  tagUser: FlowNode,
-  endFlow: FlowNode,
+  trigger: TriggerNode,
+  sendMessage: ActionNode,
+  aiStep: ActionNode,
+  condition: ActionNode,
+  delay: ActionNode,
+  createBooking: ActionNode,
+  setVariable: ActionNode,
+  tagUser: ActionNode,
+  endFlow: ActionNode,
 };
 
-// ─── Main Component ─────────────────────────────
+// ─── Node Editor (Right Panel) ──────────────────────
+function NodeEditor({
+  node,
+  onUpdate,
+  onDelete,
+  onClose,
+}: {
+  node: Node;
+  onUpdate: (field: string, value: any) => void;
+  onDelete: () => void;
+  onClose: () => void;
+}) {
+  const { t } = useI18n();
+  const meta = getMeta(node.type);
+  const Icon = meta.Icon;
+  const isTrigger = node.type === 'trigger';
 
+  const inputCls =
+    'w-full text-sm border border-b-border rounded-xl bg-surface px-3 py-2 mt-1.5 text-foreground placeholder:text-muted/50 focus:ring-2 focus:ring-violet-500/30 focus:outline-none';
+
+  return (
+    <div className="h-full flex flex-col">
+      {/* Header */}
+      <div className="p-4 border-b border-b-border flex items-center justify-between shrink-0">
+        <div className="flex items-center gap-2.5">
+          <div
+            className="w-8 h-8 rounded-lg flex items-center justify-center"
+            style={{ backgroundColor: meta.color + '15' }}
+          >
+            <Icon className="h-4 w-4" style={{ color: meta.color }} />
+          </div>
+          <h3 className="text-sm font-bold text-foreground">{t(meta.labelKey as any)}</h3>
+        </div>
+        <div className="flex items-center gap-1">
+          {!isTrigger && (
+            <button
+              onClick={onDelete}
+              className="p-1.5 hover:bg-red-500/10 rounded-lg text-red-500 transition-colors"
+              title={t('delete')}
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+          )}
+          <button
+            onClick={onClose}
+            className="p-1.5 hover:bg-surface rounded-lg text-muted transition-colors"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        {isTrigger && (
+          <div className="p-3 rounded-xl bg-blue-500/5 border border-blue-500/20">
+            <p className="text-xs text-muted flex items-center gap-1.5">
+              <Zap className="w-3.5 h-3.5 text-blue-500" />
+              {t('flowStartsHere')}
+            </p>
+          </div>
+        )}
+
+        {node.type === 'sendMessage' && (
+          <div>
+            <label className="text-xs font-medium text-muted">{t('messagePlaceholder')}</label>
+            <textarea
+              value={(node.data.message as string) ?? ''}
+              onChange={(e) => onUpdate('message', e.target.value)}
+              rows={5}
+              placeholder={t('messagePlaceholder')}
+              className={`${inputCls} resize-none`}
+            />
+          </div>
+        )}
+
+        {node.type === 'aiStep' && (
+          <div>
+            <label className="text-xs font-medium text-muted">{t('aiPromptPlaceholder')}</label>
+            <textarea
+              value={(node.data.prompt as string) ?? ''}
+              onChange={(e) => onUpdate('prompt', e.target.value)}
+              rows={4}
+              placeholder={t('aiPromptPlaceholder')}
+              className={`${inputCls} resize-none`}
+            />
+          </div>
+        )}
+
+        {node.type === 'condition' && (
+          <div>
+            <label className="text-xs font-medium text-muted">{t('conditionPlaceholder')}</label>
+            <input
+              value={(node.data.condition as string) ?? ''}
+              onChange={(e) => onUpdate('condition', e.target.value)}
+              placeholder={t('conditionPlaceholder')}
+              className={inputCls}
+            />
+            <div className="flex items-center justify-between mt-3">
+              <span className="px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-500 text-xs font-medium">
+                {t('conditionTrue')}
+              </span>
+              <span className="px-2.5 py-1 rounded-lg bg-red-500/10 text-red-500 text-xs font-medium">
+                {t('conditionFalse')}
+              </span>
+            </div>
+          </div>
+        )}
+
+        {node.type === 'delay' && (
+          <div className="space-y-3">
+            <div>
+              <label className="text-xs font-medium text-muted">{t('delaySeconds')}</label>
+              <input
+                type="number"
+                value={(node.data.delayValue as number) ?? 5}
+                onChange={(e) => onUpdate('delayValue', e.target.value)}
+                min={1}
+                className={inputCls}
+              />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-muted">{t('delayUnit' as any)}</label>
+              <select
+                value={(node.data.delayUnit as string) ?? 'minutes'}
+                onChange={(e) => onUpdate('delayUnit', e.target.value)}
+                className={inputCls}
+              >
+                <option value="seconds">{t('delaySeconds')}</option>
+                <option value="minutes">{t('delayMinutes')}</option>
+                <option value="hours">{t('delayHours')}</option>
+              </select>
+            </div>
+            <p className="text-[10px] text-dim">
+              {t('delayHelpText' as any) || ''}
+            </p>
+          </div>
+        )}
+
+        {node.type === 'createBooking' && (
+          <div className="p-3 rounded-xl bg-pink-500/5 border border-pink-500/20">
+            <p className="text-xs text-muted flex items-center gap-1.5">
+              <Calendar className="w-3.5 h-3.5 text-pink-500" />
+              {t('autoCreateBookingDesc')}
+            </p>
+          </div>
+        )}
+
+        {node.type === 'setVariable' && (
+          <div className="space-y-3">
+            <div>
+              <label className="text-xs font-medium text-muted">{t('variableNamePlaceholder')}</label>
+              <input
+                value={(node.data.varName as string) ?? ''}
+                onChange={(e) => onUpdate('varName', e.target.value)}
+                placeholder={t('variableNamePlaceholder')}
+                className={inputCls}
+              />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-muted">{t('variableValuePlaceholder')}</label>
+              <input
+                value={(node.data.varValue as string) ?? ''}
+                onChange={(e) => onUpdate('varValue', e.target.value)}
+                placeholder={t('variableValuePlaceholder')}
+                className={inputCls}
+              />
+            </div>
+          </div>
+        )}
+
+        {node.type === 'tagUser' && (
+          <div>
+            <label className="text-xs font-medium text-muted">{t('tagPlaceholder')}</label>
+            <input
+              value={(node.data.tag as string) ?? ''}
+              onChange={(e) => onUpdate('tag', e.target.value)}
+              placeholder={t('tagPlaceholder')}
+              className={inputCls}
+            />
+          </div>
+        )}
+
+        {node.type === 'endFlow' && (
+          <div className="p-3 rounded-xl bg-gray-500/5 border border-gray-500/20">
+            <p className="text-xs text-muted flex items-center gap-1.5">
+              <CircleStop className="w-3.5 h-3.5 text-gray-500" />
+              {t('flowEndsHere')}
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── Main Component ─────────────────────────────────
 export default function FlowBuilder() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { t } = useI18n();
   const qc = useQueryClient();
-  const [paletteOpen, setPaletteOpen] = useState(true);
+
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
 
   const { data: automation, isLoading } = useQuery({
     queryKey: ['automation', id],
@@ -224,7 +375,6 @@ export default function FlowBuilder() {
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([] as Edge[]);
   const [hasChanges, setHasChanges] = useState(false);
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
-  const reactFlowWrapper = useRef<HTMLDivElement>(null);
 
   // Load nodes/edges from automation
   useEffect(() => {
@@ -234,31 +384,8 @@ export default function FlowBuilder() {
         .filter((n: any) => knownTypes.includes(n.type))
         .map((n: any, idx: number) => ({
           ...n,
-          // Ensure every node has a position (AI-created nodes may lack it)
-          position: n.position ?? { x: 250, y: 50 + idx * 180 },
-          data: {
-            ...n.data,
-            label: n.data?.label || n.type,
-            onChange: (field: string, value: string) => {
-              setNodes((nds: Node[]) =>
-                nds.map((nd: Node) =>
-                  nd.id === n.id ? { ...nd, data: { ...nd.data, [field]: value } } : nd,
-                ),
-              );
-              setHasChanges(true);
-            },
-            onDelete: () => {
-              setNodes((nds: Node[]) => nds.filter((nd: Node) => nd.id !== n.id));
-              setHasChanges(true);
-            },
-            onToggleCollapse: () => {
-              setNodes((nds: Node[]) =>
-                nds.map((nd: Node) =>
-                  nd.id === n.id ? { ...nd, data: { ...nd.data, collapsed: !nd.data?.collapsed } } : nd,
-                ),
-              );
-            },
-          },
+          position: n.position ?? { x: 250, y: 50 + idx * 150 },
+          data: { ...n.data, label: n.data?.label || n.type },
         })) as Node[];
       setNodes(savedNodes);
       setEdges((automation.edges ?? []) as Edge[]);
@@ -267,11 +394,25 @@ export default function FlowBuilder() {
 
   const onConnect = useCallback(
     (params: Connection) => {
-      setEdges((eds: Edge[]) => addEdge({ ...params, animated: true }, eds) as Edge[]);
+      setEdges((eds: Edge[]) =>
+        addEdge(
+          {
+            ...params,
+            markerEnd: { type: MarkerType.ArrowClosed },
+            animated: true,
+            style: { stroke: '#9ca3af' },
+          },
+          eds,
+        ) as Edge[],
+      );
       setHasChanges(true);
     },
     [setEdges],
   );
+
+  const onNodeClick = useCallback((_: React.MouseEvent, node: Node) => {
+    setSelectedNodeId(node.id);
+  }, []);
 
   const saveMut = useMutation({
     mutationFn: () => {
@@ -314,53 +455,66 @@ export default function FlowBuilder() {
     onError: () => toast.error(t('updateFailed')),
   });
 
-  const getDemoData = useCallback((type: string) => {
-    switch (type) {
-      case 'sendMessage': return { message: t('demoMessage') };
-      case 'aiStep': return { prompt: t('demoAiPrompt') };
-      case 'condition': return { condition: t('demoCondition') };
-      case 'setVariable': return { varName: t('demoVarName'), varValue: '' };
-      case 'tagUser': return { tag: t('demoTag') };
-      default: return {};
-    }
-  }, [t]);
+  // ─── Right panel handlers ──────────────────────
+  const selectedNode = nodes.find((n) => n.id === selectedNodeId);
 
-  const addNode = useCallback((type: string, position?: { x: number; y: number }) => {
-    const newId = `${type}_${Date.now()}`;
-    const meta = NODE_PALETTE.find((n) => n.type === type)!;
-    const demo = getDemoData(type);
-    const newNode: Node = {
-      id: newId,
-      type,
-      position: position ?? { x: 250 + Math.random() * 100, y: 150 + nodes.length * 150 },
-      data: {
-        label: t(meta.labelKey as any),
-        ...demo,
-        onChange: (field: string, value: string) => {
-          setNodes((nds: Node[]) =>
-            nds.map((nd: Node) =>
-              nd.id === newId ? { ...nd, data: { ...nd.data, [field]: value } } : nd,
-            ),
-          );
-          setHasChanges(true);
-        },
-        onDelete: () => {
-          setNodes((nds: Node[]) => nds.filter((nd: Node) => nd.id !== newId));
-          setHasChanges(true);
-        },
-        onToggleCollapse: () => {
-          setNodes((nds: Node[]) =>
-            nds.map((nd: Node) =>
-              nd.id === newId ? { ...nd, data: { ...nd.data, collapsed: !nd.data?.collapsed } } : nd,
-            ),
-          );
-        },
-      },
-    };
-    setNodes((nds: Node[]) => [...nds, newNode]);
+  const updateNodeField = useCallback(
+    (field: string, value: any) => {
+      if (!selectedNodeId) return;
+      setNodes((nds) =>
+        nds.map((nd) =>
+          nd.id === selectedNodeId ? { ...nd, data: { ...nd.data, [field]: value } } : nd,
+        ),
+      );
+      setHasChanges(true);
+    },
+    [selectedNodeId, setNodes],
+  );
+
+  const deleteSelectedNode = useCallback(() => {
+    if (!selectedNodeId) return;
+    setNodes((nds) => nds.filter((nd) => nd.id !== selectedNodeId));
+    setEdges((eds) =>
+      eds.filter((e) => e.source !== selectedNodeId && e.target !== selectedNodeId),
+    );
+    setSelectedNodeId(null);
     setHasChanges(true);
-  }, [nodes.length, setNodes, t, getDemoData]);
+  }, [selectedNodeId, setNodes, setEdges]);
 
+  // ─── Add node from sidebar ─────────────────────
+  const getDemoData = useCallback(
+    (type: string) => {
+      switch (type) {
+        case 'sendMessage': return { message: t('demoMessage') };
+        case 'aiStep': return { prompt: t('demoAiPrompt') };
+        case 'condition': return { condition: t('demoCondition') };
+        case 'setVariable': return { varName: t('demoVarName'), varValue: '' };
+        case 'tagUser': return { tag: t('demoTag') };
+        default: return {};
+      }
+    },
+    [t],
+  );
+
+  const addNode = useCallback(
+    (type: string, position?: { x: number; y: number }) => {
+      const newId = `${type}_${Date.now()}`;
+      const meta = getMeta(type);
+      const demo = getDemoData(type);
+      const newNode: Node = {
+        id: newId,
+        type,
+        position: position ?? { x: 250 + Math.random() * 100, y: 150 + nodes.length * 150 },
+        data: { label: t(meta.labelKey as any), ...demo },
+      };
+      setNodes((nds) => [...nds, newNode]);
+      setHasChanges(true);
+      setSelectedNodeId(newId);
+    },
+    [nodes.length, setNodes, t, getDemoData],
+  );
+
+  // ─── Drag & drop ──────────────────────────────
   const onDragOver = useCallback((event: React.DragEvent) => {
     event.preventDefault();
     event.dataTransfer.dropEffect = 'move';
@@ -383,206 +537,273 @@ export default function FlowBuilder() {
   if (isLoading) return <Spinner />;
   if (!automation) return null;
 
+  const actionNodes = nodes.filter((n) => n.type !== 'trigger');
+
   return (
     <div className="h-[calc(100vh-3.5rem)] flex flex-col -m-6">
-      {/* Top Bar */}
-      <div className="flex items-center justify-between px-3 sm:px-5 py-2.5 border-b border-b-border bg-base/80 backdrop-blur-sm flex-shrink-0 gap-2">
-        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-          <button
-            onClick={() => navigate('/dashboard/automations')}
-            className="p-2 rounded-xl text-muted hover:text-foreground hover:bg-surface transition-all flex-shrink-0"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
+      {/* ─── Top Bar ─────────────────────────────── */}
+      <div className="bg-[var(--color-card)] border-b border-b-border px-4 py-3 flex items-center gap-4 shrink-0 z-10">
+        <button
+          onClick={() => navigate('/dashboard/automations')}
+          className="p-2 hover:bg-surface rounded-lg transition-colors"
+        >
+          <ArrowLeft className="h-5 w-5 text-muted" />
+        </button>
+
+        <div className="flex-1 flex items-center gap-3 min-w-0">
           <div className="min-w-0">
-            <h1 className="text-sm sm:text-base font-semibold text-foreground truncate">{automation.name}</h1>
-            <div className="flex items-center gap-2">
-              <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${automation.isActive ? 'bg-emerald-500/10 text-emerald-500' : 'bg-surface text-muted'}`}>
-                {automation.isActive ? t('active') : t('inactive')}
-              </span>
-              <span className="text-[10px] text-dim flex items-center gap-1">
-                <Hash className="w-3 h-3" />
-                {automation.runCount} {t('runs')}
-              </span>
-              {automation.channel ? (
-                <span className="text-[10px] text-dim flex items-center gap-1">
-                  <Radio className="w-3 h-3" />
-                  {automation.channel.externalName ?? automation.channel.type}
-                </span>
-              ) : (
-                <span className="text-[10px] text-red-500 flex items-center gap-1 font-medium">
-                  <AlertTriangle className="w-3 h-3" />
-                  {t('noChannel')}
-                </span>
-              )}
-            </div>
+            <h1 className="text-lg font-bold text-foreground truncate">{automation.name}</h1>
+            {automation.description && (
+              <p className="text-xs text-muted truncate hidden sm:block">{automation.description}</p>
+            )}
           </div>
-        </div>
-        <div className="flex items-center gap-2 flex-shrink-0">
+
+          {/* Channel selector */}
           <select
             value={automation.channelId ?? ''}
             onChange={(e) => channelMut.mutate(e.target.value)}
             disabled={channelMut.isPending}
-            className={`text-xs rounded-lg border px-2 py-1.5 bg-surface focus:outline-none focus:ring-2 focus:ring-violet-500/40 ${
-              !automation.channelId ? 'border-red-500/40 text-red-500' : 'border-b-border text-foreground'
+            className={`text-sm border rounded-lg px-3 py-2 bg-[var(--color-card)] max-w-[200px] focus:outline-none hidden sm:block ${
+              !automation.channelId
+                ? 'border-red-400 text-red-500'
+                : 'border-b-border text-foreground'
             }`}
           >
-            <option value="" disabled>{t('selectChannel')}</option>
+            <option value="">{t('selectChannel')}...</option>
             {connectedChannels.map((ch: any) => (
               <option key={ch.id} value={ch.id}>
                 {ch.externalName ?? ch.externalId} ({ch.type})
               </option>
             ))}
           </select>
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => toggleMut.mutate()}
-            icon={automation.isActive ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-            className="hidden sm:flex"
-          >
-            {automation.isActive ? t('deactivate') : t('activate')}
-          </Button>
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => toggleMut.mutate()}
-            icon={automation.isActive ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-            className="sm:hidden"
-          >{''}</Button>
-          <Button
-            size="sm"
-            onClick={() => saveMut.mutate()}
-            loading={saveMut.isPending}
-            disabled={!hasChanges}
-            icon={<Save className="w-4 h-4" />}
-          >
-            <span className="hidden sm:inline">{t('save')}</span>
-          </Button>
+
+          {/* Channel indicator for mobile */}
+          {!automation.channelId && (
+            <span className="text-[10px] text-red-500 flex items-center gap-1 font-medium sm:hidden">
+              <AlertTriangle className="w-3 h-3" />
+              {t('noChannel')}
+            </span>
+          )}
         </div>
+
+        {/* Active toggle */}
+        <button
+          onClick={() => toggleMut.mutate()}
+          className="flex items-center gap-1.5 text-sm font-medium"
+        >
+          {automation.isActive ? (
+            <ToggleRight className="h-6 w-6 text-emerald-500" />
+          ) : (
+            <ToggleLeft className="h-6 w-6 text-muted" />
+          )}
+          <span
+            className={`hidden sm:inline ${
+              automation.isActive ? 'text-emerald-500' : 'text-muted'
+            }`}
+          >
+            {automation.isActive ? t('active') : t('inactive')}
+          </span>
+        </button>
+
+        {/* Save button */}
+        <Button
+          size="sm"
+          onClick={() => saveMut.mutate()}
+          loading={saveMut.isPending}
+          disabled={!hasChanges}
+          icon={<Save className="w-4 h-4" />}
+        >
+          <span className="hidden sm:inline">{t('save')}</span>
+        </Button>
       </div>
 
-      {/* Flow Canvas */}
-      <div className="flex-1 relative" ref={reactFlowWrapper}>
-        <ReactFlow
-          nodes={nodes}
-          edges={edges}
-          onNodesChange={(changes) => { onNodesChange(changes); setHasChanges(true); }}
-          onEdgesChange={(changes) => { onEdgesChange(changes); setHasChanges(true); }}
-          onConnect={onConnect}
-          onInit={setReactFlowInstance}
-          onDrop={onDrop}
-          onDragOver={onDragOver}
-          nodeTypes={nodeTypes}
-          fitView
-          deleteKeyCode={['Backspace', 'Delete']}
-          onNodesDelete={() => setHasChanges(true)}
-          className="bg-base"
-          proOptions={{ hideAttribution: true }}
-        >
-          <Controls
-            className="!bg-[var(--color-card)] !border-[var(--color-border)] !rounded-xl !shadow-lg !hidden"
-            position="bottom-right"
-          />
+      {/* ─── Main Layout: Sidebar + Canvas + Right Panel ── */}
+      <div className="flex flex-1 overflow-hidden">
+        {/* Left Sidebar */}
+        <div className="w-64 bg-[var(--color-card)] border-r border-b-border overflow-y-auto shrink-0 hidden sm:block">
+          {/* Trigger section */}
+          <div className="p-4 border-b border-b-border/50">
+            <h3 className="text-xs font-bold text-dim uppercase tracking-wider mb-3">
+              {t('node_trigger' as any)}
+            </h3>
+            <button
+              onClick={() => {
+                const triggerNode = nodes.find((n) => n.type === 'trigger');
+                if (triggerNode) setSelectedNodeId(triggerNode.id);
+              }}
+              className="w-full flex items-center justify-between p-3 rounded-xl border border-blue-500/30 text-sm font-medium text-blue-500 hover:bg-blue-500/10 transition-colors"
+              style={{ backgroundColor: '#3b82f610' }}
+            >
+              <div className="flex items-center gap-2">
+                <Zap className="h-4 w-4" />
+                {t('node_trigger' as any)}
+              </div>
+              <ChevronDown className="h-4 w-4" />
+            </button>
+          </div>
 
-          {/* Zoom Controls */}
-          <Panel position="top-right">
-            <div className="flex flex-col gap-1 glass-card rounded-xl border border-b-border shadow-lg p-1">
-              <button
-                onClick={() => reactFlowInstance?.zoomIn()}
-                className="p-2 rounded-lg text-muted hover:text-foreground hover:bg-surface transition-colors"
-                title={t('zoomIn')}
-              >
-                <ZoomIn className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => reactFlowInstance?.zoomOut()}
-                className="p-2 rounded-lg text-muted hover:text-foreground hover:bg-surface transition-colors"
-                title={t('zoomOut')}
-              >
-                <ZoomOut className="w-4 h-4" />
-              </button>
-              <div className="border-t border-b-border my-0.5" />
-              <button
-                onClick={() => reactFlowInstance?.fitView()}
-                className="p-2 rounded-lg text-muted hover:text-foreground hover:bg-surface transition-colors"
-                title={t('fitView')}
-              >
-                <Maximize className="w-4 h-4" />
-              </button>
-            </div>
-          </Panel>
-
-          <MiniMap
-            className="!bg-[var(--color-card)] !border-[var(--color-border)] !rounded-xl hidden sm:block"
-            nodeColor={() => '#8b5cf6'}
-            maskColor="rgba(0,0,0,0.1)"
-            position="bottom-right"
-            style={{ marginBottom: 50 }}
-          />
-          <Background variant={BackgroundVariant.Dots} gap={20} size={1} color="var(--color-muted)" className="opacity-30" />
-
-          {/* Node Palette */}
-          <Panel position="top-left">
-            <div className="flex items-start gap-1">
-              <AnimatePresence mode="wait">
-                {paletteOpen && (
-                  <motion.div
-                    initial={{ opacity: 0, x: -20, scale: 0.95 }}
-                    animate={{ opacity: 1, x: 0, scale: 1 }}
-                    exit={{ opacity: 0, x: -20, scale: 0.95 }}
-                    transition={{ duration: 0.2 }}
-                    className="glass-card rounded-2xl border border-b-border shadow-xl p-2 sm:p-3"
-                  >
-                    <div className="text-[10px] text-muted font-semibold uppercase tracking-wider px-2 mb-2">{t('addNode')}</div>
-                    <div className="space-y-0.5">
-                      {NODE_PALETTE.filter((n) => n.type !== 'trigger').map((n) => (
-                        <button
-                          key={n.type}
-                          draggable
-                          onDragStart={(event) => {
-                            event.dataTransfer.setData('application/reactflow', n.type);
-                            event.dataTransfer.effectAllowed = 'move';
-                          }}
-                          onClick={() => addNode(n.type)}
-                          className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-muted hover:text-foreground hover:bg-surface transition-all group cursor-grab active:cursor-grabbing"
+          {/* Action categories */}
+          <div className="p-4 space-y-5">
+            {SIDEBAR_CATEGORIES.map((cat) => (
+              <div key={cat.key}>
+                <h3 className="text-xs font-bold text-dim uppercase tracking-wider mb-3">
+                  {t(cat.labelKey as any)}
+                </h3>
+                <div className="space-y-2">
+                  {NODE_DEFS.filter((n) => n.cat === cat.key).map((n) => {
+                    const NIcon = n.Icon;
+                    return (
+                      <div
+                        key={n.type}
+                        draggable
+                        onDragStart={(e) => {
+                          e.dataTransfer.setData('application/reactflow', n.type);
+                          e.dataTransfer.effectAllowed = 'move';
+                        }}
+                        onClick={() => addNode(n.type)}
+                        className="flex items-center gap-3 p-2.5 rounded-lg border border-b-border/50 hover:border-b-border hover:bg-surface cursor-grab active:cursor-grabbing transition-all text-sm"
+                      >
+                        <div
+                          className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+                          style={{ backgroundColor: n.color + '15' }}
                         >
-                          <div className={`w-7 h-7 rounded-lg ${n.color} flex items-center justify-center text-white shadow-sm group-hover:scale-110 transition-transform`}>
-                            {n.icon}
-                          </div>
-                          <div className="hidden sm:block text-start">
-                            <span className="text-xs font-medium block">{t(n.labelKey as any)}</span>
-                            <span className="text-[10px] text-dim block">{t(n.descKey as any)}</span>
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-              <button
-                onClick={() => setPaletteOpen(!paletteOpen)}
-                className="p-1.5 rounded-lg glass-card border border-b-border shadow-md text-muted hover:text-foreground transition-all mt-1"
-              >
-                {paletteOpen ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
-              </button>
-            </div>
-          </Panel>
+                          <NIcon className="h-4 w-4" style={{ color: n.color }} />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="font-medium text-foreground text-xs">{t(n.labelKey as any)}</p>
+                          <p className="text-[10px] text-dim truncate">{t(n.descKey as any)}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ─── Canvas ─────────────────────────────── */}
+        <div className="flex-1 relative" onDrop={onDrop} onDragOver={onDragOver}>
+          <ReactFlow
+            nodes={nodes}
+            edges={edges}
+            onNodesChange={(changes) => {
+              onNodesChange(changes);
+              if (changes.some((c) => c.type !== 'select')) setHasChanges(true);
+            }}
+            onEdgesChange={(changes) => {
+              onEdgesChange(changes);
+              setHasChanges(true);
+            }}
+            onConnect={onConnect}
+            onNodeClick={onNodeClick}
+            onInit={setReactFlowInstance}
+            nodeTypes={nodeTypes}
+            fitView
+            deleteKeyCode={['Backspace', 'Delete']}
+            onNodesDelete={() => setHasChanges(true)}
+            proOptions={{ hideAttribution: true }}
+            className="bg-surface"
+          >
+            <Background gap={20} size={1} color="var(--color-muted)" className="opacity-20" />
+            <Controls className="!bg-[var(--color-card)] !border !border-b-border !rounded-xl !shadow-lg" />
+            <MiniMap
+              className="!bg-[var(--color-card)] !border !border-b-border !rounded-xl"
+              nodeColor="#8b5cf6"
+              maskColor="rgba(0,0,0,0.1)"
+            />
+          </ReactFlow>
 
           {/* Unsaved changes indicator */}
           {hasChanges && (
-            <Panel position="bottom-center">
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="px-4 py-2 rounded-full glass-card border border-amber-500/30 shadow-lg text-xs text-amber-500 font-medium flex items-center gap-2"
-              >
-                <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-                {t('unsavedChanges')}
-              </motion.div>
-            </Panel>
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full bg-[var(--color-card)] border border-amber-500/30 shadow-lg text-xs text-amber-500 font-medium flex items-center gap-2 z-10"
+            >
+              <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+              {t('unsavedChanges')}
+            </motion.div>
           )}
-        </ReactFlow>
+        </div>
+
+        {/* ─── Right Panel (Node Editor) ──────────── */}
+        <AnimatePresence>
+          {selectedNode && (
+            <motion.div
+              initial={{ x: 320 }}
+              animate={{ x: 0 }}
+              exit={{ x: 320 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              className="w-80 bg-[var(--color-card)] border-l border-b-border overflow-y-auto shrink-0"
+            >
+              <NodeEditor
+                key={selectedNodeId}
+                node={selectedNode}
+                onUpdate={updateNodeField}
+                onDelete={deleteSelectedNode}
+                onClose={() => setSelectedNodeId(null)}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* ─── Bottom Bar (Flow Summary) ────────────── */}
+      <div className="bg-[var(--color-card)] border-t border-b-border px-4 py-3 shrink-0 z-10">
+        <div className="flex items-center gap-2 overflow-x-auto">
+          <span className="text-xs font-bold text-dim shrink-0 uppercase tracking-wider">
+            {t('sidebarFlow' as any)}:
+          </span>
+
+          {/* Trigger badge */}
+          {nodes
+            .filter((n) => n.type === 'trigger')
+            .map((n) => (
+              <button
+                key={n.id}
+                onClick={() => setSelectedNodeId(n.id)}
+                className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium shrink-0 transition-colors ${
+                  selectedNodeId === n.id ? 'ring-1 ring-blue-400' : ''
+                }`}
+                style={{ backgroundColor: '#3b82f615', color: '#3b82f6' }}
+              >
+                <Zap className="h-3 w-3" />
+                {t('node_trigger' as any)}
+              </button>
+            ))}
+
+          {/* Action badges */}
+          {actionNodes.map((n) => {
+            const meta = getMeta(n.type);
+            const NIcon = meta.Icon;
+            return (
+              <div key={n.id} className="flex items-center gap-1 shrink-0">
+                <span className="text-dim">→</span>
+                <button
+                  onClick={() => setSelectedNodeId(n.id)}
+                  className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium transition-colors ${
+                    selectedNodeId === n.id ? 'ring-1' : ''
+                  }`}
+                  style={{
+                    backgroundColor: meta.color + '15',
+                    color: meta.color,
+                    ...(selectedNodeId === n.id ? { boxShadow: `0 0 0 1px ${meta.color}` } : {}),
+                  }}
+                >
+                  <NIcon className="h-3 w-3" />
+                  {t(meta.labelKey as any)}
+                </button>
+              </div>
+            );
+          })}
+
+          {actionNodes.length === 0 && (
+            <span className="text-xs text-dim italic">
+              {t('dragFromSidebar' as any)}
+            </span>
+          )}
+        </div>
       </div>
     </div>
   );

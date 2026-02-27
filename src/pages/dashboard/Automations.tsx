@@ -149,9 +149,12 @@ export default function Automations() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.06 }}
-                className="glass-card rounded-2xl border border-b-border hover:border-violet-500/30 hover:shadow-lg hover:shadow-violet-500/5 transition-all cursor-pointer group flex flex-col"
+                className={`glass-card rounded-2xl border border-b-border hover:border-violet-500/30 hover:shadow-lg hover:shadow-violet-500/5 transition-all cursor-pointer group flex flex-col overflow-hidden ${!auto.isActive ? 'opacity-70' : ''}`}
                 onClick={() => navigate(`/dashboard/automations/${auto.id}`)}
               >
+                {/* Status strip */}
+                <div className={`h-1.5 ${auto.isActive ? 'bg-emerald-500' : 'bg-surface'}`} />
+
                 {/* Card Header */}
                 <div className="p-5 pb-0">
                   <div className="flex items-start justify-between mb-3">
