@@ -23,7 +23,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft, Save, Play, Pause, Bot, Clock,
   GitBranch, Calendar, Tag, Send, Variable, ChevronLeft, ChevronRight,
-  Zap, Hash,
+  Zap, Hash, CircleStop,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { automationsApi } from '../../api/automations.api';
@@ -42,6 +42,7 @@ const NODE_PALETTE = [
   { type: 'createBooking', label: 'Create Booking', icon: <Calendar className="w-4 h-4" />, color: 'bg-pink-500', borderColor: 'border-pink-500/40' },
   { type: 'setVariable', label: 'Set Variable', icon: <Variable className="w-4 h-4" />, color: 'bg-cyan-500', borderColor: 'border-cyan-500/40' },
   { type: 'tagUser', label: 'Tag User', icon: <Tag className="w-4 h-4" />, color: 'bg-red-500', borderColor: 'border-red-500/40' },
+  { type: 'endFlow', label: 'End Flow', icon: <CircleStop className="w-4 h-4" />, color: 'bg-gray-500', borderColor: 'border-gray-500/40' },
 ];
 
 function FlowNode({ data, type }: { data: any; type?: string }) {
@@ -153,6 +154,12 @@ function FlowNode({ data, type }: { data: any; type?: string }) {
             Flow starts here
           </div>
         )}
+        {type === 'endFlow' && (
+          <div className="text-xs text-muted flex items-center gap-1.5">
+            <CircleStop className="w-3 h-3 text-gray-500" />
+            Flow ends here
+          </div>
+        )}
       </div>
       <Handle type="source" position={Position.Bottom} className="!w-3 !h-3 !bg-muted !border-2 !border-[var(--color-card)]" />
       {isCondition && (
@@ -174,6 +181,7 @@ const nodeTypes: NodeTypes = {
   createBooking: FlowNode,
   setVariable: FlowNode,
   tagUser: FlowNode,
+  endFlow: FlowNode,
 };
 
 // ─── Main Component ─────────────────────────────
@@ -199,20 +207,26 @@ export default function FlowBuilder() {
   // Load nodes/edges from automation
   useEffect(() => {
     if (automation) {
-      const savedNodes = (automation.nodes ?? []).map((n: any) => ({
-        ...n,
-        data: {
-          ...n.data,
-          onChange: (field: string, value: string) => {
-            setNodes((nds: Node[]) =>
-              nds.map((nd: Node) =>
-                nd.id === n.id ? { ...nd, data: { ...nd.data, [field]: value } } : nd,
-              ),
-            );
-            setHasChanges(true);
+      const knownTypes = Object.keys(nodeTypes);
+      const savedNodes = (automation.nodes ?? [])
+        .filter((n: any) => knownTypes.includes(n.type))
+        .map((n: any, idx: number) => ({
+          ...n,
+          // Ensure every node has a position (AI-created nodes may lack it)
+          position: n.position ?? { x: 250, y: 50 + idx * 180 },
+          data: {
+            ...n.data,
+            label: n.data?.label || NODE_PALETTE.find((p) => p.type === n.type)?.label || n.type,
+            onChange: (field: string, value: string) => {
+              setNodes((nds: Node[]) =>
+                nds.map((nd: Node) =>
+                  nd.id === n.id ? { ...nd, data: { ...nd.data, [field]: value } } : nd,
+                ),
+              );
+              setHasChanges(true);
+            },
           },
-        },
-      })) as Node[];
+        })) as Node[];
       setNodes(savedNodes);
       setEdges((automation.edges ?? []) as Edge[]);
     }
