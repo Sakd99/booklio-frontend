@@ -1,3 +1,5 @@
+import { useI18n } from '../../store/i18n.store';
+
 interface Props {
   label: string;
   variant?: 'blue' | 'green' | 'yellow' | 'red' | 'gray' | 'violet';
@@ -20,23 +22,27 @@ export default function Badge({ label, variant = 'gray' }: Props) {
   );
 }
 
-export function statusBadge(status: string) {
-  const map: Record<string, { label: string; variant: Props['variant'] }> = {
-    CONFIRMED: { label: 'Confirmed', variant: 'blue' },
-    PENDING: { label: 'Pending', variant: 'yellow' },
-    COMPLETED: { label: 'Completed', variant: 'green' },
-    CANCELLED: { label: 'Cancelled', variant: 'red' },
-    NO_SHOW: { label: 'No Show', variant: 'gray' },
-    CONNECTED: { label: 'Connected', variant: 'green' },
-    DISCONNECTED: { label: 'Disconnected', variant: 'gray' },
-    EXPIRED: { label: 'Expired', variant: 'red' },
-    RECONNECTING: { label: 'Reconnecting', variant: 'yellow' },
-    ERROR: { label: 'Error', variant: 'red' },
-    FREE: { label: 'Free', variant: 'gray' },
-    STARTER: { label: 'Starter', variant: 'blue' },
-    BUSINESS: { label: 'Business', variant: 'violet' },
-    PRO: { label: 'Pro', variant: 'green' },
-  };
-  const m = map[status] ?? { label: status, variant: 'gray' as const };
-  return <Badge label={m.label} variant={m.variant} />;
+const statusMap: Record<string, { key: string; variant: Props['variant'] }> = {
+  CONFIRMED: { key: 'statusConfirmed', variant: 'blue' },
+  PENDING: { key: 'statusPending', variant: 'yellow' },
+  COMPLETED: { key: 'statusCompleted', variant: 'green' },
+  CANCELLED: { key: 'statusCancelled', variant: 'red' },
+  NO_SHOW: { key: 'statusNoShow', variant: 'gray' },
+  CONNECTED: { key: 'connected', variant: 'green' },
+  DISCONNECTED: { key: 'disconnected', variant: 'gray' },
+  EXPIRED: { key: 'expired', variant: 'red' },
+  RECONNECTING: { key: 'reconnecting', variant: 'yellow' },
+  ERROR: { key: 'error', variant: 'red' },
+  FREE: { key: 'free', variant: 'gray' },
+  STARTER: { key: 'starter', variant: 'blue' },
+  BUSINESS: { key: 'business', variant: 'violet' },
+  PRO: { key: 'pro', variant: 'green' },
+};
+
+export function StatusBadge({ status }: { status: string }) {
+  const { t } = useI18n();
+  const m = statusMap[status];
+  const label = m ? t(m.key as any) : status;
+  const variant = m?.variant ?? 'gray';
+  return <Badge label={label} variant={variant} />;
 }

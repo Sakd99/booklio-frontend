@@ -114,16 +114,16 @@ export default function Conversations() {
   return (
     <div className="h-[calc(100vh-7.5rem)] flex rounded-2xl overflow-hidden border border-b-border bg-card transition-colors duration-200">
       {/* LEFT: Conversation List */}
-      <div className={`w-full md:w-80 lg:w-96 border-r border-b-border flex flex-col ${selectedId ? 'hidden md:flex' : 'flex'}`}>
+      <div className={`w-full md:w-80 lg:w-96 ltr:border-r rtl:border-l border-b-border flex flex-col ${selectedId ? 'hidden md:flex' : 'flex'}`}>
         <div className="p-3 border-b border-b-border">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-dim" />
+            <Search className="absolute ltr:left-3 rtl:right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-dim" />
             <input
               type="text"
               placeholder={t('searchConversations')}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="input-base !pl-10"
+              className="input-base ltr:!pl-10 rtl:!pr-10"
             />
           </div>
         </div>
@@ -158,8 +158,8 @@ export default function Conversations() {
               <motion.button
                 key={conv.id}
                 onClick={() => setSelectedId(conv.id)}
-                className={`w-full p-3.5 flex gap-3 text-left border-b border-b-border transition-all hover:bg-surface ${
-                  selectedId === conv.id ? 'bg-blue-500/10 border-l-2 border-l-blue-500' : ''
+                className={`w-full p-3.5 flex gap-3 ltr:text-left rtl:text-right border-b border-b-border transition-all hover:bg-surface ${
+                  selectedId === conv.id ? 'bg-blue-500/10 ltr:border-l-2 ltr:border-l-blue-500 rtl:border-r-2 rtl:border-r-blue-500' : ''
                 }`}
                 whileTap={{ scale: 0.98 }}
               >
@@ -167,7 +167,7 @@ export default function Conversations() {
                   <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500/20 to-violet-500/20 flex items-center justify-center">
                     <User className="w-4 h-4 text-muted" />
                   </div>
-                  <div className="absolute -bottom-0.5 -right-0.5">
+                  <div className="absolute -bottom-0.5 ltr:-right-0.5 rtl:-left-0.5">
                     {channelIcon(conv.channelType)}
                   </div>
                 </div>

@@ -11,7 +11,7 @@ import { notificationsApi } from '../../api/notifications.api';
 import { automationsApi } from '../../api/automations.api';
 import StatCard from '../../components/ui/StatCard';
 import Spinner from '../../components/ui/Spinner';
-import { statusBadge } from '../../components/ui/Badge';
+import { StatusBadge } from '../../components/ui/Badge';
 import { useI18n } from '../../store/i18n.store';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -139,7 +139,7 @@ export default function Overview() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 + i * 0.05 }}
             onClick={() => navigate(action.to)}
-            className="group flex items-center gap-3 p-4 rounded-2xl border border-b-border bg-[var(--color-card)] hover:border-blue-500/30 hover:shadow-lg hover:shadow-blue-500/5 transition-all duration-300 text-left"
+            className="group flex items-center gap-3 p-4 rounded-2xl border border-b-border bg-[var(--color-card)] hover:border-blue-500/30 hover:shadow-lg hover:shadow-blue-500/5 transition-all duration-300 ltr:text-left rtl:text-right"
           >
             <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${action.color} flex items-center justify-center text-white flex-shrink-0 group-hover:scale-110 transition-transform`}>
               {action.icon}
@@ -147,7 +147,7 @@ export default function Overview() {
             <div className="min-w-0 flex-1">
               <div className="text-sm font-semibold text-foreground truncate">{action.label}</div>
             </div>
-            <ArrowRight className="w-4 h-4 text-muted opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all flex-shrink-0" />
+            <ArrowRight className="w-4 h-4 text-muted opacity-0 group-hover:opacity-100 group-hover:ltr:translate-x-0.5 group-hover:rtl:-translate-x-0.5 transition-all flex-shrink-0 rtl:rotate-180" />
           </motion.button>
         ))}
       </div>
@@ -217,7 +217,7 @@ export default function Overview() {
               onClick={() => navigate('/dashboard/automations')}
               className="text-xs text-blue-500 hover:text-blue-400 transition-colors flex items-center gap-1"
             >
-              View all <ArrowRight className="w-3 h-3" />
+              {t('viewAll')} <ArrowRight className="w-3 h-3 rtl:rotate-180" />
             </button>
           </div>
 
@@ -249,7 +249,7 @@ export default function Overview() {
                 <button
                   key={auto.id}
                   onClick={() => navigate(`/dashboard/automations/${auto.id}`)}
-                  className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-surface transition-colors text-left"
+                  className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-surface transition-colors ltr:text-left rtl:text-right"
                 >
                   <div className={`w-2 h-2 rounded-full flex-shrink-0 ${auto.isActive ? 'bg-emerald-500' : 'bg-gray-400'}`} />
                   <div className="flex-1 min-w-0">
@@ -304,7 +304,7 @@ export default function Overview() {
                       {bk.service?.name} · {dayjs(bk.startsAt).format('MMM D, h:mm A')}
                     </div>
                   </div>
-                  <div className="flex-shrink-0 hidden sm:block">{statusBadge(bk.status)}</div>
+                  <div className="flex-shrink-0 hidden sm:block"><StatusBadge status={bk.status} /></div>
                 </div>
               ))}
             </div>

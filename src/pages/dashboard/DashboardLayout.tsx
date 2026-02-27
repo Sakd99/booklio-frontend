@@ -115,7 +115,7 @@ export default function DashboardLayout() {
           className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[15px] font-medium transition-all duration-200 text-violet-500 hover:bg-violet-500/8 group"
         >
           <Bot className="w-5 h-5" />
-          <span className="flex-1 text-left">{t('aiAssistantTitle')}</span>
+          <span className="flex-1 ltr:text-left rtl:text-right">{t('aiAssistantTitle')}</span>
           <span className="text-[10px] font-bold bg-violet-500 text-white px-1.5 py-0.5 rounded-full leading-none">AI</span>
         </button>
       </nav>
@@ -138,7 +138,7 @@ export default function DashboardLayout() {
             className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm text-muted hover:text-foreground hover:bg-surface transition-all"
           >
             <Globe className="w-4 h-4" />
-            <span className="flex-1 text-left">{LOCALE_META[locale].flag} {LOCALE_META[locale].label}</span>
+            <span className="flex-1 ltr:text-left rtl:text-right">{LOCALE_META[locale].flag} {LOCALE_META[locale].label}</span>
             <ChevronDown className={`w-3.5 h-3.5 transition-transform ${langOpen ? 'rotate-180' : ''}`} />
           </button>
           <AnimatePresence>

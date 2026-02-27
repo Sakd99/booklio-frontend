@@ -7,7 +7,7 @@ import { adminApi } from '../../../api/admin.api';
 import Spinner from '../../../components/ui/Spinner';
 import Modal from '../../../components/ui/Modal';
 import Button from '../../../components/ui/Button';
-import { statusBadge } from '../../../components/ui/Badge';
+import { StatusBadge } from '../../../components/ui/Badge';
 
 const PLANS = ['FREE', 'STARTER', 'BUSINESS', 'PRO'];
 
@@ -83,7 +83,7 @@ export default function Tenants() {
                       </td>
                       <td className="px-4 py-3.5 text-sm text-muted">{t.users?.[0]?.email ?? '—'}</td>
                       <td className="px-4 py-3.5">
-                        {plan ? statusBadge(plan.type) : <span className="text-xs text-dim">—</span>}
+                        {plan ? <StatusBadge status={plan.type} /> : <span className="text-xs text-dim">—</span>}
                       </td>
                       <td className="px-4 py-3.5">
                         <span className={`text-xs px-2 py-1 rounded-full ${active ? 'bg-emerald-500/10 text-emerald-500' : 'bg-red-500/10 text-red-500'}`}>

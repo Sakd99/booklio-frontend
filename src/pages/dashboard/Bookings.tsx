@@ -8,10 +8,14 @@ import { servicesApi } from '../../api/services.api';
 import Button from '../../components/ui/Button';
 import Modal from '../../components/ui/Modal';
 import Spinner from '../../components/ui/Spinner';
-import { statusBadge } from '../../components/ui/Badge';
+import { StatusBadge } from '../../components/ui/Badge';
 import { useI18n } from '../../store/i18n.store';
 
-const STATUSES = ['', 'CONFIRMED', 'PENDING', 'COMPLETED', 'CANCELLED', 'NO_SHOW'];
+const STATUSES = ['', 'CONFIRMED', 'PENDING', 'COMPLETED', 'CANCELLED', 'NO_SHOW'] as const;
+const STATUS_KEYS: Record<string, string> = {
+  CONFIRMED: 'statusConfirmed', PENDING: 'statusPending', COMPLETED: 'statusCompleted',
+  CANCELLED: 'statusCancelled', NO_SHOW: 'statusNoShow',
+};
 
 export default function Bookings() {
   const { t } = useI18n();
@@ -29,13 +33,13 @@ export default function Bookings() {
 
   const createMut = useMutation({
     mutationFn: bookingsApi.create,
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['bookings'] }); setCreateOpen(false); toast.success('Booking created!'); setForm({ serviceId: '', customerName: '', customerContact: '', startsAt: '', notes: '' }); },
-    onError: (e: any) => toast.error(e?.response?.data?.error ?? 'Booking failed'),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['bookings'] }); setCreateOpen(false); toast.success(t('bookingCreated')); setForm({ serviceId: '', customerName: '', customerContact: '', startsAt: '', notes: '' }); },
+    onError: (e: any) => toast.error(e?.response?.data?.error ?? t('error')),
   });
 
   const statusMut = useMutation({
     mutationFn: ({ id, status }: { id: string; status: string }) => bookingsApi.updateStatus(id, status),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['bookings'] }); toast.success('Status updated'); },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['bookings'] }); toast.success(t('statusUpdated')); },
   });
 
   const totalPages = data ? Math.ceil(data.total / 15) : 1;
@@ -52,7 +56,7 @@ export default function Bookings() {
             <Filter className="w-4 h-4 text-dim" />
             <select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }} className="input-base !w-auto !py-2">
               <option value="">{t('all')}</option>
-              {STATUSES.filter(Boolean).map((s) => <option key={s} value={s}>{s}</option>)}
+              {STATUSES.filter(Boolean).map((s) => <option key={s} value={s}>{t(STATUS_KEYS[s] as any)}</option>)}
             </select>
           </div>
           <Button onClick={() => setCreateOpen(true)} icon={<Plus className="w-4 h-4" />}>{t('create')}</Button>
@@ -70,8 +74,8 @@ export default function Bookings() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-b-border">
-                  {[t('customer'), t('service'), t('date'), 'Contact', t('status'), t('actions')].map((h) => (
-                    <th key={h} className="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">{h}</th>
+                  {[t('customer'), t('service'), t('date'), t('contact'), t('status'), t('actions')].map((h) => (
+                    <th key={h} className="px-4 py-3 text-xs font-medium text-muted uppercase tracking-wider ltr:text-left rtl:text-right">{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -82,10 +86,10 @@ export default function Bookings() {
                     <td className="px-4 py-3.5 text-sm text-muted">{bk.service?.name ?? '—'}</td>
                     <td className="px-4 py-3.5 text-sm text-muted">{new Date(bk.startsAt).toLocaleDateString()} {new Date(bk.startsAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
                     <td className="px-4 py-3.5 text-sm text-muted">{bk.customerContact}</td>
-                    <td className="px-4 py-3.5">{statusBadge(bk.status)}</td>
+                    <td className="px-4 py-3.5"><StatusBadge status={bk.status} /></td>
                     <td className="px-4 py-3.5">
                       <select value={bk.status} onChange={(e) => statusMut.mutate({ id: bk.id, status: e.target.value })} className="input-base !w-auto !py-1 !px-2 !text-xs">
-                        {['CONFIRMED', 'PENDING', 'COMPLETED', 'CANCELLED', 'NO_SHOW'].map((s) => <option key={s} value={s}>{s}</option>)}
+                        {['CONFIRMED', 'PENDING', 'COMPLETED', 'CANCELLED', 'NO_SHOW'].map((s) => <option key={s} value={s}>{t(STATUS_KEYS[s] as any)}</option>)}
                       </select>
                     </td>
                   </motion.tr>
@@ -95,7 +99,7 @@ export default function Bookings() {
           </div>
           {totalPages > 1 && (
             <div className="flex items-center justify-between px-4 py-3 border-t border-b-border">
-              <span className="text-xs text-dim">Page {page} / {totalPages}</span>
+              <span className="text-xs text-dim">{t('page')} {page} / {totalPages}</span>
               <div className="flex gap-2">
                 <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1} className="p-1.5 text-dim hover:text-foreground disabled:opacity-30"><ChevronLeft className="w-4 h-4" /></button>
                 <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="p-1.5 text-dim hover:text-foreground disabled:opacity-30"><ChevronRight className="w-4 h-4" /></button>
@@ -110,7 +114,7 @@ export default function Bookings() {
           <div>
             <label className="block text-sm text-muted mb-1.5">{t('service')} *</label>
             <select required value={form.serviceId} onChange={(e) => setForm({ ...form, serviceId: e.target.value })} className="input-base">
-              <option value="">Select...</option>
+              <option value="">{t('select')}</option>
               {services?.map((s: any) => <option key={s.id} value={s.id}>{s.name}</option>)}
             </select>
           </div>
@@ -119,7 +123,7 @@ export default function Bookings() {
             <input required value={form.customerName} onChange={(e) => setForm({ ...form, customerName: e.target.value })} className="input-base" />
           </div>
           <div>
-            <label className="block text-sm text-muted mb-1.5">Contact</label>
+            <label className="block text-sm text-muted mb-1.5">{t('contact')}</label>
             <input value={form.customerContact} onChange={(e) => setForm({ ...form, customerContact: e.target.value })} className="input-base" />
           </div>
           <div>

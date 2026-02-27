@@ -73,7 +73,7 @@ export default function NotificationBell() {
           <motion.span
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
-            className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center"
+            className="absolute -top-0.5 ltr:-right-0.5 rtl:-left-0.5 w-5 h-5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center"
           >
             {unread > 9 ? '9+' : unread}
           </motion.span>
@@ -87,7 +87,7 @@ export default function NotificationBell() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 8, scale: 0.95 }}
             transition={{ duration: 0.15 }}
-            className="absolute right-0 top-full mt-2 w-80 glass-card rounded-2xl border border-b-border shadow-2xl z-50 overflow-hidden"
+            className="absolute ltr:right-0 rtl:left-0 top-full mt-2 w-80 glass-card rounded-2xl border border-b-border shadow-2xl z-50 overflow-hidden"
           >
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-b-border">
