@@ -1775,6 +1775,9 @@ const es: typeof en = {
   telegramStep1: 'Abre @BotFather en Telegram', telegramStep2: 'Envía /newbot y sigue las instrucciones', telegramStep3: 'Pega el token del bot abajo',
   botTokenPlaceholder: 'Token del Bot *', botNamePlaceholder: 'Nombre del Bot (opcional)',
   selectPage: 'Seleccionar página', selectPageDesc: 'Elige qué página de Facebook conectar',
+  addChannel: 'Agregar canal', igDesc: 'Conecta tu cuenta de Instagram Business', igFeature1: 'Recibir y responder DMs', igFeature2: 'Detectar intención de reserva con IA', igFeature3: 'OAuth con un clic',
+  ttDesc: 'Conecta tu cuenta de TikTok Business', ttFeature1: 'Recibir y responder DMs', ttFeature2: 'OAuth PKCE seguro', ttFeature3: 'Actualización automática de token',
+  deleteChannel: 'Eliminar canal', deleteChannelConfirm: '¿Estás seguro de eliminar este canal? Esta acción no se puede deshacer.', channelDeleted: 'Canal eliminado', deleting: 'Eliminando...',
 
   conversationsTitle: 'Conversaciones', searchConversations: 'Buscar conversaciones...',
   noConversations: 'Sin conversaciones', conversationsAppear: 'Los mensajes aparecerán aquí',
@@ -2454,6 +2457,9 @@ const fr: typeof en = {
   telegramStep1: 'Ouvrez @BotFather sur Telegram', telegramStep2: 'Envoyez /newbot et suivez les instructions', telegramStep3: 'Collez le token du bot ci-dessous',
   botTokenPlaceholder: 'Token du Bot *', botNamePlaceholder: 'Nom du Bot (optionnel)',
   selectPage: 'Sélectionner une page', selectPageDesc: 'Choisissez quelle page Facebook connecter',
+  addChannel: 'Ajouter un canal', igDesc: 'Connectez votre compte Instagram Business', igFeature1: 'Recevoir et répondre aux DMs', igFeature2: "Détecter l'intention de réservation par IA", igFeature3: 'OAuth en un clic',
+  ttDesc: 'Connectez votre compte TikTok Business', ttFeature1: 'Recevoir et répondre aux DMs', ttFeature2: 'OAuth PKCE sécurisé', ttFeature3: 'Rafraîchissement automatique du token',
+  deleteChannel: 'Supprimer le canal', deleteChannelConfirm: 'Êtes-vous sûr de vouloir supprimer ce canal ? Cette action est irréversible.', channelDeleted: 'Canal supprimé', deleting: 'Suppression...',
 
   conversationsTitle: 'Conversations', searchConversations: 'Rechercher...',
   noConversations: 'Aucune conversation', conversationsAppear: 'Les messages apparaîtront ici',
@@ -3132,6 +3138,9 @@ const tr: typeof en = {
   telegramStep1: "Telegram'da @BotFather'ı açın", telegramStep2: '/newbot gönderin ve talimatları takip edin', telegramStep3: 'Bot tokenini aşağıya yapıştırın',
   botTokenPlaceholder: 'Bot Tokeni *', botNamePlaceholder: 'Bot Adı (isteğe bağlı)',
   selectPage: 'Sayfa seçin', selectPageDesc: 'Hangi Facebook sayfasını bağlamak istediğinizi seçin',
+  addChannel: 'Kanal ekle', igDesc: 'Instagram Business hesabınızı bağlayın', igFeature1: 'DM al ve yanıtla', igFeature2: 'AI ile rezervasyon niyetini algıla', igFeature3: 'Tek tıkla OAuth',
+  ttDesc: 'TikTok Business hesabınızı bağlayın', ttFeature1: 'DM al ve yanıtla', ttFeature2: 'Güvenli PKCE OAuth', ttFeature3: 'Otomatik token yenileme',
+  deleteChannel: 'Kanalı sil', deleteChannelConfirm: 'Bu kanalı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.', channelDeleted: 'Kanal silindi', deleting: 'Siliniyor...',
 
   conversationsTitle: 'Sohbetler', searchConversations: 'Sohbet ara...',
   noConversations: 'Henüz sohbet yok', conversationsAppear: 'Mesajlar burada görünecek',
