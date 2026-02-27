@@ -3,6 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Send, Trash2, User, Loader2, Sparkles, Zap, MessageCircle, ClipboardList } from 'lucide-react';
 import { useI18n } from '../store/i18n.store';
 import { aiAssistantApi } from '../api/aiAssistant.api';
+import { tenantApi } from '../api/tenant.api';
+import { automationsApi } from '../api/automations.api';
+import { bookingsApi } from '../api/bookings.api';
+import { aiSettingsApi } from '../api/ai-settings.api';
 
 interface ChatMessage {
   role: 'user' | 'assistant';
@@ -63,26 +67,73 @@ export default function AiAssistant({ open, onClose }: AiAssistantProps) {
     { id: 'plan', label: t('aiAssistantModePlan'), desc: t('aiAssistantModePlanDesc') },
   ];
 
-  const QUICK_PROMPTS = [
-    {
-      label: locale === 'ar' ? '📊 إحصائيات عملي' : '📊 Business stats',
-      msg: locale === 'ar' ? 'ما هي إحصائيات عملي هذا الشهر؟' : 'Show me my business stats this month',
-    },
-    {
-      label: locale === 'ar' ? '⚡ الأوتوميشنات' : '⚡ Automations',
-      msg: locale === 'ar' ? 'اعرض لي الأوتوميشنات الحالية' : 'List all my automations',
-    },
-    {
-      label: locale === 'ar' ? '📅 المواعيد' : '📅 Appointments',
-      msg: locale === 'ar' ? 'اعرض آخر المواعيد' : 'Show recent appointments',
-    },
-    {
-      label: locale === 'ar' ? '🤖 إعدادات الذكاء' : '🤖 AI settings',
-      msg: locale === 'ar' ? 'ما هي إعدادات الذكاء الاصطناعي الحالية؟' : 'What are my current AI bot settings?',
-    },
+  const QUICK_ACTIONS = [
+    { id: 'stats', label: locale === 'ar' ? '📊 إحصائيات عملي' : '📊 Business stats' },
+    { id: 'automations', label: locale === 'ar' ? '⚡ الأوتوميشنات' : '⚡ Automations' },
+    { id: 'bookings', label: locale === 'ar' ? '📅 المواعيد' : '📅 Appointments' },
+    { id: 'ai-settings', label: locale === 'ar' ? '🤖 إعدادات الذكاء' : '🤖 AI settings' },
   ];
 
   const isOnlyWelcome = messages.length === 1 && messages[0].role === 'assistant';
+
+  const handleQuickAction = async (id: string, label: string) => {
+    if (loading) return;
+    const userMsg: ChatMessage = { role: 'user', content: label, timestamp: new Date() };
+    setMessages((prev) => [...prev, userMsg]);
+    setLoading(true);
+
+    try {
+      let reply = '';
+      const ar = locale === 'ar';
+
+      if (id === 'stats') {
+        const usage = await tenantApi.getUsage();
+        const u = usage as any;
+        reply = ar
+          ? `📊 إحصائيات عملك:\n\n• الحجوزات: ${u.bookings ?? 0}\n• العملاء: ${u.customers ?? 0}\n• الأوتوميشنات: ${u.automations ?? 0}\n• المحادثات: ${u.conversations ?? 0}\n• الرسائل: ${u.messages ?? 0}`
+          : `📊 Your business stats:\n\n• Bookings: ${u.bookings ?? 0}\n• Customers: ${u.customers ?? 0}\n• Automations: ${u.automations ?? 0}\n• Conversations: ${u.conversations ?? 0}\n• Messages: ${u.messages ?? 0}`;
+      } else if (id === 'automations') {
+        const list = await automationsApi.list();
+        const items = Array.isArray(list) ? list : (list as any)?.items ?? [];
+        if (items.length === 0) {
+          reply = ar ? '⚡ لا توجد أوتوميشنات حالياً.' : '⚡ No automations found.';
+        } else {
+          const lines = items.map((a: any, i: number) =>
+            `${i + 1}. ${a.name} — ${a.isActive ? (ar ? '✅ نشط' : '✅ Active') : (ar ? '⏸ متوقف' : '⏸ Inactive')}`
+          );
+          reply = (ar ? '⚡ الأوتوميشنات الحالية:\n\n' : '⚡ Your automations:\n\n') + lines.join('\n');
+        }
+      } else if (id === 'bookings') {
+        const data = await bookingsApi.list({ page: 1, limit: 5 });
+        const items = (data as any)?.items ?? [];
+        if (items.length === 0) {
+          reply = ar ? '📅 لا توجد حجوزات حالياً.' : '📅 No bookings found.';
+        } else {
+          const lines = items.map((b: any, i: number) => {
+            const date = new Date(b.startsAt).toLocaleDateString(ar ? 'ar-SA' : 'en-US');
+            const time = new Date(b.startsAt).toLocaleTimeString(ar ? 'ar-SA' : 'en-US', { hour: '2-digit', minute: '2-digit' });
+            return `${i + 1}. ${b.customerName} — ${b.service?.name ?? ''} — ${date} ${time} (${b.status})`;
+          });
+          reply = (ar ? `📅 آخر الحجوزات (${(data as any).total ?? items.length}):\n\n` : `📅 Recent bookings (${(data as any).total ?? items.length} total):\n\n`) + lines.join('\n');
+        }
+      } else if (id === 'ai-settings') {
+        const settings = await aiSettingsApi.get();
+        const s = settings as any;
+        reply = ar
+          ? `🤖 إعدادات الذكاء الاصطناعي:\n\n• النبرة: ${s.aiTone ?? 'غير محدد'}\n• اللغة: ${s.language ?? 'غير محدد'}\n• الرد التلقائي: ${s.autoReply ? '✅ مفعّل' : '❌ معطّل'}\n• رسالة الترحيب: ${s.greetingMsg || 'غير محدد'}\n• وصف العمل: ${s.businessDesc || 'غير محدد'}`
+          : `🤖 AI Bot Settings:\n\n• Tone: ${s.aiTone ?? 'Not set'}\n• Language: ${s.language ?? 'Not set'}\n• Auto-reply: ${s.autoReply ? '✅ Enabled' : '❌ Disabled'}\n• Greeting: ${s.greetingMsg || 'Not set'}\n• Business desc: ${s.businessDesc || 'Not set'}`;
+      }
+
+      setMessages((prev) => [...prev, { role: 'assistant', content: reply, timestamp: new Date() }]);
+    } catch {
+      setMessages((prev) => [
+        ...prev,
+        { role: 'assistant', content: t('aiAssistantError'), timestamp: new Date() },
+      ]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const sendMessage = async (override?: string) => {
     const text = (override ?? input).trim();
@@ -212,16 +263,16 @@ export default function AiAssistant({ open, onClose }: AiAssistantProps) {
                 </div>
               ))}
 
-              {/* Quick prompts — visible only on welcome state */}
+              {/* Quick actions — visible only on welcome state (zero tokens) */}
               {isOnlyWelcome && (
                 <div className="grid grid-cols-2 gap-2 pt-2">
-                  {QUICK_PROMPTS.map((qp) => (
+                  {QUICK_ACTIONS.map((qa) => (
                     <button
-                      key={qp.label}
-                      onClick={() => sendMessage(qp.msg)}
-                      className="text-left px-3.5 py-2.5 rounded-xl bg-surface border border-b-border text-xs text-muted hover:text-foreground hover:border-violet-500/30 hover:bg-violet-500/5 transition-all duration-150"
+                      key={qa.id}
+                      onClick={() => handleQuickAction(qa.id, qa.label)}
+                      className="ltr:text-left rtl:text-right px-3.5 py-2.5 rounded-xl bg-surface border border-b-border text-xs text-muted hover:text-foreground hover:border-violet-500/30 hover:bg-violet-500/5 transition-all duration-150"
                     >
-                      {qp.label}
+                      {qa.label}
                     </button>
                   ))}
                 </div>

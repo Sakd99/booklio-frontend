@@ -7,6 +7,7 @@ export interface OnboardingStep {
   targetId: string;
   titleKey: string;
   descKey: string;
+  tab?: string;
 }
 
 interface Props {
@@ -14,12 +15,13 @@ interface Props {
   storageKey: string;
   active: boolean;
   onFinish: () => void;
+  onTabChange?: (tab: string) => void;
 }
 
 const TOOLTIP_H = 240;
 const PAD = 14;
 
-export default function OnboardingOverlay({ steps, storageKey, active, onFinish }: Props) {
+export default function OnboardingOverlay({ steps, storageKey, active, onFinish, onTabChange }: Props) {
   const { t } = useI18n();
   const [step, setStep] = useState(0);
   const [rect, setRect] = useState<DOMRect | null>(null);
@@ -33,7 +35,34 @@ export default function OnboardingOverlay({ steps, storageKey, active, onFinish 
     if (!current) return;
     setReady(false);
 
-    const el = document.getElementById(current.targetId);
+    // Switch tab if step requires a different one
+    if (current.tab && onTabChange) {
+      onTabChange(current.tab);
+    }
+
+    // Small delay to let tab content render before finding element
+    const findEl = () => document.getElementById(current.targetId);
+    let el = findEl();
+    if (!el && current.tab) {
+      // Element might not be in DOM yet — wait for tab render
+      const retryTimer = setTimeout(() => {
+        el = findEl();
+        if (!el) {
+          setRect(null);
+          setReady(true);
+          return;
+        }
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        const measureTimer = setTimeout(() => {
+          const r = el!.getBoundingClientRect();
+          setRect(r);
+          setReady(true);
+        }, 400);
+        return () => clearTimeout(measureTimer);
+      }, 150);
+      return () => clearTimeout(retryTimer);
+    }
+
     if (!el) {
       setRect(null);
       setReady(true);
@@ -54,7 +83,7 @@ export default function OnboardingOverlay({ steps, storageKey, active, onFinish 
     }, 400);
 
     return () => clearTimeout(timer);
-  }, [current]);
+  }, [current, onTabChange]);
 
   useEffect(() => {
     if (!active) return;
