@@ -572,6 +572,52 @@ const en = {
   activate: 'Activate',
   deactivate: 'Deactivate',
 
+  // Flow node types
+  node_trigger: 'Trigger',
+  node_sendMessage: 'Send Message',
+  node_aiStep: 'AI Step',
+  node_condition: 'Condition',
+  node_delay: 'Delay',
+  node_createBooking: 'Create Booking',
+  node_setVariable: 'Set Variable',
+  node_tagUser: 'Tag User',
+  node_endFlow: 'End Flow',
+
+  // Flow node descriptions
+  node_trigger_desc: 'Flow entry point',
+  node_sendMessage_desc: 'Send a text message',
+  node_aiStep_desc: 'Let AI generate a response',
+  node_condition_desc: 'Branch based on a condition',
+  node_delay_desc: 'Wait before next step',
+  node_createBooking_desc: 'Auto-create a booking',
+  node_setVariable_desc: 'Store a value for later',
+  node_tagUser_desc: 'Add a tag to the user',
+  node_endFlow_desc: 'Stop the flow',
+
+  // Flow node fields
+  messagePlaceholder: 'Message text...',
+  aiPromptPlaceholder: 'AI prompt...',
+  conditionPlaceholder: 'e.g. intent == booking',
+  conditionTrue: 'True',
+  conditionFalse: 'False',
+  delaySeconds: 'Seconds',
+  delayMinutes: 'Minutes',
+  delayHours: 'Hours',
+  autoCreateBookingDesc: 'Auto-create booking from conversation',
+  variableNamePlaceholder: 'Variable name',
+  variableValuePlaceholder: 'Value',
+  tagPlaceholder: 'Tag name...',
+  flowStartsHere: 'Flow starts here',
+  flowEndsHere: 'Flow ends here',
+  unsavedChanges: 'Unsaved changes',
+
+  // Demo content
+  demoMessage: 'Hello! How can I help you today?',
+  demoAiPrompt: 'Reply kindly and help the customer book an appointment',
+  demoCondition: 'intent == booking',
+  demoVarName: 'customer_name',
+  demoTag: 'new_customer',
+
   // Days
   sun: 'Sun', mon: 'Mon', tue: 'Tue', wed: 'Wed', thu: 'Thu', fri: 'Fri', sat: 'Sat',
 
@@ -1464,6 +1510,48 @@ const ar: typeof en = {
   activate: 'تفعيل',
   deactivate: 'إيقاف',
 
+  node_trigger: 'المشغّل',
+  node_sendMessage: 'إرسال رسالة',
+  node_aiStep: 'خطوة ذكاء اصطناعي',
+  node_condition: 'شرط',
+  node_delay: 'تأخير',
+  node_createBooking: 'إنشاء حجز',
+  node_setVariable: 'تعيين متغير',
+  node_tagUser: 'وسم المستخدم',
+  node_endFlow: 'إنهاء التدفق',
+
+  node_trigger_desc: 'نقطة بداية التدفق',
+  node_sendMessage_desc: 'أرسل رسالة نصية للعميل',
+  node_aiStep_desc: 'دع الذكاء الاصطناعي يرد',
+  node_condition_desc: 'تفرّع بناءً على شرط',
+  node_delay_desc: 'انتظر قبل الخطوة التالية',
+  node_createBooking_desc: 'أنشئ حجزاً تلقائياً',
+  node_setVariable_desc: 'خزّن قيمة للاستخدام لاحقاً',
+  node_tagUser_desc: 'أضف وسماً للمستخدم',
+  node_endFlow_desc: 'أوقف تدفق الأتمتة',
+
+  messagePlaceholder: 'نص الرسالة...',
+  aiPromptPlaceholder: 'أمر الذكاء الاصطناعي...',
+  conditionPlaceholder: 'مثال: النية == حجز',
+  conditionTrue: 'صحيح',
+  conditionFalse: 'خطأ',
+  delaySeconds: 'ثوانٍ',
+  delayMinutes: 'دقائق',
+  delayHours: 'ساعات',
+  autoCreateBookingDesc: 'إنشاء حجز تلقائي من المحادثة',
+  variableNamePlaceholder: 'اسم المتغير',
+  variableValuePlaceholder: 'القيمة',
+  tagPlaceholder: 'اسم الوسم...',
+  flowStartsHere: 'يبدأ التدفق من هنا',
+  flowEndsHere: 'ينتهي التدفق هنا',
+  unsavedChanges: 'تغييرات غير محفوظة',
+
+  demoMessage: 'مرحباً! كيف يمكنني مساعدتك اليوم؟',
+  demoAiPrompt: 'رد على العميل بلطف وساعده في حجز موعد',
+  demoCondition: 'النية == حجز',
+  demoVarName: 'اسم_العميل',
+  demoTag: 'عميل_جديد',
+
   sun: 'أحد', mon: 'إثنين', tue: 'ثلاثاء', wed: 'أربعاء', thu: 'خميس', fri: 'جمعة', sat: 'سبت',
 
   // WhatsApp Page
@@ -2172,6 +2260,13 @@ const es: typeof en = {
   activate: 'Activar',
   deactivate: 'Desactivar',
 
+  node_trigger: 'Disparador', node_sendMessage: 'Enviar mensaje', node_aiStep: 'Paso IA', node_condition: 'Condición', node_delay: 'Retraso', node_createBooking: 'Crear reserva', node_setVariable: 'Definir variable', node_tagUser: 'Etiquetar usuario', node_endFlow: 'Fin del flujo',
+  node_trigger_desc: 'Punto de inicio del flujo', node_sendMessage_desc: 'Enviar un mensaje de texto', node_aiStep_desc: 'Dejar que la IA responda', node_condition_desc: 'Ramificar según una condición', node_delay_desc: 'Esperar antes del siguiente paso', node_createBooking_desc: 'Crear reserva automáticamente', node_setVariable_desc: 'Almacenar un valor', node_tagUser_desc: 'Agregar etiqueta al usuario', node_endFlow_desc: 'Detener el flujo',
+  messagePlaceholder: 'Texto del mensaje...', aiPromptPlaceholder: 'Instrucción IA...', conditionPlaceholder: 'ej. intención == reserva', conditionTrue: 'Verdadero', conditionFalse: 'Falso',
+  delaySeconds: 'Segundos', delayMinutes: 'Minutos', delayHours: 'Horas',
+  autoCreateBookingDesc: 'Crear reserva automáticamente desde la conversación', variableNamePlaceholder: 'Nombre de variable', variableValuePlaceholder: 'Valor', tagPlaceholder: 'Nombre de etiqueta...', flowStartsHere: 'El flujo comienza aquí', flowEndsHere: 'El flujo termina aquí', unsavedChanges: 'Cambios sin guardar',
+  demoMessage: '¡Hola! ¿Cómo puedo ayudarte hoy?', demoAiPrompt: 'Responde amablemente y ayuda al cliente a reservar', demoCondition: 'intención == reserva', demoVarName: 'nombre_cliente', demoTag: 'cliente_nuevo',
+
   sun: 'Dom', mon: 'Lun', tue: 'Mar', wed: 'Mié', thu: 'Jue', fri: 'Vie', sat: 'Sáb',
 
   waPageHeroTitle: 'Automatiza reservas en',
@@ -2871,6 +2966,13 @@ const fr: typeof en = {
   activate: 'Activer',
   deactivate: 'Désactiver',
 
+  node_trigger: 'Déclencheur', node_sendMessage: 'Envoyer un message', node_aiStep: 'Étape IA', node_condition: 'Condition', node_delay: 'Délai', node_createBooking: 'Créer une réservation', node_setVariable: 'Définir variable', node_tagUser: 'Taguer utilisateur', node_endFlow: 'Fin du flux',
+  node_trigger_desc: "Point d'entrée du flux", node_sendMessage_desc: 'Envoyer un message texte', node_aiStep_desc: "Laisser l'IA répondre", node_condition_desc: 'Brancher selon une condition', node_delay_desc: "Attendre avant l'étape suivante", node_createBooking_desc: 'Créer une réservation auto', node_setVariable_desc: 'Stocker une valeur', node_tagUser_desc: "Ajouter un tag à l'utilisateur", node_endFlow_desc: 'Arrêter le flux',
+  messagePlaceholder: 'Texte du message...', aiPromptPlaceholder: 'Instruction IA...', conditionPlaceholder: 'ex. intention == réservation', conditionTrue: 'Vrai', conditionFalse: 'Faux',
+  delaySeconds: 'Secondes', delayMinutes: 'Minutes', delayHours: 'Heures',
+  autoCreateBookingDesc: 'Créer automatiquement une réservation depuis la conversation', variableNamePlaceholder: 'Nom de variable', variableValuePlaceholder: 'Valeur', tagPlaceholder: 'Nom du tag...', flowStartsHere: 'Le flux commence ici', flowEndsHere: 'Le flux se termine ici', unsavedChanges: 'Modifications non enregistrées',
+  demoMessage: 'Bonjour ! Comment puis-je vous aider ?', demoAiPrompt: 'Répondez poliment et aidez le client à réserver', demoCondition: 'intention == réservation', demoVarName: 'nom_client', demoTag: 'nouveau_client',
+
   sun: 'Dim', mon: 'Lun', tue: 'Mar', wed: 'Mer', thu: 'Jeu', fri: 'Ven', sat: 'Sam',
 
   waPageHeroTitle: 'Automatisez les réservations sur',
@@ -3569,6 +3671,13 @@ const tr: typeof en = {
   addNode: 'Düğüm Ekle',
   activate: 'Etkinleştir',
   deactivate: 'Devre dışı bırak',
+
+  node_trigger: 'Tetikleyici', node_sendMessage: 'Mesaj Gönder', node_aiStep: 'AI Adımı', node_condition: 'Koşul', node_delay: 'Gecikme', node_createBooking: 'Rezervasyon Oluştur', node_setVariable: 'Değişken Ata', node_tagUser: 'Kullanıcı Etiketle', node_endFlow: 'Akışı Bitir',
+  node_trigger_desc: 'Akış giriş noktası', node_sendMessage_desc: 'Metin mesajı gönder', node_aiStep_desc: 'AI yanıt oluştursun', node_condition_desc: 'Koşula göre dallan', node_delay_desc: 'Sonraki adımdan önce bekle', node_createBooking_desc: 'Otomatik rezervasyon oluştur', node_setVariable_desc: 'Bir değer kaydet', node_tagUser_desc: 'Kullanıcıya etiket ekle', node_endFlow_desc: 'Akışı durdur',
+  messagePlaceholder: 'Mesaj metni...', aiPromptPlaceholder: 'AI talimatı...', conditionPlaceholder: 'örn. niyet == rezervasyon', conditionTrue: 'Doğru', conditionFalse: 'Yanlış',
+  delaySeconds: 'Saniye', delayMinutes: 'Dakika', delayHours: 'Saat',
+  autoCreateBookingDesc: 'Sohbetten otomatik rezervasyon oluştur', variableNamePlaceholder: 'Değişken adı', variableValuePlaceholder: 'Değer', tagPlaceholder: 'Etiket adı...', flowStartsHere: 'Akış burada başlar', flowEndsHere: 'Akış burada biter', unsavedChanges: 'Kaydedilmemiş değişiklikler',
+  demoMessage: 'Merhaba! Size nasıl yardımcı olabilirim?', demoAiPrompt: 'Kibarca yanıt ver ve müşterinin rezervasyon yapmasına yardım et', demoCondition: 'niyet == rezervasyon', demoVarName: 'müşteri_adı', demoTag: 'yeni_müşteri',
 
   sun: 'Paz', mon: 'Pzt', tue: 'Sal', wed: 'Çar', thu: 'Per', fri: 'Cum', sat: 'Cmt',
 
