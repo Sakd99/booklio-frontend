@@ -4,10 +4,11 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   Plus, Workflow, Play, Pause, Trash2,
-  MessageSquare, Calendar, Zap, Tag, ArrowRight, Hash
+  MessageSquare, Calendar, Zap, Tag, ArrowRight, Hash, Radio
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { automationsApi } from '../../api/automations.api';
+import { channelsApi } from '../../api/channels.api';
 import Button from '../../components/ui/Button';
 import Modal from '../../components/ui/Modal';
 import Spinner from '../../components/ui/Spinner';
@@ -29,19 +30,26 @@ export default function Automations() {
   const navigate = useNavigate();
   const [createModal, setCreateModal] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<any>(null);
-  const [form, setForm] = useState({ name: '', description: '', trigger: 'NEW_CONVERSATION' as string });
+  const [form, setForm] = useState({ name: '', description: '', trigger: 'NEW_CONVERSATION' as string, channelId: '' });
 
   const { data: automations, isLoading } = useQuery({
     queryKey: ['automations'],
     queryFn: automationsApi.list,
   });
 
+  const { data: channels } = useQuery({
+    queryKey: ['channels'],
+    queryFn: channelsApi.list,
+  });
+
+  const connectedChannels = (channels ?? []).filter((ch: any) => ch.status === 'CONNECTED');
+
   const createMut = useMutation({
     mutationFn: () => automationsApi.create(form),
     onSuccess: (data) => {
       qc.invalidateQueries({ queryKey: ['automations'] });
       setCreateModal(false);
-      setForm({ name: '', description: '', trigger: 'NEW_CONVERSATION' });
+      setForm({ name: '', description: '', trigger: 'NEW_CONVERSATION', channelId: '' });
       toast.success(t('automationCreated'));
       navigate(`/dashboard/automations/${data.id}`);
     },
@@ -185,6 +193,12 @@ export default function Automations() {
                         <Hash className="w-3 h-3" />
                         {auto.runCount} {t('runs')}
                       </span>
+                      {auto.channel && (
+                        <span className="text-[11px] text-dim flex items-center gap-1">
+                          <Radio className="w-3 h-3" />
+                          {auto.channel.externalName ?? auto.channel.type}
+                        </span>
+                      )}
                     </div>
                     <ArrowRight className="w-4 h-4 text-muted opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
                   </div>
@@ -218,6 +232,22 @@ export default function Automations() {
               className="w-full rounded-xl bg-surface border border-b-border px-4 py-2.5 text-sm text-foreground placeholder:text-muted/50 focus:outline-none focus:ring-2 focus:ring-violet-500/40"
               placeholder={t('automationDescPlaceholder')}
             />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-1.5">{t('channels')}</label>
+            <select
+              required
+              value={form.channelId}
+              onChange={(e) => setForm((f) => ({ ...f, channelId: e.target.value }))}
+              className="w-full rounded-xl bg-surface border border-b-border px-4 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-violet-500/40"
+            >
+              <option value="" disabled>{t('selectChannel')}</option>
+              {connectedChannels.map((ch: any) => (
+                <option key={ch.id} value={ch.id}>
+                  {ch.externalName ?? ch.externalId} ({ch.type})
+                </option>
+              ))}
+            </select>
           </div>
           <div>
             <label className="block text-sm font-medium text-foreground mb-2">{t('trigger')}</label>
