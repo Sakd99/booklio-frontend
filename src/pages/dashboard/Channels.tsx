@@ -66,6 +66,18 @@ export default function Channels() {
     return () => window.removeEventListener('message', handler);
   }, [qc]);
 
+  // --- Poll popup window for close (fallback if postMessage fails) ---
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (popupRef.current && popupRef.current.closed) {
+        popupRef.current = null;
+        qc.invalidateQueries({ queryKey: ['channels'] });
+        qc.refetchQueries({ queryKey: ['channels'] });
+      }
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [qc]);
+
   // --- Handle Messenger OAuth callback (redirect fallback) ---
   useEffect(() => {
     const pagesKey = searchParams.get('messenger_pages');
