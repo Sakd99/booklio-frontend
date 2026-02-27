@@ -610,10 +610,15 @@ const en = {
   flowStartsHere: 'Flow starts here',
   flowEndsHere: 'Flow ends here',
   unsavedChanges: 'Unsaved changes',
+  collapse: 'Collapse',
+  expand: 'Expand',
+  zoomIn: 'Zoom in',
+  zoomOut: 'Zoom out',
+  fitView: 'Fit view',
 
   // Demo content
   demoMessage: 'Hello! How can I help you today?',
-  demoAiPrompt: 'Reply kindly and help the customer book an appointment',
+  demoAiPrompt: 'Help with booking',
   demoCondition: 'intent == booking',
   demoVarName: 'customer_name',
   demoTag: 'new_customer',
@@ -1545,9 +1550,14 @@ const ar: typeof en = {
   flowStartsHere: 'يبدأ التدفق من هنا',
   flowEndsHere: 'ينتهي التدفق هنا',
   unsavedChanges: 'تغييرات غير محفوظة',
+  collapse: 'تصغير',
+  expand: 'تكبير',
+  zoomIn: 'تكبير',
+  zoomOut: 'تصغير',
+  fitView: 'ملاءمة العرض',
 
   demoMessage: 'مرحباً! كيف يمكنني مساعدتك اليوم؟',
-  demoAiPrompt: 'رد على العميل بلطف وساعده في حجز موعد',
+  demoAiPrompt: 'ساعد في الحجز',
   demoCondition: 'النية == حجز',
   demoVarName: 'اسم_العميل',
   demoTag: 'عميل_جديد',
@@ -2265,7 +2275,8 @@ const es: typeof en = {
   messagePlaceholder: 'Texto del mensaje...', aiPromptPlaceholder: 'Instrucción IA...', conditionPlaceholder: 'ej. intención == reserva', conditionTrue: 'Verdadero', conditionFalse: 'Falso',
   delaySeconds: 'Segundos', delayMinutes: 'Minutos', delayHours: 'Horas',
   autoCreateBookingDesc: 'Crear reserva automáticamente desde la conversación', variableNamePlaceholder: 'Nombre de variable', variableValuePlaceholder: 'Valor', tagPlaceholder: 'Nombre de etiqueta...', flowStartsHere: 'El flujo comienza aquí', flowEndsHere: 'El flujo termina aquí', unsavedChanges: 'Cambios sin guardar',
-  demoMessage: '¡Hola! ¿Cómo puedo ayudarte hoy?', demoAiPrompt: 'Responde amablemente y ayuda al cliente a reservar', demoCondition: 'intención == reserva', demoVarName: 'nombre_cliente', demoTag: 'cliente_nuevo',
+  collapse: 'Colapsar', expand: 'Expandir', zoomIn: 'Acercar', zoomOut: 'Alejar', fitView: 'Ajustar vista',
+  demoMessage: '¡Hola! ¿Cómo puedo ayudarte hoy?', demoAiPrompt: 'Ayuda con reserva', demoCondition: 'intención == reserva', demoVarName: 'nombre_cliente', demoTag: 'cliente_nuevo',
 
   sun: 'Dom', mon: 'Lun', tue: 'Mar', wed: 'Mié', thu: 'Jue', fri: 'Vie', sat: 'Sáb',
 
@@ -2971,7 +2982,8 @@ const fr: typeof en = {
   messagePlaceholder: 'Texte du message...', aiPromptPlaceholder: 'Instruction IA...', conditionPlaceholder: 'ex. intention == réservation', conditionTrue: 'Vrai', conditionFalse: 'Faux',
   delaySeconds: 'Secondes', delayMinutes: 'Minutes', delayHours: 'Heures',
   autoCreateBookingDesc: 'Créer automatiquement une réservation depuis la conversation', variableNamePlaceholder: 'Nom de variable', variableValuePlaceholder: 'Valeur', tagPlaceholder: 'Nom du tag...', flowStartsHere: 'Le flux commence ici', flowEndsHere: 'Le flux se termine ici', unsavedChanges: 'Modifications non enregistrées',
-  demoMessage: 'Bonjour ! Comment puis-je vous aider ?', demoAiPrompt: 'Répondez poliment et aidez le client à réserver', demoCondition: 'intention == réservation', demoVarName: 'nom_client', demoTag: 'nouveau_client',
+  collapse: 'Réduire', expand: 'Agrandir', zoomIn: 'Zoomer', zoomOut: 'Dézoomer', fitView: 'Ajuster la vue',
+  demoMessage: 'Bonjour ! Comment puis-je vous aider ?', demoAiPrompt: 'Aide à la réservation', demoCondition: 'intention == réservation', demoVarName: 'nom_client', demoTag: 'nouveau_client',
 
   sun: 'Dim', mon: 'Lun', tue: 'Mar', wed: 'Mer', thu: 'Jeu', fri: 'Ven', sat: 'Sam',
 
@@ -3677,7 +3689,8 @@ const tr: typeof en = {
   messagePlaceholder: 'Mesaj metni...', aiPromptPlaceholder: 'AI talimatı...', conditionPlaceholder: 'örn. niyet == rezervasyon', conditionTrue: 'Doğru', conditionFalse: 'Yanlış',
   delaySeconds: 'Saniye', delayMinutes: 'Dakika', delayHours: 'Saat',
   autoCreateBookingDesc: 'Sohbetten otomatik rezervasyon oluştur', variableNamePlaceholder: 'Değişken adı', variableValuePlaceholder: 'Değer', tagPlaceholder: 'Etiket adı...', flowStartsHere: 'Akış burada başlar', flowEndsHere: 'Akış burada biter', unsavedChanges: 'Kaydedilmemiş değişiklikler',
-  demoMessage: 'Merhaba! Size nasıl yardımcı olabilirim?', demoAiPrompt: 'Kibarca yanıt ver ve müşterinin rezervasyon yapmasına yardım et', demoCondition: 'niyet == rezervasyon', demoVarName: 'müşteri_adı', demoTag: 'yeni_müşteri',
+  collapse: 'Küçült', expand: 'Büyüt', zoomIn: 'Yakınlaştır', zoomOut: 'Uzaklaştır', fitView: 'Görünüme sığdır',
+  demoMessage: 'Merhaba! Size nasıl yardımcı olabilirim?', demoAiPrompt: 'Rezervasyona yardım et', demoCondition: 'niyet == rezervasyon', demoVarName: 'müşteri_adı', demoTag: 'yeni_müşteri',
 
   sun: 'Paz', mon: 'Pzt', tue: 'Sal', wed: 'Çar', thu: 'Per', fri: 'Cum', sat: 'Cmt',
 

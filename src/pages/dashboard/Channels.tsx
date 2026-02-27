@@ -33,6 +33,7 @@ export default function Channels() {
   // --- WhatsApp Embedded Signup state ---
   const wabaRef = useRef<{ wabaId: string; phoneNumberId: string } | null>(null);
   const waStateRef = useRef<string | null>(null);
+  const popupRef = useRef<Window | null>(null);
 
   // --- Queries ---
   const { data: channels, isLoading } = useQuery({
@@ -44,7 +45,11 @@ export default function Channels() {
   useEffect(() => {
     const handler = (event: MessageEvent) => {
       if (event.data?.type === 'oauth_callback') {
+        // Close OAuth popup window
+        try { popupRef.current?.close(); } catch { /* cross-origin */ }
+        popupRef.current = null;
         qc.invalidateQueries({ queryKey: ['channels'] });
+        qc.refetchQueries({ queryKey: ['channels'] });
         const ch = event.data.channel;
         if (event.data.pagesKey) {
           // Messenger: fetch pages
@@ -79,6 +84,7 @@ export default function Channels() {
     const connected = searchParams.get('connected');
     if (connected) {
       qc.invalidateQueries({ queryKey: ['channels'] });
+      qc.refetchQueries({ queryKey: ['channels'] });
       toast.success(`${connected.charAt(0).toUpperCase() + connected.slice(1)} connected!`);
       searchParams.delete('connected');
       searchParams.delete('channelId');
@@ -113,7 +119,7 @@ export default function Channels() {
   const igMut = useMutation({
     mutationFn: channelsApi.connectInstagram,
     onSuccess: (data) => {
-      window.open(data.url, '_blank', 'width=600,height=700');
+      popupRef.current = window.open(data.url, '_blank', 'width=600,height=700');
     },
     onError: (e: any) => toast.error(e?.response?.data?.error ?? 'Failed'),
   });
@@ -121,7 +127,7 @@ export default function Channels() {
   const ttMut = useMutation({
     mutationFn: channelsApi.connectTikTok,
     onSuccess: (data) => {
-      window.open(data.url, '_blank', 'width=600,height=700');
+      popupRef.current = window.open(data.url, '_blank', 'width=600,height=700');
     },
     onError: (e: any) => toast.error(e?.response?.data?.error ?? 'Failed'),
   });
@@ -184,7 +190,7 @@ export default function Channels() {
   const msMut = useMutation({
     mutationFn: channelsApi.connectMessenger,
     onSuccess: (data: { url: string }) => {
-      window.open(data.url, '_blank', 'width=600,height=700');
+      popupRef.current = window.open(data.url, '_blank', 'width=600,height=700');
     },
     onError: (e: any) => toast.error(e?.response?.data?.error ?? 'Failed'),
   });

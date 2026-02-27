@@ -11,6 +11,7 @@ import {
   addEdge,
   Panel,
   BackgroundVariant,
+  NodeToolbar,
   type Connection,
   type Node,
   type Edge,
@@ -23,7 +24,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft, Save, Play, Pause, Bot, Clock,
   GitBranch, Calendar, Tag, Send, Variable, ChevronLeft, ChevronRight,
-  Zap, Hash, CircleStop, Radio, AlertTriangle,
+  Zap, Hash, CircleStop, Radio, AlertTriangle, Trash2, Minimize2, Maximize2,
+  ZoomIn, ZoomOut, Maximize,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { automationsApi } from '../../api/automations.api';
@@ -54,14 +56,30 @@ function FlowNode({ data, type }: { data: any; type?: string }) {
 
   return (
     <div className={`w-[260px] rounded-2xl border-2 ${meta.borderColor} bg-[var(--color-card)] shadow-lg transition-shadow hover:shadow-xl`}>
+      <NodeToolbar position={Position.Top} className="flex items-center gap-1">
+        <button
+          onClick={() => data.onToggleCollapse?.()}
+          className="p-1.5 rounded-lg bg-[var(--color-card)] border border-b-border shadow-md text-muted hover:text-foreground transition-colors"
+          title={data.collapsed ? t('expand') : t('collapse')}
+        >
+          {data.collapsed ? <Maximize2 className="w-3.5 h-3.5" /> : <Minimize2 className="w-3.5 h-3.5" />}
+        </button>
+        <button
+          onClick={() => data.onDelete?.()}
+          className="p-1.5 rounded-lg bg-[var(--color-card)] border border-b-border shadow-md text-muted hover:text-red-500 hover:border-red-500/30 transition-colors"
+          title={t('delete')}
+        >
+          <Trash2 className="w-3.5 h-3.5" />
+        </button>
+      </NodeToolbar>
       <Handle type="target" position={Position.Top} className="!w-3 !h-3 !bg-muted !border-2 !border-[var(--color-card)]" />
-      <div className="flex items-center gap-2.5 px-4 py-3 border-b border-b-border/50">
+      <div className={`flex items-center gap-2.5 px-4 py-3 ${data.collapsed ? '' : 'border-b border-b-border/50'}`}>
         <div className={`w-8 h-8 rounded-lg ${meta.color} flex items-center justify-center text-white shadow-sm`}>
           {meta.icon}
         </div>
         <span className="text-sm font-semibold text-foreground flex-1 truncate">{t(meta.labelKey as any)}</span>
       </div>
-      <div className="px-4 py-3">
+      {!data.collapsed && <div className="px-4 py-3">
         {type === 'sendMessage' && (
           <textarea
             value={data.message ?? ''}
@@ -163,7 +181,7 @@ function FlowNode({ data, type }: { data: any; type?: string }) {
             {t('flowEndsHere')}
           </div>
         )}
-      </div>
+      </div>}
       <Handle type="source" position={Position.Bottom} className="!w-3 !h-3 !bg-muted !border-2 !border-[var(--color-card)]" />
       {isCondition && (
         <>
@@ -229,6 +247,17 @@ export default function FlowBuilder() {
               );
               setHasChanges(true);
             },
+            onDelete: () => {
+              setNodes((nds: Node[]) => nds.filter((nd: Node) => nd.id !== n.id));
+              setHasChanges(true);
+            },
+            onToggleCollapse: () => {
+              setNodes((nds: Node[]) =>
+                nds.map((nd: Node) =>
+                  nd.id === n.id ? { ...nd, data: { ...nd.data, collapsed: !nd.data?.collapsed } } : nd,
+                ),
+              );
+            },
           },
         })) as Node[];
       setNodes(savedNodes);
@@ -247,7 +276,7 @@ export default function FlowBuilder() {
   const saveMut = useMutation({
     mutationFn: () => {
       const cleanNodes = nodes.map((n: Node) => {
-        const { onChange, ...data } = n.data as any;
+        const { onChange, onDelete, onToggleCollapse, collapsed, ...data } = n.data as any;
         return { ...n, data };
       });
       return automationsApi.update(id!, { nodes: cleanNodes, edges });
@@ -314,6 +343,17 @@ export default function FlowBuilder() {
             ),
           );
           setHasChanges(true);
+        },
+        onDelete: () => {
+          setNodes((nds: Node[]) => nds.filter((nd: Node) => nd.id !== newId));
+          setHasChanges(true);
+        },
+        onToggleCollapse: () => {
+          setNodes((nds: Node[]) =>
+            nds.map((nd: Node) =>
+              nd.id === newId ? { ...nd, data: { ...nd.data, collapsed: !nd.data?.collapsed } } : nd,
+            ),
+          );
         },
       },
     };
@@ -441,9 +481,38 @@ export default function FlowBuilder() {
           proOptions={{ hideAttribution: true }}
         >
           <Controls
-            className="!bg-[var(--color-card)] !border-[var(--color-border)] !rounded-xl !shadow-lg"
+            className="!bg-[var(--color-card)] !border-[var(--color-border)] !rounded-xl !shadow-lg !hidden"
             position="bottom-right"
           />
+
+          {/* Zoom Controls */}
+          <Panel position="top-right">
+            <div className="flex flex-col gap-1 glass-card rounded-xl border border-b-border shadow-lg p-1">
+              <button
+                onClick={() => reactFlowInstance?.zoomIn()}
+                className="p-2 rounded-lg text-muted hover:text-foreground hover:bg-surface transition-colors"
+                title={t('zoomIn')}
+              >
+                <ZoomIn className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => reactFlowInstance?.zoomOut()}
+                className="p-2 rounded-lg text-muted hover:text-foreground hover:bg-surface transition-colors"
+                title={t('zoomOut')}
+              >
+                <ZoomOut className="w-4 h-4" />
+              </button>
+              <div className="border-t border-b-border my-0.5" />
+              <button
+                onClick={() => reactFlowInstance?.fitView()}
+                className="p-2 rounded-lg text-muted hover:text-foreground hover:bg-surface transition-colors"
+                title={t('fitView')}
+              >
+                <Maximize className="w-4 h-4" />
+              </button>
+            </div>
+          </Panel>
+
           <MiniMap
             className="!bg-[var(--color-card)] !border-[var(--color-border)] !rounded-xl hidden sm:block"
             nodeColor={() => '#8b5cf6'}
