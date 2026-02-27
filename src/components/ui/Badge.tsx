@@ -29,6 +29,8 @@ export function statusBadge(status: string) {
     NO_SHOW: { label: 'No Show', variant: 'gray' },
     CONNECTED: { label: 'Connected', variant: 'green' },
     DISCONNECTED: { label: 'Disconnected', variant: 'gray' },
+    EXPIRED: { label: 'Expired', variant: 'red' },
+    RECONNECTING: { label: 'Reconnecting', variant: 'yellow' },
     ERROR: { label: 'Error', variant: 'red' },
     FREE: { label: 'Free', variant: 'gray' },
     STARTER: { label: 'Starter', variant: 'blue' },
