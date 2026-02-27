@@ -202,6 +202,7 @@ export default function FlowBuilder() {
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([] as Node[]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([] as Edge[]);
   const [hasChanges, setHasChanges] = useState(false);
+  const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
 
   // Load nodes/edges from automation
@@ -264,13 +265,13 @@ export default function FlowBuilder() {
     },
   });
 
-  const addNode = (type: string) => {
+  const addNode = useCallback((type: string, position?: { x: number; y: number }) => {
     const newId = `${type}_${Date.now()}`;
     const meta = NODE_PALETTE.find((n) => n.type === type)!;
     const newNode: Node = {
       id: newId,
       type,
-      position: { x: 250 + Math.random() * 100, y: 150 + nodes.length * 150 },
+      position: position ?? { x: 250 + Math.random() * 100, y: 150 + nodes.length * 150 },
       data: {
         label: meta.label,
         onChange: (field: string, value: string) => {
@@ -285,7 +286,26 @@ export default function FlowBuilder() {
     };
     setNodes((nds: Node[]) => [...nds, newNode]);
     setHasChanges(true);
-  };
+  }, [nodes.length, setNodes]);
+
+  const onDragOver = useCallback((event: React.DragEvent) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'move';
+  }, []);
+
+  const onDrop = useCallback(
+    (event: React.DragEvent) => {
+      event.preventDefault();
+      const type = event.dataTransfer.getData('application/reactflow');
+      if (!type || !reactFlowInstance) return;
+      const position = reactFlowInstance.screenToFlowPosition({
+        x: event.clientX,
+        y: event.clientY,
+      });
+      addNode(type, position);
+    },
+    [reactFlowInstance, addNode],
+  );
 
   if (isLoading) return <Spinner />;
   if (!automation) return null;
@@ -351,6 +371,9 @@ export default function FlowBuilder() {
           onNodesChange={(changes) => { onNodesChange(changes); setHasChanges(true); }}
           onEdgesChange={(changes) => { onEdgesChange(changes); setHasChanges(true); }}
           onConnect={onConnect}
+          onInit={setReactFlowInstance}
+          onDrop={onDrop}
+          onDragOver={onDragOver}
           nodeTypes={nodeTypes}
           fitView
           deleteKeyCode={['Backspace', 'Delete']}
@@ -388,8 +411,13 @@ export default function FlowBuilder() {
                       {NODE_PALETTE.filter((n) => n.type !== 'trigger').map((n) => (
                         <button
                           key={n.type}
+                          draggable
+                          onDragStart={(event) => {
+                            event.dataTransfer.setData('application/reactflow', n.type);
+                            event.dataTransfer.effectAllowed = 'move';
+                          }}
                           onClick={() => addNode(n.type)}
-                          className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-muted hover:text-foreground hover:bg-surface transition-all group"
+                          className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-muted hover:text-foreground hover:bg-surface transition-all group cursor-grab active:cursor-grabbing"
                         >
                           <div className={`w-7 h-7 rounded-lg ${n.color} flex items-center justify-center text-white shadow-sm group-hover:scale-110 transition-transform`}>
                             {n.icon}

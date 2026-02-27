@@ -153,6 +153,9 @@ const en = {
   deleteChannelConfirm: 'Are you sure you want to delete this channel? This action cannot be undone.',
   channelDeleted: 'Channel deleted',
   deleting: 'Deleting...',
+  reconnect: 'Reconnect',
+  channelReconnected: 'Reconnection started',
+  reconnectFailed: 'Failed to reconnect',
 
   // Conversations
   conversationsTitle: 'Conversations',
@@ -1071,6 +1074,9 @@ const ar: typeof en = {
   deleteChannelConfirm: 'هل أنت متأكد من حذف هذه القناة؟ لا يمكن التراجع عن هذا الإجراء.',
   channelDeleted: 'تم حذف القناة',
   deleting: 'جارٍ الحذف...',
+  reconnect: 'إعادة الاتصال',
+  channelReconnected: 'بدأت إعادة الاتصال',
+  reconnectFailed: 'فشلت إعادة الاتصال',
 
   conversationsTitle: 'المحادثات',
   searchConversations: 'بحث في المحادثات...',
@@ -1856,6 +1862,7 @@ const es: typeof en = {
   addChannel: 'Agregar canal', igDesc: 'Conecta tu cuenta de Instagram Business', igFeature1: 'Recibir y responder DMs', igFeature2: 'Detectar intención de reserva con IA', igFeature3: 'OAuth con un clic',
   ttDesc: 'Conecta tu cuenta de TikTok Business', ttFeature1: 'Recibir y responder DMs', ttFeature2: 'OAuth PKCE seguro', ttFeature3: 'Actualización automática de token',
   deleteChannel: 'Eliminar canal', deleteChannelConfirm: '¿Estás seguro de eliminar este canal? Esta acción no se puede deshacer.', channelDeleted: 'Canal eliminado', deleting: 'Eliminando...',
+  reconnect: 'Reconectar', channelReconnected: 'Reconexión iniciada', reconnectFailed: 'Error al reconectar',
 
   conversationsTitle: 'Conversaciones', searchConversations: 'Buscar conversaciones...',
   noConversations: 'Sin conversaciones', conversationsAppear: 'Los mensajes aparecerán aquí',
@@ -2554,6 +2561,7 @@ const fr: typeof en = {
   addChannel: 'Ajouter un canal', igDesc: 'Connectez votre compte Instagram Business', igFeature1: 'Recevoir et répondre aux DMs', igFeature2: "Détecter l'intention de réservation par IA", igFeature3: 'OAuth en un clic',
   ttDesc: 'Connectez votre compte TikTok Business', ttFeature1: 'Recevoir et répondre aux DMs', ttFeature2: 'OAuth PKCE sécurisé', ttFeature3: 'Rafraîchissement automatique du token',
   deleteChannel: 'Supprimer le canal', deleteChannelConfirm: 'Êtes-vous sûr de vouloir supprimer ce canal ? Cette action est irréversible.', channelDeleted: 'Canal supprimé', deleting: 'Suppression...',
+  reconnect: 'Reconnecter', channelReconnected: 'Reconnexion lancée', reconnectFailed: 'Échec de la reconnexion',
 
   conversationsTitle: 'Conversations', searchConversations: 'Rechercher...',
   noConversations: 'Aucune conversation', conversationsAppear: 'Les messages apparaîtront ici',
@@ -3251,6 +3259,7 @@ const tr: typeof en = {
   addChannel: 'Kanal ekle', igDesc: 'Instagram Business hesabınızı bağlayın', igFeature1: 'DM al ve yanıtla', igFeature2: 'AI ile rezervasyon niyetini algıla', igFeature3: 'Tek tıkla OAuth',
   ttDesc: 'TikTok Business hesabınızı bağlayın', ttFeature1: 'DM al ve yanıtla', ttFeature2: 'Güvenli PKCE OAuth', ttFeature3: 'Otomatik token yenileme',
   deleteChannel: 'Kanalı sil', deleteChannelConfirm: 'Bu kanalı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.', channelDeleted: 'Kanal silindi', deleting: 'Siliniyor...',
+  reconnect: 'Yeniden bağlan', channelReconnected: 'Yeniden bağlantı başlatıldı', reconnectFailed: 'Yeniden bağlanma başarısız',
 
   conversationsTitle: 'Sohbetler', searchConversations: 'Sohbet ara...',
   noConversations: 'Henüz sohbet yok', conversationsAppear: 'Mesajlar burada görünecek',

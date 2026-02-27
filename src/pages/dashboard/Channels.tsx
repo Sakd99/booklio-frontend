@@ -219,6 +219,12 @@ export default function Channels() {
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['channels'] }); toast.success('Health check complete'); },
   });
 
+  const reconnectMut = useMutation({
+    mutationFn: channelsApi.reconnect,
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['channels'] }); toast.success(t('channelReconnected') ?? 'Reconnection started'); },
+    onError: () => toast.error(t('reconnectFailed') ?? 'Failed to reconnect'),
+  });
+
   const disconnectMut = useMutation({
     mutationFn: channelsApi.disconnect,
     onSuccess: () => {
@@ -341,6 +347,18 @@ export default function Channels() {
                         {ch.status === 'CONNECTED' && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5 animate-pulse" />}
                         {ch.status}
                       </span>
+                      <button
+                        onClick={() => reconnectMut.mutate(ch.id)}
+                        disabled={reconnectMut.isPending}
+                        className={`p-2 rounded-lg transition-colors ${
+                          ch.status === 'EXPIRED'
+                            ? 'text-red-500 hover:text-red-400 hover:bg-red-500/10'
+                            : 'text-dim hover:text-foreground hover:bg-surface'
+                        }`}
+                        title={t('reconnect') ?? 'Reconnect'}
+                      >
+                        <RefreshCw className={`w-4 h-4 ${reconnectMut.isPending ? 'animate-spin' : ''}`} />
+                      </button>
                       <button
                         onClick={() => healthMut.mutate(ch.id)}
                         disabled={healthMut.isPending}
